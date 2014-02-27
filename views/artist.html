@@ -1,0 +1,63 @@
+﻿<div ng-controller="ArtistLookupCtrl">
+    <div class="container-fluid">
+        <div ng-show="!ready">
+            Retrieving artist ...
+        </div>
+
+        <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
+
+        <div ng-show="ready">
+            <div>
+                <div class="lookupImageContainer">
+                    <img ng-src="{{artist.primaryImage}}" title="Artist image" class="lookupImage" />
+                </div>
+
+                <div class="lookupMetaContainer">
+                    <div class="mainName">{{artist.name}}</div>
+
+                    <div class="topPadding5">
+                        <span class="label label-primary metaLabel" ng-repeat="style in artist.musicStyles">{{style.name}}</span>
+                    </div>
+
+                    <div class="topPadding5 smallText">
+                        <div>{{artist.originLabel}}&nbsp;{{artist.birth.date}}<span ng-show="hasBirthplace">,&nbsp;{{artist.birth.place}}</span></div>
+                        <div ng-show="ended">{{artist.endLabel}}&nbsp;{{artist.death.date}}</div>
+                    </div>
+
+                    <div class="yearsActiveContainer">
+                        <div class="smallText" ng-show="hasYears">Years active:</div>
+                        <span class="label label-default metaLabel" ng-repeat="year in artist.active">{{year}}</span>
+                    </div>
+
+                    <div class="topPadding5 smallText" ng-show="hasHeadlineBio">
+                        <span>{{artist.headlineBioFormatted}}&nbsp;<a ng-href="{{fullBioLink}}">(more)</a></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="discographyContainer">
+                <ul class="standardList">
+                    <li ng-repeat="album in artist.discography" class="panel panel-default">
+                        <div class="imageContainer">
+                            <a ng-href="#album/{{album.ids.albumId}}">
+                                <img ng-src="{{album.primaryImage}}" title="Album cover" class="discographyImage" />
+                            </a>
+                        </div>
+
+                        <div class="metaContainer">
+                            <div>
+                                <a ng-href="#album/{{album.ids.albumId}}" class="albumName">
+                                    <div>{{album.title}}</div>
+                                </a>
+                            </div>
+
+                            <div>
+                                <span>{{album.year}}</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

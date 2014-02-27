@@ -1,0 +1,45 @@
+﻿<div ng-controller="SearchCtrl">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="well">
+                <div>
+                    <form ng-submit="submitQuery()">
+                        <fieldset>
+                            <div class="form-group">
+                                <div class="col-md-12 col-xs-12">
+                                    <input type="text" id="searchInput" ng-change="onSearchInputChange()" class="col-md-4 form-control" placeholder="Search" autofocus="{{shouldFocus}}" ng-model="searchTerm" name="searchInput" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-12 col-xs-12">
+                                    <div class="radio">
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="collection" name="collection" id="artist" value="artist">Artist
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="collection" name="collection" value="album">Album
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="collection" name="collection" value="song">Song
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-12 col-xs-12">
+                                    <button type="button" class="btn btn-primary" ng-disabled="missingInput" ng-click="submitForm()">Submit</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

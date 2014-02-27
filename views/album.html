@@ -1,0 +1,58 @@
+﻿<div ng-controller="AlbumLookupCtrl">
+    <div class="container-fluid">
+        <div ng-show="!ready">
+            Retrieving album ...
+        </div>
+
+        <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
+
+        <div ng-show="ready">
+            <div>
+                <div class="lookupImageContainer">
+                    <img ng-src="{{album.primaryImage}}" title="Album cover" class="lookupImage" />
+                </div>
+
+                <div class="lookupMetaContainer">
+                    <div class="mainName">{{album.title}}</div>
+
+                    <div class="topPadding5">
+                        <a class="noUnderline" ng-attr-title="Look up {{artist.name}}" ng-repeat="artist in album.primaryArtists" ng-href="#artist/{{artist.id}}">
+                            <span class="label label-success metaLabel">{{artist.name}}</span>
+                        </a>
+                    </div>
+
+                    <div class="topPadding5 smallText">
+                        <span>Released:&nbsp;{{album.originalReleaseDate}}</span>
+                    </div>
+
+                    <div class="topPadding5">
+                        <span class="label label-primary metaLabel" ng-repeat="style in album.styles">{{style.name}}</span>
+                    </div>
+
+                    <div class="topPadding5 smallText" ng-show="hasHeadlineReview">
+                        <span>{{album.headlineReviewFormatted}}&nbsp;<a ng-href="{{fullReviewLink}}">(more)</a></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="discographyContainer">
+                <ul class="standardList">
+                    <li ng-repeat="track in album.tracks" class="panel panel-default">
+                        <div class="metaContainer">
+                            <div>
+                                <span class="mainName">{{track.title}}</span>
+                            </div>
+                            <div>
+                                <span class="metaLabelWithSeparator" ng-repeat="performer in track.performers">{{performer.name}}</span>
+                            </div>
+                        </div>
+
+                        <div class="imageContainer">
+                            <span>{{track.duration}}</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

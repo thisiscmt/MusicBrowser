@@ -1,0 +1,35 @@
+﻿<div ng-controller="ArtistSearchCtrl">
+    <div class="container-fluid">
+        <div ng-show="!ready">
+            Searching for artist ...
+        </div>
+
+        <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
+
+        <ul ng-show="ready && !noResults" class="standardList">
+            <li ng-repeat="artist in artists" class="panel panel-default">
+                <div class="imageContainer">
+                    <a ng-href="#artist/{{artist.id}}">
+                        <img ng-src="{{artist.name.primaryImage}}" title="Artist image" class="searchImage" />
+                    </a>
+                </div>
+
+                <div class="metaContainer">
+                    <div>
+                        <a ng-attr-title="Look up {{artist.name.name}}" ng-href="#artist/{{artist.id}}">
+                            <div>{{artist.name.name}}</div>
+                        </a>
+                    </div>
+
+                    <div>
+                        <span class="label label-primary metaLabel" ng-repeat="genre in artist.name.musicGenres">{{genre.name}}</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+        <div ng-show="noResults">
+            No results found.
+        </div>
+    </div>
+</div>

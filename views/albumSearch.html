@@ -1,0 +1,37 @@
+﻿<div ng-controller="AlbumSearchCtrl">
+    <div class="container-fluid">
+        <div ng-show="!ready">
+            Searching for album ...
+        </div>
+
+        <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
+
+        <ul ng-show="ready && !noResults" class="standardList">
+            <li ng-repeat="album in albums" class="panel panel-default">
+                <div class="imageContainer">
+                    <a ng-href="#album/{{album.id}}">
+                        <img ng-src="{{album.album.primaryImage}}" title="Album cover" class="searchImage" />
+                    </a>
+                </div>
+
+                <div class="metaContainer">
+                    <div>
+                        <a ng-attr-title="Look up {{album.album.title}}" ng-href="#album/{{album.id}}">
+                            <div>{{album.album.title}}</div>
+                        </a>
+                    </div>
+
+                    <div>
+                        <a class="noUnderline" ng-attr-title="Look up {{artist.name}}" ng-repeat="artist in album.album.primaryArtists" ng-href="#artist/{{artist.id}}">
+                            <span class="label label-success metaLabel">{{artist.name}}</span>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+        <div ng-show="noResults">
+            No results found.
+        </div>
+    </div>
+</div>

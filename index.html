@@ -1,0 +1,69 @@
+﻿<!doctype html>
+<html lang="en" ng-app="MusicBrowserApp">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Browser</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/site.css">
+</head>
+
+<body>
+    <div class="navbar navbar-default" role="navigation">
+        <!-- Having the brand link outside the container div allows it to be left-aligned. The container
+             is automatically centered by Bootstrap but it causes the link text to be right-aligned, 
+             which just looks weird -->
+        <a class="navbar-brand" href="#">Music Browser</a>
+
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a ng-href="#search">Search</a></li>
+                    <li><a ng-href="#options">Options</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" ng-view></div>
+
+    <footer id="mainFooter">
+        <img src="Images/Rovi_logo.png" class="imageNoBorder" />
+    </footer>
+
+    <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <!--<script src="dev/angular.js"></script>
+    <script src="dev/angular-resource.js"></script>
+    <script src="dev/angular-route.js"></script>
+    <script src="dev/angular-animate.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-resource.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-sanitize.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    <script src="scripts/lib/angular-cache.min.js"></script>
+    <script src="scripts/lib/date.js"></script>
+    <script src="scripts/lib/detectmobilebrowser.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/services/mb-common.js"></script>
+    <script src="scripts/services/mb-data.js"></script>
+    <script src="scripts/controllers/search.js"></script>
+    <script src="scripts/controllers/artistSearch.js"></script>
+    <script src="scripts/controllers/artistLookup.js"></script>
+    <script src="scripts/controllers/albumSearch.js"></script>
+    <script src="scripts/controllers/albumLookup.js"></script>
+    <script src="scripts/controllers/songSearch.js"></script>
+    <script src="scripts/controllers/options.js"></script>
+</body>
+</html>
