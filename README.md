@@ -16,3 +16,5 @@ It uses the following open source libraries:
 * [DateJS](http://www.datejs.com)
 
 It includes a [Web API](http://www.asp.net/web-api)-based service that wraps calls to Rovi's RESTful service. This API could be easily modified to support different metadata sources.
+
+Future work includes being able to look up info on music styles, look up releases that a song appears on, and various other sundry improvements to better utilize Angular and provide a great UI.
