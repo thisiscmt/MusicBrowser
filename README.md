@@ -15,4 +15,4 @@ It uses the following open source libraries:
 * [Angular-Cache](http://github.com/jmdobry/angular-cache)
 * [DateJS](http://www.datejs.com)
 
-It includes a [Web API](http://www.asp.net/web-api)-based service that wraps calls to Rovi's RESTful service. If I ever decide to explore other music metadata sources, it should be easy to augment my API to support them.
+It includes a [Web API](http://www.asp.net/web-api)-based service that wraps calls to Rovi's RESTful service. This API could be easily modified to support different metadata sources.
