@@ -28,16 +28,16 @@ var musicBrowserControllers = angular.module('musicBrowserControllers', []);
 // /album/<id>                  Shows the details for the album represented by <id>
 // /options                     Page for changing app options
 musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, $provide) {
-    $routeProvider.when('/', { templateUrl: 'views/search.html', controller: 'SearchCtrl' });
-    $routeProvider.when('/search', { templateUrl: 'views/search.html', controller: 'SearchCtrl' });
-    $routeProvider.when('/search/artist/:searchTerm', { templateUrl: 'views/artistSearch.html', controller: 'ArtistSearchCtrl' });
-    $routeProvider.when('/search/album/:searchTerm', { templateUrl: 'views/albumSearch.html', controller: 'AlbumSearchCtrl' });
-    $routeProvider.when('/search/song/:searchTerm', { templateUrl: 'views/songSearch.html', controller: 'SongSearchCtrl' });
-    $routeProvider.when('/artist/:id', { templateUrl: 'views/artist.html', controller: 'ArtistLookupCtrl' });
-    $routeProvider.when('/artist/:id/full-bio', { templateUrl: 'views/artistBio.html', controller: 'ArtistLookupCtrl' });
-    $routeProvider.when('/album/:id', { templateUrl: 'views/album.html', controller: 'AlbumLookupCtrl' });
-    $routeProvider.when('/album/:id/full-review', { templateUrl: 'views/albumReview.html', controller: 'AlbumLookupCtrl' });
-    $routeProvider.when('/options', { templateUrl: 'views/options.html', controller: 'OptionsCtrl' });
+    $routeProvider.when('/', { templateUrl: 'views/search.html', controller: 'SearchCtrl', title: "Search" });
+    $routeProvider.when('/search', { templateUrl: 'views/search.html', controller: 'SearchCtrl', title: "Search" });
+    $routeProvider.when('/search/artist/:searchTerm', { templateUrl: 'views/artistSearch.html', controller: 'ArtistSearchCtrl', title: "Artist Search" });
+    $routeProvider.when('/search/album/:searchTerm', { templateUrl: 'views/albumSearch.html', controller: 'AlbumSearchCtrl', title: "Album Search" });
+    $routeProvider.when('/search/song/:searchTerm', { templateUrl: 'views/songSearch.html', controller: 'SongSearchCtrl', title: "Song Search" });
+    $routeProvider.when('/artist/:id', { templateUrl: 'views/artist.html', controller: 'ArtistLookupCtrl', title: "Artist Lookup" });
+    $routeProvider.when('/artist/:id/full-bio', { templateUrl: 'views/artistBio.html', controller: 'ArtistLookupCtrl', title: "Artist Bio" });
+    $routeProvider.when('/album/:id', { templateUrl: 'views/album.html', controller: 'AlbumLookupCtrl', title: "Album Lookup" });
+    $routeProvider.when('/album/:id/full-review', { templateUrl: 'views/albumReview.html', controller: 'AlbumLookupCtrl', title: "Album Review" });
+    $routeProvider.when('/options', { templateUrl: 'views/options.html', controller: 'OptionsCtrl', title: "Options" });
     $routeProvider.otherwise({ redirectTo: '/' });
 
     $provide.decorator("$exceptionHandler", function ($delegate) {
@@ -51,11 +51,19 @@ musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, 
 musicBrowserApp.run(['$rootScope', '$http', '$angularCacheFactory', function ($rootScope, $http, $angularCacheFactory) {
     $http.defaults.headers.common["Accept-Encoding"] = "gzip,deflate";
     
+    $rootScope.$on("$routeChangeSuccess", function (event, currentRoute, previousRoute) {
+        // Change page title based on the current route
+        $rootScope.title = currentRoute.title;
+    });
+
     // Create a custom cache for our data, and set the $http service to use it for its caching
     $angularCacheFactory('dataCache', {
-        maxAge: 1800000, // Items added to this cache expire after 30 minutes.
-        cacheFlushInterval: 6000000, // This cache will clear itself every hour.
-        deleteOnExpire: 'aggressive' // Items will be deleted from this cache right when they expire.
+        // Items added to this cache expire after 30 minutes
+        maxAge: 1800000,
+        // This cache will clear itself every hour
+        cacheFlushInterval: 6000000,
+        // Items will be deleted from this cache right when they expire
+        deleteOnExpire: 'aggressive'
     });
 
     $http.defaults.cache = $angularCacheFactory.get('dataCache');

@@ -6,6 +6,15 @@
 
         <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
 
+        <div ng-show="ready" class="well">
+            <div>
+                Results for:
+            </div>
+            <div>
+                <em>{{searchTerm}}</em>
+            </div>
+        </div>
+
         <ul ng-show="ready && !noResults" class="standardList">
             <li ng-repeat="artist in artists" class="panel panel-default">
                 <div class="imageContainer">

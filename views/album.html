@@ -21,7 +21,7 @@
                         </a>
                     </div>
 
-                    <div class="topPadding5 smallText">
+                    <div class="topPadding5 smallerText">
                         <span>Released:&nbsp;{{album.originalReleaseDate}}</span>
                     </div>
 
@@ -29,7 +29,7 @@
                         <span class="label label-primary metaLabel" ng-repeat="style in album.styles">{{style.name}}</span>
                     </div>
 
-                    <div class="topPadding5 smallText" ng-show="hasHeadlineReview">
+                    <div class="topPadding5 smallerText" ng-show="hasHeadlineReview">
                         <span>{{album.headlineReviewFormatted}}&nbsp;<a ng-href="{{fullReviewLink}}">(more)</a></span>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                             <div>
                                 <span class="mainName">{{track.title}}</span>
                             </div>
-                            <div>
+                            <div class="smallText">
                                 <span class="metaLabelWithSeparator" ng-repeat="performer in track.performers">{{performer.name}}</span>
                             </div>
                         </div>

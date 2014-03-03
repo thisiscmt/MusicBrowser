@@ -16,6 +16,7 @@
 {
     color:Red;
     padding-bottom:5px;
+    text-align:center;
 }
 
 .viewContainer
@@ -159,6 +160,7 @@
     width: auto !important;
 }
 
+/* Prevents mobile browsers from zooming in when focused on an input field */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
     select:focus, textarea:focus, input:focus {
         font-size: 16px;
@@ -181,8 +183,11 @@
     border-image-width:0
 }
 
-.smallText
+.smallerText
 { font-size:0.8em; }
+
+.smallText
+{ font-size:0.9em; }
 
 .largeText
 { font-size:1.2em; }

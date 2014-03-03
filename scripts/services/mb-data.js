@@ -34,9 +34,12 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                 var result = JSON.parse(data.Content);
                 var primaryImage;
                 var formattedBioText;
+                var mbConfig = mbCommon.getConfiguration();
 
                 if (result.name.discography) {
-                    result.name.discography.reverse();
+                    if (mbConfig && mbConfig.albumChrono) {
+                        result.name.discography.reverse();
+                    }
 
                     for (var i = 0; i < result.name.discography.length; i++) {
                         if (result.name.discography[i].year) {

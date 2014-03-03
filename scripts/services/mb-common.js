@@ -119,5 +119,20 @@ musicBrowserApp.factory('mbCommon', function () {
         return msg;
     };
 
+    curInstance.getConfiguration = function () {
+        var mbConfig = localStorage.getItem("MBConfig");
+
+        if (mbConfig) {
+            return JSON.parse(mbConfig);
+        }
+        else {
+            return null;
+        }
+    };
+
+    curInstance.setConfiguration = function (config) {
+        localStorage.setItem("MBConfig", JSON.stringify(config))
+    };
+
     return curInstance;
 });

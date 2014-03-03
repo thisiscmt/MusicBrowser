@@ -1,5 +1,29 @@
 ﻿<div ng-controller="OptionsCtrl">
     <div class="container-fluid">
-        Options page
+        <div class="row">
+            <div id="messagePanel" ng-show="hasMessage" ng-bind="msg"></div>
+
+            <div class="well">
+                <form ng-submit="submitForm()">
+                    <fieldset>
+                        <div class="form-group">
+                            <div class="col-md-12 col-xs-12">
+                                <div class="checkbox">
+                                    <label>
+                                        <input ng-model="albumChrono" id="albumChrono" type="checkbox" />Show albums in chronological order
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12 col-xs-12">
+                                <button type="button" class="btn btn-primary" ng-click="submitForm()">Save</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

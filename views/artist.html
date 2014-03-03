@@ -19,17 +19,17 @@
                         <span class="label label-primary metaLabel" ng-repeat="style in artist.musicStyles">{{style.name}}</span>
                     </div>
 
-                    <div class="topPadding5 smallText">
+                    <div class="topPadding5 smallerText">
                         <div>{{artist.originLabel}}&nbsp;{{artist.birth.date}}<span ng-show="hasBirthplace">,&nbsp;{{artist.birth.place}}</span></div>
                         <div ng-show="ended">{{artist.endLabel}}&nbsp;{{artist.death.date}}</div>
                     </div>
 
                     <div class="yearsActiveContainer">
-                        <div class="smallText" ng-show="hasYears">Years active:</div>
+                        <div class="smallerText" ng-show="hasYears">Years active:</div>
                         <span class="label label-default metaLabel" ng-repeat="year in artist.active">{{year}}</span>
                     </div>
 
-                    <div class="topPadding5 smallText" ng-show="hasHeadlineBio">
+                    <div class="topPadding5 smallerText" ng-show="hasHeadlineBio">
                         <span>{{artist.headlineBioFormatted}}&nbsp;<a ng-href="{{fullBioLink}}">(more)</a></span>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                                 </a>
                             </div>
 
-                            <div>
+                            <div class="smallText">
                                 <span>{{album.year}}</span>
                             </div>
                         </div>
