@@ -1,8 +1,14 @@
 ﻿// Service that provides data retrieval for the app, including any manipulation of that data before 
 // it is returned to the caller.
 musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $http) {
-    var maxShortDescriptionLength = 150;
     var curInstance = this;
+
+    Object.defineProperty(curInstance, "maxShortDescriptionLength", {
+        value: 150,
+        writable: false,
+        enumerable: true,
+        configurable: true
+    });
 
     curInstance.searchForArtist = function (query) {
         var url = "api/search/artist/" + encodeURIComponent(query);
@@ -92,13 +98,13 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                 }
 
                 if (result.name.images && result.name.images.length > 0) {
-                    if (result.name.images[0].url.indexOf("Getty") == -1) {
+                    if (result.name.images[0].url.indexOf("Getty") === -1) {
                         primaryImage = result.name.images[0].url;
                     }
-                    else if (result.name.images[1].url.indexOf("Getty") == -1) {
+                    else if (result.name.images[1].url.indexOf("Getty") === -1) {
                         primaryImage = result.name.images[1].url;
                     }
-                    else if (result.name.images[2].url.indexOf("Getty") == -1) {
+                    else if (result.name.images[2].url.indexOf("Getty") === -1) {
                         primaryImage = result.name.images[2].url;
                     }
                     else {
@@ -269,8 +275,8 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
     };
 
     curInstance.getShortDescription = function (inputStr) {
-        if (inputStr.length > maxShortDescriptionLength) {
-            var index = maxShortDescriptionLength;
+        if (inputStr.length > this.maxShortDescriptionLength) {
+            var index = this.maxShortDescriptionLength;
             var done = false;
 
             while (!done) {

@@ -17,7 +17,7 @@
     $scope.missingInput = true;
 
     $scope.submitQuery = function () {
-        // Including a hashbang in front of the path is not needed here and would actually be 
+        // Including a hash symbol in front of the path is not needed here and would actually be 
         // encoded as %23, which messes up the routing
         $location.path('/search/' + $scope.collection + "/" + $scope.searchTerm);
     }

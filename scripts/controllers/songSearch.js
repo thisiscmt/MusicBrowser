@@ -1,5 +1,6 @@
 ﻿musicBrowserControllers.controller('SongSearchCtrl', ['$scope', '$routeParams', 'mbData', function ($scope, $routeParams, mbData) {
     $scope.songs = [];
+    $scope.searchTerm = $routeParams.searchTerm;
 
     mbData.searchForSong($routeParams.searchTerm).then(function (val) {
         if (val.data.searchResult) {
