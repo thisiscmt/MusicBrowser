@@ -29,7 +29,7 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                         return element;
                     });
                 }
-            })
+            });
     };
     
     curInstance.lookupArtist = function(id) {

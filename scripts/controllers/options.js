@@ -17,7 +17,7 @@
         mbConfig.albumChrono = $scope.albumChrono;
         mbCommon.setConfiguration(mbConfig);
 
-        $scope.msg = "Settings saved."
+        $scope.msg = "Settings saved"
         $scope.hasMessage = true;
     }
 }]);

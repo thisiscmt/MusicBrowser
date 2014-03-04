@@ -17,7 +17,7 @@ musicBrowserApp.factory('mbCommon', function () {
     });
 
     Object.defineProperty(curInstance, "placeholderImageLarge", {
-        value: "images/Placeholder_80.png",
+        value: "images/Placeholder_90.png",
         writable: false,
         enumerable: true,
         configurable: true

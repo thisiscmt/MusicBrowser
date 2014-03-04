@@ -39,12 +39,6 @@ musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, 
     $routeProvider.when('/album/:id/full-review', { templateUrl: 'views/albumReview.html', controller: 'AlbumLookupCtrl', title: "Album Review" });
     $routeProvider.when('/options', { templateUrl: 'views/options.html', controller: 'OptionsCtrl', title: "Options" });
     $routeProvider.otherwise({ redirectTo: '/' });
-
-    $provide.decorator("$exceptionHandler", function ($delegate) {
-        return function (exception, cause) {
-            $delegate(exception, cause);
-        };
-    });
 }]);
 
 // Any startup code needed by the app should go here

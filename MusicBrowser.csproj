@@ -133,6 +133,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="images\Placeholder_90.png" />
     <Content Include="views\albumReview.html" />
     <Content Include="dev\angular-animate.js" />
     <Content Include="dev\angular-cache.js" />

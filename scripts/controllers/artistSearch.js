@@ -11,5 +11,14 @@
         }
 
         $scope.ready = true;
+    }, function (val) {
+        if (val) {
+            // The argument passed to the error handler will be JSON, so we need to parse it in 
+            // order to get the exact strikng value we want (versus one wrapped in double quotes)
+            $scope.msg = JSON.parse(val.data);
+            $scope.hasMessage = true;
+        }
+
+        $scope.ready = true;
     });
 }]);

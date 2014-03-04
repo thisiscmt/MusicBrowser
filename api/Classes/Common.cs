@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 
-namespace MusicBrowser.Classes
+namespace MusicBrowser
 {
     public static class Common
     {
@@ -27,6 +28,23 @@ namespace MusicBrowser.Classes
             }
 
             return sb.ToString();
+        }
+
+        public static string GetErrorMessage(HttpStatusCode status)
+        {
+            string msg;
+
+            switch (status)
+            {
+                case HttpStatusCode.Forbidden:
+                    msg = "Access is forbidden";
+                    break;
+                default:
+                    msg = HttpWorkerRequest.GetStatusDescription((int)status);
+                    break;
+            }
+
+            return msg;
         }
     }
 }

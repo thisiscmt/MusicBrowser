@@ -9,7 +9,6 @@ using System.Web;
 using System.Web.Http;
 using MusicBrowser.Classes;
 using System.Threading.Tasks;
-//using System.Web.Mvc;
 
 namespace MusicBrowser.Controllers
 {
@@ -76,7 +75,9 @@ namespace MusicBrowser.Controllers
             }
             else
             {
-                throw new HttpResponseException(searchResponse);
+                errorResponse = Request.CreateResponse(searchResponse.StatusCode, 
+                                                       MusicBrowser.Common.GetErrorMessage(searchResponse.StatusCode));
+                throw new HttpResponseException(errorResponse);
             }
         }
 
@@ -126,20 +127,22 @@ namespace MusicBrowser.Controllers
                         throw new HttpResponseException(errorResponse);
                 }
 
-                queryString += "&format=json&imagesize=80-200x0-200&imagesort=width&imagecount=3&apikey=" + ConfigurationManager.AppSettings["RoviApiKey"] + "&sig=" + Common.GetApiSignature();
+                queryString += "&format=json&imagesize=90-300x0-300&imagesort=width&imagecount=3&apikey=" + ConfigurationManager.AppSettings["RoviApiKey"] + "&sig=" + Common.GetApiSignature();
                 lookupResponse = client.GetAsync(url + queryString).Result;
-            }
 
-            if (lookupResponse.IsSuccessStatusCode)
-            {
-                result = new ResultViewModel();
-                result.Content = lookupResponse.Content.ReadAsStringAsync().Result;
+                if (lookupResponse.IsSuccessStatusCode)
+                {
+                    result = new ResultViewModel();
+                    result.Content = lookupResponse.Content.ReadAsStringAsync().Result;
 
-                return result;
-            }
-            else
-            {
-                throw new HttpResponseException(lookupResponse);
+                    return result;
+                }
+                else
+                {
+                    errorResponse = Request.CreateResponse(lookupResponse.StatusCode, 
+                                                           MusicBrowser.Common.GetErrorMessage(lookupResponse.StatusCode));
+                    throw new HttpResponseException(errorResponse);
+                }
             }
         }
     }

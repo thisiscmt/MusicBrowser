@@ -27,5 +27,12 @@
         }
 
         $scope.ready = true;
+    }, function (val) {
+        if (val) {
+            $scope.msg = JSON.parse(val.data);
+            $scope.hasMessage = true;
+        }
+
+        $scope.ready = true;
     });
 }]);
