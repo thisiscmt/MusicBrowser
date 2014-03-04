@@ -118,13 +118,13 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                 }
 
                 if (result.name.musicBio) {
-                    formattedBioText = curInstance.stripRoviLinks(result.name.musicBio.text);
+                    formattedBioText = curInstance.replaceRoviLinks(result.name.musicBio.text);
                     formattedBioText = formattedBioText.split("\r\n").join("<br /><br />");
                     result.name.musicBioFormatted = formattedBioText;
                 }
 
                 if (result.name.headlineBio) {
-                    result.name.headlineBioFormatted = curInstance.stripRoviLinks(result.name.headlineBio);
+                    result.name.headlineBioFormatted = curInstance.replaceRoviLinks(result.name.headlineBio);
                 }
                 else {
                     if (result.name.musicBio) {
@@ -181,13 +181,13 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                 result.album.primaryImage = primaryImage;
 
                 if (result.album.primaryReview) {
-                    formattedReviewText = curInstance.stripRoviLinks(result.album.primaryReview.text);
+                    formattedReviewText = curInstance.replaceRoviLinks(result.album.primaryReview.text);
                     formattedBioText = formattedReviewText.split("\r\n").join("<br /><br />");
                     result.album.primaryReviewFormatted = formattedReviewText;
                 }
 
                 if (result.album.headlineReview) {
-                    result.album.headlineReviewFormatted = curInstance.stripRoviLinks(result.album.headlineReview.text);
+                    result.album.headlineReviewFormatted = curInstance.replaceRoviLinks(result.album.headlineReview.text);
                 }
                 else {
                     if (result.album.primaryReview) {
@@ -227,27 +227,58 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             })
     };
 
-    curInstance.stripRoviLinks = function(inputStr) {
+    curInstance.replaceRoviLinks = function(inputStr) {
         var done = false;
         var startIndex;
+        var leftIndex;
+        var rightIndex;
         var endIndex;
         var roviString;
+        var roviId;
+        var collectionCode;
+        var entityName;
+        var newText;
+        var url;
 
+        // Go through the given string and replace links to Rovi entities with markup that will 
+        // navigate to the appropriate view
         while (!done) {
-            startIndex = inputStr.indexOf("[rovi");
+            startIndex = inputStr.indexOf("[roviLink");
 
             if (startIndex == -1) {
                 done = true;
             }
             else {
-                endIndex = inputStr.indexOf("]", startIndex);
-                roviString = inputStr.substring(startIndex, endIndex + 1);
-                inputStr = inputStr.replace(roviString, "");
+                leftIndex = inputStr.indexOf("]", startIndex);
+                roviId = JSON.parse(inputStr.substring(startIndex + 10, leftIndex));
+                rightIndex = inputStr.indexOf("[/roviLink]");
+                collectionCode = roviId.substring(0, 2);
 
-                startIndex = inputStr.indexOf("[/rovi");
-                endIndex = inputStr.indexOf("]", startIndex);
+                // We only include a link if the Rovi ID is complete. It seems that embedded links for 
+                // entities which don't currently have an entry in the database only have the two-letter 
+                // collection code and not an actual ID value
+                if (collectionCode == "MN" && roviId.length > 2) {
+                    url = "#artist/" + roviId;
+                }
+                else if (collectionCode == "MW" && roviId.length > 2) {
+                    url = "#album/" + roviId;
+                }
+                else {
+                    url = "";
+                }
+
+                entityName = inputStr.substring(leftIndex + 1, rightIndex);
+
+                if (url === "") {
+                    newText = entityName;
+                }
+                else {
+                    newText = "<a href='" + url + "'>" + entityName + "</a>";
+                }
+
+                endIndex = inputStr.indexOf("]", rightIndex);
                 roviString = inputStr.substring(startIndex, endIndex + 1);
-                inputStr = inputStr.replace(roviString, "");
+                inputStr = inputStr.replace(roviString, newText);
             }
         }
 

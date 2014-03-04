@@ -123,7 +123,7 @@
     </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="api\Classes\Common.cs" />
+    <Compile Include="api\Classes\MusicBrowserCommon.cs" />
     <Compile Include="api\Classes\HttpRequestMessageExtensions.cs" />
     <Compile Include="api\Classes\ResultViewModel.cs" />
     <Compile Include="api\Controllers\SiteApiController.cs" />

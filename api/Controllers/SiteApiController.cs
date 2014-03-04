@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
-using MusicBrowser.Classes;
 using System.Threading.Tasks;
 
 namespace MusicBrowser.Controllers
@@ -92,6 +91,11 @@ namespace MusicBrowser.Controllers
             string queryString = string.Empty;
             string size = "20";
             string offset = "0";
+
+            if (ConfigurationManager.AppSettings["LogIDs"] == bool.TrueString)
+            {
+                MusicBrowser.Common.WriteEvent("debug", "Collection-" + collection + " | ID-" + id, DateTime.Now);
+            }
 
             using (HttpClient client = new HttpClient())
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 
-namespace MusicBrowser.Classes
+namespace MusicBrowser
 {
     public class ResultViewModel
     {

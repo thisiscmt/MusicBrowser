@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 
-namespace MusicBrowser.Classes
+namespace MusicBrowser
 {
     /// <summary>
     /// Extends the HttpRequestMessage collection
