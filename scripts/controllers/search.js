@@ -1,4 +1,4 @@
-﻿musicBrowserControllers.controller('SearchCtrl', ['$scope', '$location', function ($scope, $location) {
+﻿musicBrowserControllers.controller('SearchCtrl', ['$scope', '$location', 'mbCommon', function ($scope, $location, mbCommon) {
     $scope.searchTerm = "";
 
     // Default to searching by artist
@@ -20,6 +20,9 @@
         // Including a hash symbol in front of the path is not needed here and would actually be 
         // encoded as %23, which messes up the routing
         $location.path('/search/' + $scope.collection + "/" + $scope.searchTerm);
+
+        // Calling the Search method adds values to the query string. The ? will be included automatically
+        $location.search("size=" + mbCommon.getConfiguration().pageSize + "&offset=" + 0);
     }
 
     $scope.submitForm = $scope.submitQuery;

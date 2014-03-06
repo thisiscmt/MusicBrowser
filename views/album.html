@@ -21,7 +21,7 @@
                         </a>
                     </div>
 
-                    <div class="topPadding5 smallerText">
+                    <div ng-show="hasReleaseDate" class="topPadding5 smallerText">
                         <span>Released:&nbsp;{{album.originalReleaseDate}}</span>
                     </div>
 
@@ -30,7 +30,7 @@
                     </div>
 
                     <div class="topPadding5 smallerText" ng-show="hasHeadlineReview">
-                        <span ng-bind-html="album.headlineReviewFormatted"></span>&nbsp;<a ng-href="{{fullReviewLink}}">(more)</a>
+                        <span ng-bind-html="album.headlineReviewFormatted"></span>&nbsp;<a ng-show="album.headlineReviewFormatted.length > maxShortDescriptionLength" ng-href="{{fullReviewLink}}">(more)</a>
                     </div>
                 </div>
             </div>

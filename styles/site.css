@@ -151,6 +151,22 @@
     font-weight:500;
 }
 
+.saveButton
+{
+    padding-top:95px !important;
+}
+
+.pageTextSpacing
+{
+    padding-left:8px;
+    padding-right:8px;
+}
+
+.navLink
+{
+    width:80px;
+}
+
 /* General */
 /* Forces IE to show full scrollbars rather than overlays. Bootstrap is setting it to width: device-width to
    provide support for responsive design on the Surface and under Windows 8 in certain curcumstances. May need 

@@ -120,14 +120,27 @@ musicBrowserApp.factory('mbCommon', function () {
     };
 
     curInstance.getConfiguration = function () {
-        var mbConfig = localStorage.getItem("MBConfig");
+        var val = localStorage.getItem("MBConfig");
+        var mbConfig;
 
-        if (mbConfig) {
-            return JSON.parse(mbConfig);
+        if (val) {
+            mbConfig = JSON.parse(val);
         }
         else {
-            return null;
+            mbConfig = {};
         }
+
+        if (!mbConfig.albumChrono) {
+            mbConfig.albumChrono = false;
+        }
+        if (mbConfig.pageSize) {
+            mbConfig.pageSize = parseInt(mbConfig.pageSize);
+        }
+        else {
+            mbConfig.pageSize = 20;
+        }
+
+        return mbConfig;
     };
 
     curInstance.setConfiguration = function (config) {

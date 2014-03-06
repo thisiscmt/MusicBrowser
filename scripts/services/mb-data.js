@@ -10,8 +10,8 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
         configurable: true
     });
 
-    curInstance.searchForArtist = function (query) {
-        var url = "api/search/artist/" + encodeURIComponent(query);
+    curInstance.searchForArtist = function (query, size, offset) {
+        var url = "api/search/artist/" + encodeURIComponent(query) + "?size=" + size + "&offset=" + offset;
 
         return $http.get(url, { cache: true }).
             success(function (data, status, headers, config) {
@@ -19,13 +19,7 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
 
                 if (result.searchResponse) {
                     data.searchResult = result.searchResponse.results.map(function (element) {
-                        if (element.name.images && element.name.images.length > 0) {
-                            element.name.primaryImage = element.name.images[0].url;
-                        }
-                        else {
-                            element.name.primaryImage = mbCommon.placeholderImageMedium;
-                        }
-
+                        setPrimaryImage(element, mbCommon.placeholderImageMedium);
                         return element;
                     });
                 }
@@ -97,38 +91,20 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                     }
                 }
 
-                if (result.name.images && result.name.images.length > 0) {
-                    if (result.name.images[0].url.indexOf("Getty") === -1) {
-                        primaryImage = result.name.images[0].url;
-                    }
-                    else if (result.name.images[1].url.indexOf("Getty") === -1) {
-                        primaryImage = result.name.images[1].url;
-                    }
-                    else if (result.name.images[2].url.indexOf("Getty") === -1) {
-                        primaryImage = result.name.images[2].url;
-                    }
-                    else {
-                        primaryImage = mbCommon.placeholderImageLarge;
-                    }
-
-                    result.name.primaryImage = primaryImage;
-                }
-                else {
-                    result.name.primaryImage = mbCommon.placeholderImageLarge;
-                }
+                setPrimaryImage(result, mbCommon.placeholderImageLarge);
 
                 if (result.name.musicBio) {
-                    formattedBioText = curInstance.replaceRoviLinks(result.name.musicBio.text);
+                    formattedBioText = replaceRoviLinks(result.name.musicBio.text);
                     formattedBioText = formattedBioText.split("\r\n").join("<br /><br />");
                     result.name.musicBioFormatted = formattedBioText;
                 }
 
                 if (result.name.headlineBio) {
-                    result.name.headlineBioFormatted = curInstance.replaceRoviLinks(result.name.headlineBio);
+                    result.name.headlineBioFormatted = replaceRoviLinks(result.name.headlineBio);
                 }
                 else {
                     if (result.name.musicBio) {
-                        result.name.headlineBioFormatted = curInstance.getShortDescription(result.name.musicBioFormatted);
+                        result.name.headlineBioFormatted = getShortDescription(result.name.musicBioFormatted);
                     }
                 }
 
@@ -136,8 +112,8 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             })
     };
 
-    curInstance.searchForAlbum = function(query) {
-        var url = "api/search/album/" + encodeURIComponent(query);
+    curInstance.searchForAlbum = function (query, size, offset) {
+        var url = "api/search/album/" + encodeURIComponent(query) + "?size=" + size + "&offset=" + offset;
 
         return $http.get(url, { cache: true }).
             success(function (data, status, headers, config) {
@@ -181,17 +157,17 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                 result.album.primaryImage = primaryImage;
 
                 if (result.album.primaryReview) {
-                    formattedReviewText = curInstance.replaceRoviLinks(result.album.primaryReview.text);
+                    formattedReviewText = replaceRoviLinks(result.album.primaryReview.text);
                     formattedBioText = formattedReviewText.split("\r\n").join("<br /><br />");
                     result.album.primaryReviewFormatted = formattedReviewText;
                 }
 
                 if (result.album.headlineReview) {
-                    result.album.headlineReviewFormatted = curInstance.replaceRoviLinks(result.album.headlineReview.text);
+                    result.album.headlineReviewFormatted = replaceRoviLinks(result.album.headlineReview.text);
                 }
                 else {
                     if (result.album.primaryReview) {
-                        result.album.headlineReviewFormatted = curInstance.getShortDescription(result.album.primaryReviewFormatted);
+                        result.album.headlineReviewFormatted = getShortDescription(result.album.primaryReviewFormatted);
                     }
                 }
 
@@ -205,8 +181,8 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             })
     };
 
-    curInstance.searchForSong = function (query) {
-        var url = "api/search/song/" + encodeURIComponent(query);
+    curInstance.searchForSong = function (query, size, offset) {
+        var url = "api/search/song/" + encodeURIComponent(query) + "?size=" + size + "&offset=" + offset;
 
         return $http.get(url, { cache: true }).
             success(function (data, status, headers, config) {
@@ -227,7 +203,27 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             })
     };
 
-    curInstance.replaceRoviLinks = function(inputStr) {
+    var setPrimaryImage = function (result, placeholderImage) {
+        if (result.name.images && result.name.images.length > 0) {
+            // Find the first non-copyrighted image in the collection
+            for (var i = 0; i < result.name.images.length; i++) {
+                if (result.name.images[i].url.indexOf("Getty") === -1) {
+                    result.name.primaryImage = result.name.images[i].url;
+                    break;
+                }
+            }
+
+            // If we didn't find any usable images, use a placeholder
+            if (i === result.name.images.length) {
+                result.name.primaryImage = placeholderImage;
+            }
+        }
+        else {
+            result.name.primaryImage = placeholderImage;
+        }
+    }
+
+    var replaceRoviLinks = function(inputStr) {
         var done = false;
         var startIndex;
         var leftIndex;
@@ -250,6 +246,8 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             }
             else {
                 leftIndex = inputStr.indexOf("]", startIndex);
+
+                // The ID property value is formatted as JSON, so we parse it to get the exact ID
                 roviId = JSON.parse(inputStr.substring(startIndex + 10, leftIndex));
                 rightIndex = inputStr.indexOf("[/roviLink]");
                 collectionCode = roviId.substring(0, 2);
@@ -305,13 +303,34 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
         return inputStr;
     };
 
-    curInstance.getShortDescription = function (inputStr) {
-        if (inputStr.length > this.maxShortDescriptionLength) {
-            var index = this.maxShortDescriptionLength;
+    var getShortDescription = function (inputStr) {
+        if (inputStr.length > curInstance.maxShortDescriptionLength) {
+            var index = curInstance.maxShortDescriptionLength;
             var done = false;
+            var linkStarted = false;
+            var linkEnded = false;
+
+            // Check if we've started an anchor in the initial block of text, since we'll need to 
+            // grab more of the input string if we have
+            if (inputStr.indexOf("<a") < curInstance.maxShortDescriptionLength) {
+                linkStarted = true;
+            }
 
             while (!done) {
                 if (inputStr[index] === " " || inputStr[index] === "\r") {
+                    if (linkStarted) {
+                        // Search for the index of the closing tag of the anchor
+                        while (!linkEnded) {
+                            if (inputStr.substring(index, index + 4) === "</a>") {
+                                linkEnded = true;
+                                index = index + 4; // For the last 4 chars of the anchor tag
+                            }
+                            else {
+                                index++;
+                            }
+                        }
+                    }
+
                     done = true;
                 }
                 else {

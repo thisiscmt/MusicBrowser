@@ -13,6 +13,8 @@ namespace MusicBrowser.Controllers
 {
     public class SiteApiController : ApiController
     {
+        private const string MAX_IMAGES_TO_RETRIEVE = "15";
+
         // GET api/search/<collection>/<query>
         [HttpGet]
         public ResultViewModel Search(string collection, string query)
@@ -33,9 +35,9 @@ namespace MusicBrowser.Controllers
 
                 var parms = Request.RequestUri.ParseQueryString();
 
-                if (parms["limit"] != null)
+                if (parms["size"] != null)
                 {
-                    size = parms["limit"];
+                    size = parms["size"];
                 }
                 if (parms["offset"] != null)
                 {
@@ -62,7 +64,7 @@ namespace MusicBrowser.Controllers
 
                 url = ConfigurationManager.AppSettings["RoviSearchEndpoint"] + "music/search";
                 queryString += "&query=" + HttpUtility.UrlEncode(query) + "&offset=" + offset + "&size=" + size;
-                queryString += "&format=json&include=images&imagesize=50-200x0-200&imagesort=width&imagecount=3";
+                queryString += "&format=json&include=images&imagesize=50-200x0-200&imagesort=width&imagecount=" + MAX_IMAGES_TO_RETRIEVE;
                 queryString += "&apikey=" + ConfigurationManager.AppSettings["RoviApiKey"] + "&sig=" + Common.GetApiSignature();
                 searchResponse = client.GetAsync(url + queryString).Result;
             }
@@ -105,9 +107,9 @@ namespace MusicBrowser.Controllers
 
                 var parms = Request.RequestUri.ParseQueryString();
 
-                if (parms["limit"] != null)
+                if (parms["size"] != null)
                 {
-                    size = parms["limit"];
+                    size = parms["size"];
                 }
                 if (parms["offset"] != null)
                 {
@@ -131,7 +133,7 @@ namespace MusicBrowser.Controllers
                         throw new HttpResponseException(errorResponse);
                 }
 
-                queryString += "&format=json&imagesize=90-300x0-300&imagesort=width&imagecount=3&apikey=" + ConfigurationManager.AppSettings["RoviApiKey"] + "&sig=" + Common.GetApiSignature();
+                queryString += "&format=json&imagesize=90-300x0-300&imagesort=width&imagecount=" + MAX_IMAGES_TO_RETRIEVE + "&apikey=" + ConfigurationManager.AppSettings["RoviApiKey"] + "&sig=" + Common.GetApiSignature();
                 lookupResponse = client.GetAsync(url + queryString).Result;
 
                 if (lookupResponse.IsSuccessStatusCode)

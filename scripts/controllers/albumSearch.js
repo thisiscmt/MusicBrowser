@@ -1,10 +1,24 @@
-﻿musicBrowserControllers.controller('AlbumSearchCtrl', ['$scope', '$routeParams', 'mbData', function ($scope, $routeParams, mbData) {
+﻿musicBrowserControllers.controller('AlbumSearchCtrl', ['$scope', '$routeParams', 'mbData', 'mbCommon', function ($scope, $routeParams, mbData, mbCommon) {
     $scope.albums = [];
     $scope.searchTerm = $routeParams.searchTerm;
+    $scope.pageSize = mbCommon.getConfiguration().pageSize;
+    $scope.curPage = 1;
+    $scope.offset = 0;
 
-    mbData.searchForAlbum($routeParams.searchTerm).then(function (val) {
+    mbData.searchForAlbum($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (val) {
         if (val.data.searchResult) {
             $scope.albums = val.data.searchResult;
+            offsetVal = parseInt($routeParams.offset);
+            sizeVal = parseInt($routeParams.size);
+
+            if (offsetVal === 0) {
+                $scope.curPage = 1;
+            }
+            else {
+                $scope.curPage = (offsetVal / sizeVal) + 1;
+            }
+
+            $scope.offset = $scope.curPage * sizeVal;
         }
         else {
             $scope.noResults = true;
