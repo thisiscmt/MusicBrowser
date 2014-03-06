@@ -15,7 +15,9 @@
                 <div class="mainName">{{artist.name}}</div>
 
                 <div class="topPadding5">
-                    <span class="label label-primary metaLabel" ng-repeat="style in artist.musicStyles">{{style.name}}</span>
+                    <span ng-repeat="style in artist.musicStyles" class="label label-primary metaLabel">
+                        <a ng-href="#style/{{style.id}}" class="styleLink">{{style.name}}</a>
+                    </span>
                 </div>
 
                 <div class="topPadding5 smallerText">

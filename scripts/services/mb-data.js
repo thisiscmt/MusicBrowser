@@ -35,6 +35,18 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                 var primaryImage;
                 var formattedBioText;
                 var mbConfig = mbCommon.getConfiguration();
+                var styleIndex;
+
+                // For some reason Rovi includes the artist's generes in the musicStyles list as
+                // well as the musicGenres list. But since they aren't going to be in Rovi's styles 
+                // collection and a lookup on them will fail, we need to remove them from musicStyles
+                for (var i = 0; i < result.name.musicGenres.length; i++) {
+                    styleIndex = getIndexOfId(result.name.musicStyles, result.name.musicGenres[i].id);
+
+                    if (styleIndex > -1) {
+                        result.name.musicStyles.splice(styleIndex, 1);
+                    }
+                }
 
                 if (result.name.discography) {
                     if (mbConfig && mbConfig.albumChrono) {
@@ -203,6 +215,44 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             })
     };
 
+    curInstance.lookupStyle = function (id) {
+        var url = "api/style/" + encodeURIComponent(id);
+
+        return $http.get(url, { cache: true }).
+            success(function (data, status, headers, config) {
+                var result = JSON.parse(data.Content);
+                var items;
+
+                // Some styles are stored by Rovi in their subgenres collection, so we need to check 
+                // what results we have
+                if (result.styles) {
+                    items = result.styles;
+                }
+                else {
+                    items = result.subgenres;
+                }
+
+                data.lookupResult = items.map(function (element) {
+                    element.formattedDescription = replaceRoviLinks(element.description);
+                    return element;
+                });
+            })
+    }
+
+    curInstance.lookupGenre = function (id) {
+        var url = "api/genre/" + encodeURIComponent(id);
+
+        return $http.get(url, { cache: true }).
+            success(function (data, status, headers, config) {
+                var result = JSON.parse(data.Content);
+
+                data.lookupResult = result.genres.map(function (element) {
+                    element.formattedDescription = replaceRoviLinks(element.description);
+                    return element;
+                });
+            })
+    }
+
     var setPrimaryImage = function (result, placeholderImage) {
         if (result.name.images && result.name.images.length > 0) {
             // Find the first non-copyrighted image in the collection
@@ -309,10 +359,13 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             var done = false;
             var linkStarted = false;
             var linkEnded = false;
+            var anchorIndex;
 
             // Check if we've started an anchor in the initial block of text, since we'll need to 
             // grab more of the input string if we have
-            if (inputStr.indexOf("<a") < curInstance.maxShortDescriptionLength) {
+            anchorIndex = inputStr.indexOf("<a");
+
+            if (anchorIndex > -1 && anchorIndex < curInstance.maxShortDescriptionLength) {
                 linkStarted = true;
             }
 
@@ -343,6 +396,19 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
 
         return inputStr;
     };
+
+    var getIndexOfId = function (items, id) {
+        var index = -1;
+
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].id === id) {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
 
     return curInstance;
 }]);

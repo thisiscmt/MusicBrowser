@@ -1,0 +1,17 @@
+﻿<div ng-controller="StyleLookupCtrl">
+    <div class="container-fluid">
+        <div ng-show="!ready">
+            Retrieving style ...
+        </div>
+
+        <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
+
+        <div ng-show="ready && !hasMessage">
+            <h4>{{styles[0].name}}</h4>
+
+            <div class="smallerText">{{styles[0].formattedDescription}}</div>
+        </div>
+
+        <div class="backButton"><a ng-click="goBack()" class="btn btn-default navLink">Back</a></div>
+    </div>
+</div>

@@ -133,7 +133,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dev\bootstrap.css" />
     <Content Include="images\Placeholder_90.png" />
+    <Content Include="scripts\controllers\genreLookup.js" />
+    <Content Include="scripts\controllers\styleLookup.js" />
     <Content Include="views\albumReview.html" />
     <Content Include="dev\angular-animate.js" />
     <Content Include="dev\angular-cache.js" />
@@ -163,6 +166,7 @@
     <Content Include="images\Rovi_logo.png" />
     <Content Include="index.html" />
     <Content Include="views\artistBio.html" />
+    <Content Include="views\genre.html" />
     <Content Include="views\options.html" />
     <Content Include="scripts\lib\date.js" />
     <None Include="Properties\PublishProfiles\MB_WD.pubxml" />
@@ -171,6 +175,7 @@
     <Content Include="views\artistSearch.html" />
     <Content Include="views\search.html" />
     <Content Include="views\songSearch.html" />
+    <Content Include="views\style.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

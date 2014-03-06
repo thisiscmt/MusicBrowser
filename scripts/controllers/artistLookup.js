@@ -1,5 +1,6 @@
-﻿musicBrowserControllers.controller('ArtistLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', function ($scope, $routeParams, $location, mbData) {
+﻿musicBrowserControllers.controller('ArtistLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
     $scope.artist = {};
+    $scope.goBack = mbCommon.goBack;
     $scope.fullBioLink = $location.absUrl() + "/full-bio";
 
     mbData.lookupArtist($routeParams.id).then(function (val) {

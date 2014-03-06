@@ -11,6 +11,20 @@
     text-align:center;
 }
 
+/* Bootstrap overrides */
+.label {
+  display: inline;
+  padding: .3em .5em .4em;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
+
 /* Views */
 #messagePanel
 {
@@ -156,6 +170,12 @@
     padding-top:95px !important;
 }
 
+.backButton
+{
+    padding-top:10px;
+    text-align:center;
+}
+
 .pageTextSpacing
 {
     padding-left:8px;
@@ -165,6 +185,16 @@
 .navLink
 {
     width:80px;
+}
+
+a.styleLink:link,
+a.styleLink:visited,
+a.styleLink:focus,
+a.styleLink:hover,
+a.styleLink:active
+{
+    color:white;
+    text-decoration:none;
 }
 
 /* General */

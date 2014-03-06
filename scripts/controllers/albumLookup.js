@@ -1,8 +1,10 @@
-﻿musicBrowserControllers.controller('AlbumLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', function ($scope, $routeParams, $location, mbData) {
+﻿musicBrowserControllers.controller('AlbumLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
     $scope.album = {};
+    $scope.goBack = mbCommon.goBack;
     $scope.fullReviewLink = $location.absUrl() + "/full-review";
     $scope.hasReleaseDate = false;
     $scope.maxShortDescriptionLength = mbData.maxShortDescriptionLength;
+
     mbData.lookupAlbum($routeParams.id).then(function (val) {
         if (val.data.lookupResult) {
             $scope.album = val.data.lookupResult;

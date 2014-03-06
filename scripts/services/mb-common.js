@@ -1,5 +1,5 @@
 ﻿// Service that includes common functionality for the entire app.
-musicBrowserApp.factory('mbCommon', function () {
+musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
     var curInstance = this;
 
     Object.defineProperty(curInstance, "placeholderImageSmall", {
@@ -22,6 +22,10 @@ musicBrowserApp.factory('mbCommon', function () {
         enumerable: true,
         configurable: true
     });
+
+    curInstance.goBack = function () {
+        $window.history.back();
+    }
 
     curInstance.formatDate = function(date, yearOnly, prettify) {
         var formattedDate = "";
@@ -148,4 +152,4 @@ musicBrowserApp.factory('mbCommon', function () {
     };
 
     return curInstance;
-});
+}]);

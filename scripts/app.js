@@ -33,10 +33,12 @@ musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, 
     $routeProvider.when('/search/artist/:searchTerm', { templateUrl: 'views/artistSearch.html', controller: 'ArtistSearchCtrl', title: "Artist Search" });
     $routeProvider.when('/search/album/:searchTerm', { templateUrl: 'views/albumSearch.html', controller: 'AlbumSearchCtrl', title: "Album Search" });
     $routeProvider.when('/search/song/:searchTerm', { templateUrl: 'views/songSearch.html', controller: 'SongSearchCtrl', title: "Song Search" });
-    $routeProvider.when('/artist/:id', { templateUrl: 'views/artist.html', controller: 'ArtistLookupCtrl', title: "Artist Lookup" });
+    $routeProvider.when('/artist/:id', { templateUrl: 'views/artist.html', controller: 'ArtistLookupCtrl', title: "Artist" });
     $routeProvider.when('/artist/:id/full-bio', { templateUrl: 'views/artistBio.html', controller: 'ArtistLookupCtrl', title: "Artist Bio" });
-    $routeProvider.when('/album/:id', { templateUrl: 'views/album.html', controller: 'AlbumLookupCtrl', title: "Album Lookup" });
+    $routeProvider.when('/album/:id', { templateUrl: 'views/album.html', controller: 'AlbumLookupCtrl', title: "Album" });
     $routeProvider.when('/album/:id/full-review', { templateUrl: 'views/albumReview.html', controller: 'AlbumLookupCtrl', title: "Album Review" });
+    $routeProvider.when('/style/:id', { templateUrl: 'views/style.html', controller: 'StyleLookupCtrl', title: "Style" });
+    $routeProvider.when('/genre/:id', { templateUrl: 'views/genre.html', controller: 'GenreLookupCtrl', title: "Genre" });
     $routeProvider.when('/options', { templateUrl: 'views/options.html', controller: 'OptionsCtrl', title: "Options" });
     $routeProvider.otherwise({ redirectTo: '/' });
 }]);
@@ -52,10 +54,10 @@ musicBrowserApp.run(['$rootScope', '$http', '$angularCacheFactory', function ($r
 
     // Create a custom cache for our data, and set the $http service to use it for its caching
     $angularCacheFactory('dataCache', {
-        // Items added to this cache expire after 30 minutes
-        maxAge: 1800000,
-        // This cache will clear itself every hour
-        cacheFlushInterval: 6000000,
+        // Items added to this cache expire after 60 minutes
+        maxAge: 3600000,
+        // This cache will clear itself every two hours
+        cacheFlushInterval: 12000000,
         // Items will be deleted from this cache right when they expire
         deleteOnExpire: 'aggressive'
     });
