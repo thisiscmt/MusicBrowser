@@ -17,7 +17,7 @@
 
                     <div class="topPadding5">
                         <a class="noUnderline" ng-attr-title="Look up {{artist.name}}" ng-repeat="artist in album.primaryArtists" ng-href="#artist/{{artist.id}}">
-                            <span class="label label-success metaLabel">{{artist.name}}</span>
+                            <span class="label label-success label-clickable metaLabel">{{artist.name}}</span>
                         </a>
                     </div>
 
@@ -25,14 +25,18 @@
                         <span>Released:&nbsp;{{album.originalReleaseDate}}</span>
                     </div>
 
+                    <div ng-show="hasDuration" class="smallerText">
+                        <span>Duration:&nbsp;{{album.durationFormatted}}</span>
+                    </div>
+
                     <div class="topPadding5">
-                        <span ng-repeat="style in album.styles" class="label label-primary metaLabel">
-                            <a ng-href="#style/{{style.id}}" class="styleLink">{{style.name}}</a>
-                        </span>
+                        <a ng-repeat="style in album.styles" ng-href="#style/{{style.id}}" ng-attr-title="Look up {{style.name}}" class="styleLink">
+                            <span class="label label-primary label-clickable label-lookup metaLabel">{{style.name}}</span>
+                        </a>
                     </div>
 
                     <div class="topPadding5 smallerText" ng-show="hasHeadlineReview">
-                        <span ng-bind-html="album.headlineReviewFormatted"></span>&nbsp;<a ng-show="album.headlineReviewFormatted.length > maxShortDescriptionLength" ng-href="{{fullReviewLink}}">(more)</a>
+                        <span ng-bind-html="album.headlineReviewFormatted"></span><span ng-show="album.primaryReview">&nbsp;<a ng-href="{{fullReviewLink}}">(more)</a></span>
                     </div>
                 </div>
             </div>
@@ -49,8 +53,8 @@
                             </div>
                         </div>
 
-                        <div class="imageContainer">
-                            <span>{{track.duration}}</span>
+                        <div class="imageContainer" ng-show="track.duration > 0">
+                            <span>{{track.durationFormatted}}</span>
                         </div>
                     </li>
                 </ul>

@@ -12,17 +12,12 @@
 }
 
 /* Bootstrap overrides */
-.label {
-  display: inline;
-  padding: .3em .5em .4em;
-  font-size: 75%;
-  font-weight: bold;
-  line-height: 1;
-  color: #fff;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: baseline;
-  border-radius: .25em;
+.label-clickable {
+    padding: .4em .7em .5em;
+}
+
+.label-lookup {
+    margin-top: 5px;
 }
 
 /* Views */

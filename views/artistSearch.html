@@ -31,9 +31,9 @@
                     </div>
 
                     <div>
-                        <span class="label label-primary metaLabel" ng-repeat="genre in artist.name.musicGenres">
-                            <a ng-href="#genre/{{genre.id}}" class="styleLink">{{genre.name}}</a>
-                        </span>
+                        <a ng-repeat="genre in artist.name.musicGenres" ng-href="#genre/{{genre.id}}" ng-attr-title="Look up {{genre.name}}" class="styleLink">
+                            <span class="label label-primary label-clickable metaLabel">{{genre.name}}</span>
+                        </a>
                     </div>
                 </div>
             </li>

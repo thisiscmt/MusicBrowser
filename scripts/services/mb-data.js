@@ -159,6 +159,10 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                     result.album.originalReleaseDate = mbCommon.formatDate(result.album.originalReleaseDate, false, true);
                 }
 
+                if (result.album.duration) {
+                    result.album.durationFormatted = mbCommon.formatDuration(result.album.duration);
+                }
+
                 if (result.album.images && result.album.images.length > 0) {
                     primaryImage = result.album.images[0].url;
                 }
@@ -185,7 +189,7 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
 
                 if (result.album.tracks && result.album.tracks.length > 0) {
                     for (var i = 0; i < result.album.tracks.length; i++) {
-                        result.album.tracks[i].duration = mbCommon.formatDuration(result.album.tracks[i].duration);
+                        result.album.tracks[i].durationFormatted = mbCommon.formatDuration(result.album.tracks[i].duration);
                     }
                 }
 

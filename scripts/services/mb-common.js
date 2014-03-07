@@ -69,7 +69,12 @@ musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
     };
     
     curInstance.formatDuration = function (duration) {
+        var minutes;
+        var seconds;
         var formattedDuration = "";
+        var formattedSeconds = "";
+        var formattedMinutes = "";
+        var formattedHours = "";
 
         if (duration == 0) {
             formattedDuration = "0:0";
@@ -81,12 +86,26 @@ musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
             minutes = Math.floor(duration / 60);
             seconds = duration % 60;
 
-            if (seconds < 10) {
-                formattedDuration = minutes + ":" + "0" + seconds;
+            if (minutes > 59) {
+                formattedHours = Math.floor(minutes / 60) + ":";
+                minutes = minutes % 60;
+            }
+
+            if (minutes < 10 && formattedHours != "") {
+                formattedMinutes = "0" + minutes
             }
             else {
-                formattedDuration = minutes + ":" + seconds;
+                formattedMinutes = minutes
             }
+
+            if (seconds < 10) {
+                formattedSeconds = ":0" + seconds;
+            }
+            else {
+                formattedSeconds = ":" + seconds;
+            }
+
+            formattedDuration = formattedHours + formattedMinutes + formattedSeconds;
         }
 
         return formattedDuration;
