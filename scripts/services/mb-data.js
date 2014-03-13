@@ -66,6 +66,19 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                         }
 
                         result.name.discography[i].primaryImage = primaryImage;
+                        result.name.discography[i].formattedType = "Album"
+
+                        // Rovi sets the type property to 'Album' for compilations, so we need to 
+                        // manually change it in order to be able to filter them in the UI
+                        if (result.name.discography[i].flags && result.name.discography[i].flags.indexOf("Compilation") > -1) {
+                            result.name.discography[i].formattedType = "Compilation";
+                        }
+
+                        // Since both singles and EPs will be shown together, we set their type to 
+                        // be the same to make filtering easier
+                        if (result.name.discography[i].type === "Single" || result.name.discography[i].type === "EP") {
+                            result.name.discography[i].formattedType = "SingleOrEP";
+                        }
                     }
                 }
 
@@ -295,7 +308,7 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
         while (!done) {
             startIndex = inputStr.indexOf("[roviLink");
 
-            if (startIndex == -1) {
+            if (startIndex === -1) {
                 done = true;
             }
             else {
@@ -304,15 +317,15 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
                 // The ID property value is formatted as JSON, so we parse it to get the exact ID
                 roviId = JSON.parse(inputStr.substring(startIndex + 10, leftIndex));
                 rightIndex = inputStr.indexOf("[/roviLink]");
-                collectionCode = roviId.substring(0, 2);
+                collectionCode = roviId.substr(0, 2);
 
                 // We only include a link if the Rovi ID is complete. It seems that embedded links for 
                 // entities which don't currently have an entry in the database only have the two-letter 
                 // collection code and not an actual ID value
-                if (collectionCode == "MN" && roviId.length > 2) {
+                if (collectionCode === "MN" && roviId.length > 2) {
                     url = "#artist/" + roviId;
                 }
-                else if (collectionCode == "MW" && roviId.length > 2) {
+                else if (collectionCode === "MW" && roviId.length > 2) {
                     url = "#album/" + roviId;
                 }
                 else {
@@ -339,7 +352,7 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
         while (!done) {
             startIndex = inputStr.indexOf("[muze");
 
-            if (startIndex == -1) {
+            if (startIndex === -1) {
                 done = true;
             }
             else {
@@ -357,48 +370,87 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
         return inputStr;
     };
 
+    // The implementation below might be doing more work than it needs to, but it is correct and 
+    // produces the proper output. The idea is if a given input string is longer than we want to show 
+    // on a page, we need to shorten it. The tricky part is the text may contain anchors, and we 
+    // want to exclude the HTML itself when determining how many characters should be included in the 
+    // shortened string. If we determine the string needs to be shortened, we start at the beginning 
+    // and count until we've reached the max length allowed. If we run into an anchor tag, we briefly 
+    // stop counting until we reach an appropriate closing tag. Once we have our stopping point, we 
+    // keep going until we reach a space or carriage return, so we don't break in the middle of a word.
+    // We also need to make sure we aren't in the middle of an anchor so we don't have malformed HTML.
     var getShortDescription = function (inputStr) {
-        if (inputStr.length > curInstance.maxShortDescriptionLength) {
-            var index = curInstance.maxShortDescriptionLength;
-            var done = false;
-            var linkStarted = false;
-            var linkEnded = false;
-            var anchorIndex;
+        var index;
+        var count;
+        var done;
+        var counting;
+        var anchorOpen;
+        var anchorClosed;
 
-            // Check if we've started an anchor in the initial block of text, since we'll need to 
-            // grab more of the input string if we have
-            anchorIndex = inputStr.indexOf("<a");
+        // If the text minus all anchors is less than the max allowed, return the original input as-is
+        if (inputStr.replace(/\<[^\>]*\>/gi, '').length <= curInstance.maxShortDescriptionLength) {
+            return inputStr;
+        }
 
-            if (anchorIndex > -1 && anchorIndex < curInstance.maxShortDescriptionLength) {
-                linkStarted = true;
+        done = false;
+        index = 0;
+        count = 0;
+        counting = true;
+
+        while (!done) {
+            if (inputStr.substr(index, 2) === "<a") {
+                counting = false;
+                anchorOpen = true;
+                index = index + 2;
             }
+            else if (inputStr.substr(index, 2) === "'>") {
+                counting = true;
+                index = index + 2;
+            }
+            else if (inputStr.substr(index, 4) === "</a>") {
+                anchorOpen = false;
+                index = index + 4;
+            }
+            else {
+                if (counting) {
+                    count++;
+                }
 
-            while (!done) {
-                if (inputStr[index] === " " || inputStr[index] === "\r") {
-                    if (linkStarted) {
-                        // Search for the index of the closing tag of the anchor
-                        while (!linkEnded) {
-                            if (inputStr.substring(index, index + 4) === "</a>") {
-                                linkEnded = true;
-                                index = index + 4; // For the last 4 chars of the anchor tag
-                            }
-                            else {
-                                index++;
-                            }
-                        }
-                    }
-
+                if (count === curInstance.maxShortDescriptionLength) {
                     done = true;
                 }
                 else {
                     index++;
                 }
             }
-
-            inputStr = inputStr.substring(0, index) + " ...";
         }
 
-        return inputStr;
+        done = false;
+
+        while (!done) {
+            if (inputStr[index] === " " || inputStr[index] === "\r") {
+                if (anchorOpen) {
+                    anchorClosed = false;
+
+                    while (!anchorClosed) {
+                        if (inputStr.substr(index, 4) === "</a>") {
+                            anchorClosed = true;
+                            index = index + 4; // For the last 4 chars of the anchor tag
+                        }
+                        else {
+                            index++;
+                        }
+                    }
+                }
+
+                done = true;
+            }
+            else {
+                index++;
+            }
+        }
+
+        return inputStr.substr(0, index) + " ...";
     };
 
     var getIndexOfId = function (items, id) {

@@ -35,7 +35,7 @@ musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
             var cleanDate = date.replace(/-\?\?/g, "");
             var dateBuffer = cleanDate.split("-");
 
-            if (dateBuffer.length == 1) {
+            if (dateBuffer.length === 1) {
                 formattedDate = dateBuffer[0];
             }
             else {
@@ -43,7 +43,7 @@ musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
                     formattedDate = dateBuffer[0];
                 }
                 else {
-                    if (dateBuffer.length == 2) {
+                    if (dateBuffer.length === 2) {
                         if (prettify) {
                             newDate = Date.parse(dateBuffer[1] + "/" + dateBuffer[0]);
                             formattedDate = newDate.toString("MMMM, yyyy");
@@ -76,7 +76,7 @@ musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
         var formattedMinutes = "";
         var formattedHours = "";
 
-        if (duration == 0) {
+        if (duration === 0) {
             formattedDuration = "0:0";
         }
         else if (duration < 60) {

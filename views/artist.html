@@ -35,28 +35,14 @@
                 </div>
             </div>
 
-            <div class="discographyContainer">
-                <ul class="standardList">
-                    <li ng-repeat="album in artist.discography" class="panel panel-default">
-                        <div class="imageContainer">
-                            <a ng-href="#album/{{album.ids.albumId}}">
-                                <img ng-src="{{album.primaryImage}}" title="Album cover" class="discographyImage" />
-                            </a>
-                        </div>
-
-                        <div class="metaContainer">
-                            <div>
-                                <a ng-href="#album/{{album.ids.albumId}}" class="albumName">
-                                    <div>{{album.title}}</div>
-                                </a>
-                            </div>
-
-                            <div class="smallText">
-                                <span>{{album.year}}</span>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+            <!-- The 'src' attribute of the ng-include directive will look for the given HTML file 
+                 relative to the script where the app was started -->
+            <div class="discographyContainer" ng-show="hasDiscography">
+                <tabset class="discogTabs">
+                    <tab ng-repeat="pane in panes" heading="{{pane.title}}" select="setCurTab(pane.contentType)" active="pane.active">
+                        <ng-include src="'views/discogListItem.html'"></ng-include>
+                    </tab>
+                </tabset>
             </div>
         </div>
     </div>

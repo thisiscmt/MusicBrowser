@@ -12,12 +12,22 @@
 }
 
 /* Bootstrap overrides */
-.label-clickable {
+.label-clickable 
+{
     padding: .4em .7em .5em;
 }
 
-.label-lookup {
+.label-lookup 
+{
     margin-top: 5px;
+}
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.discogTabs .nav > li > a
+{
+    padding-right:8px;
+    padding-left:8px;
 }
 
 /* Views */

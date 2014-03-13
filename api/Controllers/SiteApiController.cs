@@ -97,7 +97,7 @@ namespace MusicBrowser.Controllers
             {
                 case "artist":
                     url = ConfigurationManager.AppSettings["RoviDataEndpoint"] + "name/info";
-                    queryString = "?nameid=" + id + "&include=discography,images,musicstyles,musicbio&type=main&imagesize=90-300x0-300&imagesort=width&imagecount=" + IMAGES_TO_RETRIEVE;
+                    queryString = "?nameid=" + id + "&include=discography,images,musicstyles,musicbio&type=main,singles,compilations&imagesize=90-300x0-300&imagesort=width&imagecount=" + IMAGES_TO_RETRIEVE;
                     result = SubmitRequest(url, queryString);
 
                     break;

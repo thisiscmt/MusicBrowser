@@ -13,6 +13,7 @@ var musicBrowserApp = angular.module('MusicBrowserApp', [
   'ngRoute',
   'ngAnimate',
   'ngSanitize',
+  'ui.bootstrap',
   'jmdobry.angular-cache',
   'musicBrowserControllers'
 ]);

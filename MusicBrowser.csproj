@@ -134,6 +134,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="dev\bootstrap.css" />
+    <Content Include="scripts\lib\ui-bootstrap-custom-tpls-0.10.0.min.js" />
+    <Content Include="views\discogListItem.html" />
     <Content Include="images\Placeholder_90.png" />
     <Content Include="scripts\controllers\genreLookup.js" />
     <Content Include="scripts\controllers\styleLookup.js" />
