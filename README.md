@@ -5,8 +5,9 @@ This web application is designed to browse through music metadata maintained in 
 The app has the following features:
 
 * Search for an artist, song, or album.
-* View artist biographies as well as their discography and other detailed information.
+* View artist biographies as well as their discography.
 * View album reviews.
+* View descriptions of music styles and genres.
 
 It uses the following open source libraries:
 
