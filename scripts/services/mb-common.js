@@ -1,6 +1,7 @@
 ﻿// Service that includes common functionality for the entire app.
-musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
+musicBrowserApp.factory('mbCommon', ['$window', '$modal', function ($window, $modal) {
     var curInstance = this;
+    var loadingDialog = null;
 
     Object.defineProperty(curInstance, "placeholderImageSmall", {
         value: "images/Placeholder_25.png",
@@ -23,6 +24,42 @@ musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
         configurable: true
     });
 
+    // For some reason the modal functionality in UI Bootstrap requires that the controller for the modal
+    // window itself be a function, rather than a true Angular one created by calling the controller()
+    // method of the main app module. Maybe it's possible to use controller(), but this works well enough.
+    var modalCtrl = function ($scope, $modalInstance, loadingMsg) {
+        $scope.loadingMsg = loadingMsg;
+    };
+
+    curInstance.showLoadingDialog = function (msg) {
+        loadingDialog = $modal.open({
+            templateUrl: "views/loadingDialog.html",
+            controller: modalCtrl,
+            keyboard: false,
+            resolve: {
+                loadingMsg: function () {
+                    return msg;
+                }
+            }
+        });
+
+        // A bug in version 0.10 of UI Bootstrap causes the scope for a modal to not be discarded
+        // after use, so a subsequent attempt to open/close one will raise an exception. Setting
+        // the modal instance to basically nothing after we're done with it allows it to be safely 
+        // reused. A fix is slated for the next UI Bootstrap release.
+        loadingDialog.result.then(function () {
+        }, function () {
+        })['finally'](function () {
+            loadingDialog = undefined;
+        });
+    }
+
+    curInstance.closeLoadingDialog = function () {
+        if (loadingDialog) {
+            loadingDialog.close();
+        }
+    }
+
     curInstance.goBack = function () {
         $window.history.back();
     }
@@ -32,6 +69,8 @@ musicBrowserApp.factory('mbCommon', ['$window', function ($window) {
         var newDate;
 
         if (date && date != "") {
+            // Dates may include ?? in place of a valid part (e.g. 2001-??-??), so we need to remove
+            // them first
             var cleanDate = date.replace(/-\?\?/g, "");
             var dateBuffer = cleanDate.split("-");
 

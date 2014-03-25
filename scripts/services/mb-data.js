@@ -1,6 +1,6 @@
 ﻿// Service that provides data retrieval for the app, including any manipulation of that data before 
 // it is returned to the caller.
-musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $http) {
+musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', function (mbCommon, $http, $angularCacheFactory) {
     var curInstance = this;
 
     Object.defineProperty(curInstance, "maxShortDescriptionLength", {
@@ -270,6 +270,16 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
             })
     }
 
+    curInstance.isCached = function(requestUrl) {
+        var retVal = false;
+
+        if ($angularCacheFactory.get('dataCache').get("api" + requestUrl)) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+
     var setPrimaryImage = function (result, placeholderImage) {
         if (result.name.images && result.name.images.length > 0) {
             // Find the first non-copyrighted image in the collection
@@ -372,13 +382,13 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', function (mbCommon, $htt
 
     // The implementation below might be doing more work than it needs to, but it is correct and 
     // produces the proper output. The idea is if a given input string is longer than we want to show 
-    // on a page, we need to shorten it. The tricky part is the text may contain anchors, and we 
+    // in a view, we need to shorten it. The tricky part is the text may contain anchors, and we 
     // want to exclude the HTML itself when determining how many characters should be included in the 
     // shortened string. If we determine the string needs to be shortened, we start at the beginning 
     // and count until we've reached the max length allowed. If we run into an anchor tag, we briefly 
     // stop counting until we reach an appropriate closing tag. Once we have our stopping point, we 
     // keep going until we reach a space or carriage return, so we don't break in the middle of a word.
-    // We also need to make sure we aren't in the middle of an anchor so we don't have malformed HTML.
+    // We also need to make sure we aren't in the middle of an anchor so we produce malformed HTML.
     var getShortDescription = function (inputStr) {
         var index;
         var count;

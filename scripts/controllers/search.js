@@ -21,8 +21,8 @@
         // encoded as %23, which messes up the routing
         $location.path('/search/' + $scope.collection + "/" + $scope.searchTerm);
 
-        // Calling the Search method adds values to the query string. The ? will be included automatically
-        $location.search("size=" + mbCommon.getConfiguration().pageSize + "&offset=" + 0);
+        // Calling the search() method adds values to the query string. The ? will be included automatically
+        $location.search("size=" + mbCommon.getConfiguration().pageSize + "&offset=0");
     }
 
     $scope.submitForm = $scope.submitQuery;

@@ -35,6 +35,12 @@
         sessionStorage.setItem("curDiscogTab", tab + "|" + $routeParams.id);
     }
 
+    var url = $location.url();
+
+    if (!mbData.isCached(url) && url.indexOf("full-bio") === -1) {
+        mbCommon.showLoadingDialog("Retrieving artist ...");
+    }
+
     mbData.lookupArtist($routeParams.id).then(function (val) {
         if (val.data.lookupResult) {
             $scope.artist = val.data.lookupResult;
@@ -63,6 +69,7 @@
             $scope.noResults = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     }, function (val) {
         if (val) {
@@ -70,6 +77,7 @@
             $scope.hasMessage = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     });
 }]);

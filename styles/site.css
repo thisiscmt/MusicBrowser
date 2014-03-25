@@ -12,6 +12,8 @@
 }
 
 /* Bootstrap overrides */
+
+/* The following two classes make labels easier targets for touches on a mobile device */
 .label-clickable 
 {
     padding: .4em .7em .5em;
@@ -22,13 +24,15 @@
     margin-top: 5px;
 }
 
-.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
-
+/* Reduces the horizontal space consumed by a tab header, needed to prevent wrapping of the tabs */
 .discogTabs .nav > li > a
 {
     padding-right:8px;
     padding-left:8px;
 }
+
+/* Needed to apply correct styles for links */
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
 /* Views */
 #messagePanel

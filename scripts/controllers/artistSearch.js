@@ -1,4 +1,4 @@
-﻿musicBrowserControllers.controller('ArtistSearchCtrl', ['$scope', '$routeParams', 'mbData', 'mbCommon', function ($scope, $routeParams, mbData, mbCommon) {
+﻿musicBrowserControllers.controller('ArtistSearchCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
     $scope.artists = [];
     $scope.searchTerm = $routeParams.searchTerm;
     $scope.pageSize = mbCommon.getConfiguration().pageSize; // Current page size
@@ -9,6 +9,14 @@
 
     // Offset into the next page. Used on the Next and Previous links at the bottom of the view
     $scope.offset = 0;
+
+    // If the data being retrieved isn't cached, show the loading dialog. If there was a cache hit
+    // we don't want to show it, because for some reason an exception will be raised when we try to
+    // close it. It might be some kind of timing issue since the open and close calls are so near 
+    // to each other.
+    if (!mbData.isCached($location.url())) {
+        mbCommon.showLoadingDialog("Searching for artist ...");
+    }
 
     mbData.searchForArtist($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (val) {
         var offsetVal;
@@ -32,6 +40,7 @@
             $scope.noResults = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     }, function (val) {
         if (val) {
@@ -41,6 +50,7 @@
             $scope.hasMessage = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     });
 }]);

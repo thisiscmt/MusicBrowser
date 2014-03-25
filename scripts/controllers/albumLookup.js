@@ -6,6 +6,12 @@
     $scope.hasDuration = false;
     $scope.maxShortDescriptionLength = mbData.maxShortDescriptionLength;
 
+    var url = $location.url();
+
+    if (!mbData.isCached(url) && url.indexOf("full-review") === -1) {
+        mbCommon.showLoadingDialog("Retrieving album ...");
+    }
+
     mbData.lookupAlbum($routeParams.id).then(function (val) {
         if (val.data.lookupResult) {
             $scope.album = val.data.lookupResult;
@@ -26,6 +32,7 @@
             $scope.noResults = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     }, function (val) {
         if (val) {
@@ -33,6 +40,7 @@
             $scope.hasMessage = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     });
 }]);

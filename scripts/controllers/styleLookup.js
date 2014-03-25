@@ -1,6 +1,10 @@
-﻿musicBrowserControllers.controller('StyleLookupCtrl', ['$scope', '$routeParams', '$window', 'mbData', 'mbCommon', function ($scope, $routeParams, $window, mbData, mbCommon) {
+﻿musicBrowserControllers.controller('StyleLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
     $scope.styles = [];
     $scope.goBack = mbCommon.goBack;
+
+    if (!mbData.isCached($location.url())) {
+        mbCommon.showLoadingDialog("Retrieving style ...");
+    }
 
     mbData.lookupStyle($routeParams.id).then(function (val) {
         if (val.data.lookupResult) {
@@ -10,6 +14,7 @@
             $scope.noResults = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     }, function (val) {
         if (val) {
@@ -17,6 +22,7 @@
             $scope.hasMessage = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     });
 }]);

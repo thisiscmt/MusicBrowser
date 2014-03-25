@@ -26,7 +26,11 @@ var musicBrowserControllers = angular.module('musicBrowserControllers', []);
 // /search/album/<query>        Shows the results of an album search for <query>
 // /search/song/<query>         Shows the results of a song search for <query>
 // /artist/<id>                 Shows the details for the artist represented by <id>
+// /artist/<id>/full-bio        Shows only the complete bio for the artist represented by <id>
 // /album/<id>                  Shows the details for the album represented by <id>
+// /album/<id>/full-review      Shows only the complete review for the album represented by <id>
+// /genre/<id>                  Shows the details for the genre represented by <id>
+// /style/<id>                  Shows the details for the style represented by <id>
 // /options                     Page for changing app options
 musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, $provide) {
     $routeProvider.when('/', { templateUrl: 'views/search.html', controller: 'SearchCtrl', title: "Search" });

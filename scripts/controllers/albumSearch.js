@@ -1,9 +1,13 @@
-﻿musicBrowserControllers.controller('AlbumSearchCtrl', ['$scope', '$routeParams', 'mbData', 'mbCommon', function ($scope, $routeParams, mbData, mbCommon) {
+﻿musicBrowserControllers.controller('AlbumSearchCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
     $scope.albums = [];
     $scope.searchTerm = $routeParams.searchTerm;
     $scope.pageSize = mbCommon.getConfiguration().pageSize;
     $scope.curPage = 1;
     $scope.offset = 0;
+
+    if (!mbData.isCached($location.url())) {
+        mbCommon.showLoadingDialog("Searching for album ...");
+    }
 
     mbData.searchForAlbum($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (val) {
         if (val.data.searchResult) {
@@ -24,6 +28,7 @@
             $scope.noResults = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     }, function (val) {
         if (val) {
@@ -31,6 +36,7 @@
             $scope.hasMessage = true;
         }
 
+        mbCommon.closeLoadingDialog();
         $scope.ready = true;
     });
 }]);
