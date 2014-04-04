@@ -1,4 +1,6 @@
 ﻿musicBrowserControllers.controller('AlbumSearchCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
+    mbCommon.setPageTitle("Album Search - " + $routeParams.searchTerm);
+
     $scope.albums = [];
     $scope.searchTerm = $routeParams.searchTerm;
     $scope.pageSize = mbCommon.getConfiguration().pageSize;
@@ -7,6 +9,14 @@
 
     if (!mbData.isCached($location.url())) {
         mbCommon.showLoadingDialog("Searching for album ...");
+    }
+
+    $scope.setCurrentAlbum = function (name) {
+        mbCommon.currentAlbum = name;
+    }
+
+    $scope.setCurrentArtist = function (name) {
+        mbCommon.currentArtist = name;
     }
 
     mbData.searchForAlbum($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (val) {

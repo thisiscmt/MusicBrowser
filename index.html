@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div class="navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-default" role="navigation">
         <!-- Having the brand link outside the container div allows it to be left-aligned. The container
              is automatically centered by Bootstrap but it causes the link text to be right-aligned, 
              which just looks weird -->
@@ -18,7 +18,7 @@
 
         <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <button type="button" class="navbar-toggle" ng-click="isCollapsed = !isCollapsed">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -26,14 +26,14 @@
                 </button>
 
             </div>
-            <div class="collapse navbar-collapse">
+            <div class="collapse navbar-collapse" ng-class="isCollapsed ? 'collapse' : 'in'">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a ng-href="#search">Search</a></li>
+                    <li><a ng-href="#search">Search</a></li>
                     <li><a ng-href="#options">Options</a></li>
                 </ul>
             </div>
         </div>
-    </div>
+    </nav>
 
     <div id="mainContent" ng-view></div>
 
@@ -51,15 +51,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-animate.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-sanitize.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
     <script src="scripts/lib/ui-bootstrap-custom-tpls-0.10.0.min.js"></script>
-    <!--<script src="dev/ui-bootstrap-tpls-0.10.0.js"></script>-->
     <script src="scripts/lib/angular-cache.min.js"></script>
     <script src="scripts/lib/date.js"></script>
     <script src="scripts/lib/detectmobilebrowser.js"></script>
     <script src="scripts/app.js"></script>
     <script src="scripts/services/mb-common.js"></script>
     <script src="scripts/services/mb-data.js"></script>
+    <script src="scripts/directives/focusMe.js"></script>
     <script src="scripts/controllers/search.js"></script>
     <script src="scripts/controllers/artistSearch.js"></script>
     <script src="scripts/controllers/artistLookup.js"></script>

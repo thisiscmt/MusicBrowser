@@ -49,13 +49,13 @@ musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, 
 }]);
 
 // Any startup code needed by the app should go here
-musicBrowserApp.run(['$rootScope', '$http', '$angularCacheFactory', function ($rootScope, $http, $angularCacheFactory) {
+musicBrowserApp.run(['$rootScope', '$http', '$angularCacheFactory', 'mbCommon', function ($rootScope, $http, $angularCacheFactory, mbCommon) {
     $http.defaults.headers.common["Accept-Encoding"] = "gzip,deflate";
-    
-    $rootScope.$on("$routeChangeSuccess", function (event, currentRoute, previousRoute) {
-        // Change page title based on the current route
-        $rootScope.title = currentRoute.title;
-    });
+
+    // Stores the name of the current item being viewed, such as an artist, album, song, etc. We will
+    // use it below to set the page title, but it needs to be assigned in the respecitve controller 
+    // since it won't be part of any route
+    $rootScope.title = "Search";
 
     // Create a custom cache for our data, and set the $http service to use it for its caching
     $angularCacheFactory('dataCache', {

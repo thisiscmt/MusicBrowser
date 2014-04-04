@@ -1,4 +1,6 @@
 ﻿musicBrowserControllers.controller('ArtistLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
+    mbCommon.setPageTitle("Artist - " + mbCommon.currentArtist);
+
     $scope.artist = {};
     $scope.goBack = mbCommon.goBack;
     $scope.fullBioLink = $location.absUrl() + "/full-bio";
@@ -39,6 +41,14 @@
 
     if (!mbData.isCached(url) && url.indexOf("full-bio") === -1) {
         mbCommon.showLoadingDialog("Retrieving artist ...");
+    }
+
+    $scope.setCurrentStyle = function (name) {
+        mbCommon.currentStyle = name;
+    }
+
+    $scope.setCurrentAlbum = function (name) {
+        mbCommon.currentAlbum = name;
     }
 
     mbData.lookupArtist($routeParams.id).then(function (val) {

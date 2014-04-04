@@ -11,7 +11,7 @@
                 <div class="mainName">{{artist.name}}</div>
 
                 <div class="topPadding5">
-                    <a ng-repeat="style in artist.musicStyles" ng-href="#style/{{style.id}}" ng-attr-title="Look up {{style.name}}" class="styleLink">
+                    <a ng-repeat="style in artist.musicStyles" ng-click="setCurrentStyle(style.name)" ng-href="#style/{{style.id}}" ng-attr-title="Look up {{style.name}}" class="styleLink">
                         <span class="label label-primary label-clickable label-lookup metaLabel">{{style.name}}</span>
                     </a>
                 </div>

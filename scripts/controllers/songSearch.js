@@ -1,4 +1,6 @@
 ﻿musicBrowserControllers.controller('SongSearchCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
+    mbCommon.setPageTitle("Song Search - " + $routeParams.searchTerm);
+
     $scope.songs = [];
     $scope.searchTerm = $routeParams.searchTerm;
     $scope.pageSize = mbCommon.getConfiguration().pageSize;

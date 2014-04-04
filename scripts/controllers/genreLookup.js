@@ -1,4 +1,6 @@
 ﻿musicBrowserControllers.controller('GenreLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
+    mbCommon.setPageTitle("Genre - " + mbCommon.currentGenre);
+
     $scope.genres = [];
     $scope.goBack = mbCommon.goBack;
 

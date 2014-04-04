@@ -135,6 +135,7 @@
   <ItemGroup>
     <Content Include="dev\bootstrap.css" />
     <Content Include="dev\ui-bootstrap-tpls-0.10.0.js" />
+    <Content Include="scripts\directives\focusMe.js" />
     <Content Include="scripts\lib\ui-bootstrap-custom-tpls-0.10.0.min.js" />
     <Content Include="views\discogListItem.html" />
     <Content Include="images\Placeholder_90.png" />

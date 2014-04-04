@@ -14,20 +14,20 @@
         <ul ng-show="ready && !noResults" class="standardList">
             <li ng-repeat="album in albums" class="panel panel-default">
                 <div class="imageContainer">
-                    <a ng-href="#album/{{album.id}}">
+                    <a ng-click="setCurrentAlbum(album.album.title)" ng-href="#album/{{album.id}}">
                         <img ng-src="{{album.album.primaryImage}}" title="Album cover" class="searchImage" />
                     </a>
                 </div>
 
                 <div class="metaContainer">
                     <div>
-                        <a ng-attr-title="Look up {{album.album.title}}" ng-href="#album/{{album.id}}">
+                        <a ng-attr-title="Look up {{album.album.title}}" ng-click="setCurrentAlbum(album.album.title)" ng-href="#album/{{album.id}}">
                             <span>{{album.album.title}}</span>
                         </a>
                     </div>
 
                     <div>
-                        <a ng-repeat="artist in album.album.primaryArtists" ng-href="#artist/{{artist.id}}" ng-attr-title="Look up {{artist.name}}" class="noUnderline">
+                        <a ng-repeat="artist in album.album.primaryArtists" ng-click="setCurrentArtist(artist.name)" ng-href="#artist/{{artist.id}}" ng-attr-title="Look up {{artist.name}}" class="noUnderline">
                             <span class="label label-success label-clickable metaLabel">{{artist.name}}</span>
                         </a>
                     </div>

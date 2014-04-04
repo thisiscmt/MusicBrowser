@@ -1,4 +1,6 @@
 ﻿musicBrowserControllers.controller('StyleLookupCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
+    mbCommon.setPageTitle("Style - " + mbCommon.currentStyle);
+
     $scope.styles = [];
     $scope.goBack = mbCommon.goBack;
 

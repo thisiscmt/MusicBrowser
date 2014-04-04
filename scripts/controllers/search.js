@@ -1,16 +1,19 @@
-﻿musicBrowserControllers.controller('SearchCtrl', ['$scope', '$location', 'mbCommon', function ($scope, $location, mbCommon) {
+﻿musicBrowserControllers.controller('SearchCtrl', ['$rootScope', '$scope', '$location', 'mbCommon', function ($rootScope, $scope, $location, mbCommon) {
     $scope.searchTerm = "";
 
     // Default to searching by artist
     $scope.collection = "artist";
 
+    mbCommon.setPageTitle("Search");
+
     // If the user agent is a mobile device, we don't want to automatically focus on the search 
-    // field since it will cause the virtual keyboard to appear at improper times.
+    // field since it will cause any virtual keyboard to appear at improper times. Note that the
+    // custom directive that is driven by this property expects boolean values
     if (jQuery.browser.mobile) {
-        $scope.shouldFocus = "false";
+        $scope.shouldFocus = false;
     }
     else {
-        $scope.shouldFocus = "autofocus";
+        $scope.shouldFocus = true;
     }
 
     // This property ensures the user has typed something in the search field before initiating a search
@@ -35,4 +38,13 @@
             $scope.missingInput = false;
         }
     }
+
+    // This property is used to automatically collapse the main navbar menu when an item is selected. 
+    // Bootstrap apparently doesn't support that out of the box when used with Angular on a mobile 
+    // device
+    $rootScope.isCollapsed = true;
+
+    $rootScope.$on('$routeChangeSuccess', function () {
+        $rootScope.isCollapsed = true;
+    });
 }]);

@@ -1,4 +1,6 @@
 ﻿musicBrowserControllers.controller('ArtistSearchCtrl', ['$scope', '$routeParams', '$location', 'mbData', 'mbCommon', function ($scope, $routeParams, $location, mbData, mbCommon) {
+    mbCommon.setPageTitle("Artist Search - " + $routeParams.searchTerm);
+
     $scope.artists = [];
     $scope.searchTerm = $routeParams.searchTerm;
     $scope.pageSize = mbCommon.getConfiguration().pageSize; // Current page size
@@ -12,10 +14,18 @@
 
     // If the data being retrieved isn't cached, show the loading dialog. If there was a cache hit
     // we don't want to show it, because for some reason an exception will be raised when we try to
-    // close it. It might be some kind of timing issue since the open and close calls are so near 
-    // to each other.
+    // close it. It might be some kind of timing issue since the close call occurs immediately after 
+    // the open call
     if (!mbData.isCached($location.url())) {
         mbCommon.showLoadingDialog("Searching for artist ...");
+    }
+
+    $scope.setCurrentArtist = function (name) {
+        mbCommon.currentArtist = name;
+    }
+
+    $scope.setCurrentGenre = function (name) {
+        mbCommon.currentGenre = name;
     }
 
     mbData.searchForArtist($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (val) {
@@ -45,7 +55,7 @@
     }, function (val) {
         if (val) {
             // The argument passed to the error handler will be JSON, so we need to parse it in 
-            // order to get the exact string value we want (versus one wrapped in double quotes)
+            // order to get the exact string value we want
             $scope.msg = JSON.parse(val.data);
             $scope.hasMessage = true;
         }

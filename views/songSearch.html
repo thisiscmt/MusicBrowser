@@ -21,7 +21,7 @@
                     <div>{{song.song.title}}</div>
 
                     <div>
-                        <a class="noUnderline" ng-attr-title="Look up {{artist.name}}" ng-repeat="artist in song.song.primaryArtists" ng-href="#artist/{{artist.id}}">
+                        <a class="noUnderline" ng-attr-title="Look up {{artist.name}}" ng-repeat="artist in song.song.primaryArtists" ng-click="setCurrentArtist(artist.name)" ng-href="#artist/{{artist.id}}">
                             <span class="label label-success metaLabel">{{artist.name}}</span>
                         </a>
                     </div>

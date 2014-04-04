@@ -1,5 +1,5 @@
 ﻿// Service that includes common functionality for the entire app.
-musicBrowserApp.factory('mbCommon', ['$window', '$modal', function ($window, $modal) {
+musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function ($window, $modal, $rootScope) {
     var curInstance = this;
     var loadingDialog = null;
 
@@ -20,6 +20,34 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', function ($window, $mo
     Object.defineProperty(curInstance, "placeholderImageLarge", {
         value: "images/Placeholder_90.png",
         writable: false,
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(curInstance, "currentArtist", {
+        value: "",
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(curInstance, "currentAlbum", {
+        value: "",
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(curInstance, "currentStyle", {
+        value: "",
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(curInstance, "currentGenre", {
+        value: "",
+        writable: true,
         enumerable: true,
         configurable: true
     });
@@ -58,6 +86,15 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', function ($window, $mo
         if (loadingDialog) {
             loadingDialog.close();
         }
+    }
+
+    // We use this function to set the page title since it will need to be called from within different
+    // controllers. The value of the title element itself is based on a property of the root scope, but
+    // we can't set it inside an event handler like $routeChangeSuccess because in some cases the value 
+    // we want to use won't be known until we reach the controller code (e.g. the name of the artist 
+    // being shown in the artist lookup view)
+    curInstance.setPageTitle = function (title) {
+        $rootScope.title = title;
     }
 
     curInstance.goBack = function () {

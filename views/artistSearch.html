@@ -14,20 +14,20 @@
         <ul ng-show="ready && !noResults" class="standardList">
             <li ng-repeat="artist in artists" class="panel panel-default">
                 <div class="imageContainer">
-                    <a ng-href="#artist/{{artist.id}}">
+                    <a ng-click="setCurrentArtist(artist.name.name)" ng-href="#artist/{{artist.id}}">
                         <img ng-src="{{artist.name.primaryImage}}" title="Artist image" class="searchImage" />
                     </a>
                 </div>
 
                 <div class="metaContainer">
                     <div>
-                        <a ng-attr-title="Look up {{artist.name.name}}" ng-href="#artist/{{artist.id}}">
+                        <a ng-attr-title="Look up {{artist.name.name}}" ng-click="setCurrentArtist(artist.name.name)" ng-href="#artist/{{artist.id}}">
                             <div>{{artist.name.name}}</div>
                         </a>
                     </div>
 
                     <div>
-                        <a ng-repeat="genre in artist.name.musicGenres" ng-href="#genre/{{genre.id}}" ng-attr-title="Look up {{genre.name}}" class="styleLink">
+                        <a ng-repeat="genre in artist.name.musicGenres" ng-click="setCurrentGenre(genre.name)" ng-href="#genre/{{genre.id}}" ng-attr-title="Look up {{genre.name}}" class="styleLink">
                             <span class="label label-primary label-clickable metaLabel">{{genre.name}}</span>
                         </a>
                     </div>

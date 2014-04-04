@@ -9,14 +9,14 @@ shown, which is associated with an item type.
 <ul class="standardList">
     <li ng-repeat="album in artist.discography | filter:{formattedType: pane.contentType}" class="panel panel-default">
         <div class="imageContainer">
-            <a ng-href="#album/{{album.ids.albumId}}">
+            <a ng-click="setCurrentAlbum(album.title)" ng-href="#album/{{album.ids.albumId}}">
                 <img ng-src="{{album.primaryImage}}" title="Album cover" class="discographyImage" />
             </a>
         </div>
 
         <div class="metaContainer">
             <div>
-                <a ng-href="#album/{{album.ids.albumId}}" class="albumName">
+                <a ng-click="setCurrentAlbum(album.title)" ng-href="#album/{{album.ids.albumId}}" class="albumName">
                     <div>{{album.title}}</div>
                 </a>
             </div>
