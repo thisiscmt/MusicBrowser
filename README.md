@@ -15,7 +15,7 @@ It uses the following open source libraries:
 * [Bootstrap](http://getbootstrap.com)
 * [UI Bootstrap](http://angular-ui.github.io/bootstrap/)
 * [Angular-Cache](http://github.com/jmdobry/angular-cache)
-* [DateJS](http://www.datejs.com)
+* [MomentJS](http://www.momentjs.com)
 
 It includes a [Web API](http://www.asp.net/web-api)-based service that wraps calls to Rovi's RESTful service. This API could be easily modified to support different metadata sources.
 
