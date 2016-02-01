@@ -40,11 +40,11 @@
     }
 
     // This property is used to automatically collapse the main navbar menu when an item is selected. 
-    // Bootstrap apparently doesn't support that out of the box when used with Angular on a mobile 
-    // device
-    $rootScope.isCollapsed = true;
+    // Neither Bootstrap not UI-Bootstrap support that out of the box, apparently, when used with 
+    // Angular on a mobile device
+    $rootScope.navCollapsed = true;
 
     $rootScope.$on('$routeChangeSuccess', function () {
-        $rootScope.isCollapsed = true;
+        $rootScope.navCollapsed = true;
     });
 }]);

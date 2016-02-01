@@ -2,6 +2,7 @@
 // it is returned to the caller.
 musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', function (mbCommon, $http, $angularCacheFactory) {
     var curInstance = this;
+    var shortDiscogLength = 20;
 
     Object.defineProperty(curInstance, "maxShortDescriptionLength", {
         value: 150,
@@ -30,54 +31,23 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
         var url = "api/artist/" + encodeURIComponent(id);
 
         return $http.get(url, { cache: true }).
-            success(function (data, status, headers, config) {
-                var result = JSON.parse(data.Content);
+            then(function successCallback(response) {
+                var result = JSON.parse(response.data.Content);
                 var primaryImage;
                 var formattedBioText;
                 var mbConfig = mbCommon.getConfiguration();
                 var styleIndex;
+                var albumCount = 0;
 
                 // For some reason Rovi includes the artist's generes in the musicStyles list as
                 // well as the musicGenres list. But since they aren't going to be in Rovi's styles 
                 // collection and a lookup on them will fail, we need to remove them from musicStyles
-                for (var i = 0; i < result.name.musicGenres.length; i++) {
-                    styleIndex = getIndexOfId(result.name.musicStyles, result.name.musicGenres[i].id);
+                if (result.name.musicGenres) {
+                    for (var i = 0; i < result.name.musicGenres.length; i++) {
+                        styleIndex = getIndexOfId(result.name.musicStyles, result.name.musicGenres[i].id);
 
-                    if (styleIndex > -1) {
-                        result.name.musicStyles.splice(styleIndex, 1);
-                    }
-                }
-
-                if (result.name.discography) {
-                    if (mbConfig && mbConfig.albumChrono) {
-                        result.name.discography.reverse();
-                    }
-
-                    for (var i = 0; i < result.name.discography.length; i++) {
-                        if (result.name.discography[i].year) {
-                            result.name.discography[i].year = mbCommon.formatDate(result.name.discography[i].year, true);
-                        }
-
-                        if (result.name.discography[i].images && result.name.discography[i].images.length > 0) {
-                            primaryImage = result.name.discography[i].images[0].url;
-                        }
-                        else {
-                            primaryImage = mbCommon.placeholderImageSmall;
-                        }
-
-                        result.name.discography[i].primaryImage = primaryImage;
-                        result.name.discography[i].formattedType = "Album"
-
-                        // Rovi sets the type property to 'Album' for compilations, so we need to 
-                        // manually change it in order to be able to filter them in the UI
-                        if (result.name.discography[i].flags && result.name.discography[i].flags.indexOf("Compilation") > -1) {
-                            result.name.discography[i].formattedType = "Compilation";
-                        }
-
-                        // Since both singles and EPs will be shown together, we set their type to 
-                        // be the same to make filtering easier
-                        if (result.name.discography[i].type === "Single" || result.name.discography[i].type === "EP") {
-                            result.name.discography[i].formattedType = "SingleOrEP";
+                        if (styleIndex > -1) {
+                            result.name.musicStyles.splice(styleIndex, 1);
                         }
                     }
                 }
@@ -133,8 +103,90 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
                     }
                 }
 
-                data.lookupResult = result.name;
-            })
+                // Regardless of whether the artist has a discography, we set the short discog property
+                // so we don't have to do a bunch of null checking around it
+                result.name.shortDiscog =[];
+
+                if (result.name.discography) {
+                    if (mbConfig.albumChrono) {
+                        result.name.discography.reverse();
+                    }
+
+                    for (var i = 0; i < result.name.discography.length; i++) {
+                        if (result.name.discography[i].year) {
+                            result.name.discography[i].year = mbCommon.formatDate(result.name.discography[i].year, true);
+                        }
+                        else {
+                            result.name.discography[i].year = "N/A";
+                        }
+
+                        if (result.name.discography[i].images && result.name.discography[i].images.length > 0) {
+                            primaryImage = result.name.discography[i].images[0].url;
+                        }
+                        else {
+                            primaryImage = mbCommon.placeholderImageSmall;
+                        }
+
+                        result.name.discography[i].primaryImage = primaryImage;
+
+                        if (result.name.discography[i].flags && result.name.discography[i].flags.indexOf("Compilation") > -1) {
+                            result.name.discography[i].formattedType = "Compilation";
+                            result.name.hasFullDiscog = true;
+                        }
+                        else if (result.name.discography[i].type === "Single" || result.name.discography[i].type === "EP") {
+                            result.name.discography[i].formattedType = "SingleOrEP";
+                            result.name.hasFullDiscog = true;
+                        }
+                        else {
+                            result.name.discography[i].formattedType = "Album"
+
+                            if (result.name.shortDiscog.length < shortDiscogLength) {
+                                result.name.shortDiscog.push(result.name.discography[i]);
+                            }
+
+                            albumCount++;
+                        }
+
+                        if (result.name.discography[i].ids && !result.name.discography[i].ids.albumId) {
+                            if (result.name.discography[i].ids.amgPopId) {
+                                result.name.discography[i].ids.albumId = result.name.discography[i].ids.amgPopId;
+                            }
+                        }
+                    }
+
+                    // If the given artist has no singles or compilations, but more albums than the 
+                    // threshold, make sure the full discog flag is set
+                    if (albumCount > shortDiscogLength) {
+                        result.name.hasFullDiscog = true;
+                    }
+                }
+
+                result.name.metaItems = [];
+
+                if (result.name.groupMembers) {
+                    for (var i = 0; i < result.name.groupMembers.length; i++) {
+                        result.name.groupMembers[i].formattedType = "Member";
+                        result.name.groupMembers[i].primaryImage = mbCommon.placeholderImageSmall;
+                    }
+
+                    result.name.metaItems.push.apply(result.name.metaItems, result.name.groupMembers);
+                }
+
+                if (result.name.similars) {
+                    result.name.similars.sort(firstBy(function (x, y) { return y.weight - x.weight; }).thenBy(function (x, y) { return x.name < y.name ? -1 : (x.name > y.name ? 1 : 0); }));
+
+                    for (var i = 0; i < result.name.similars.length; i++) {
+                        result.name.similars[i].formattedType = "RelatedArtist";
+                        result.name.similars[i].primaryImage = mbCommon.placeholderImageSmall;
+                    }
+
+                    result.name.metaItems.push.apply(result.name.metaItems, result.name.similars);
+                }
+
+                return {data: result.name};
+            }, function errorCallback(response) {
+                return {error: mbCommon.formatError(response)};
+        });
     };
 
     curInstance.searchForAlbum = function (query, size, offset) {
@@ -281,22 +333,24 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
     }
 
     var setPrimaryImage = function (result, placeholderImage) {
-        if (result.name.images && result.name.images.length > 0) {
-            // Find the first non-copyrighted image in the collection
-            for (var i = 0; i < result.name.images.length; i++) {
-                if (result.name.images[i].url.indexOf("Getty") === -1) {
-                    result.name.primaryImage = result.name.images[i].url;
-                    break;
+        if (result.name) {
+            if (result.name.images && result.name.images.length > 0) {
+                // Find the first non-copyrighted image in the collection
+                for (var i = 0; i < result.name.images.length; i++) {
+                    if (result.name.images[i].url.indexOf("Getty") === -1) {
+                        result.name.primaryImage = result.name.images[i].url;
+                        break;
+                    }
+                }
+
+                // If we didn't find any usable images, use a placeholder
+                if (i === result.name.images.length) {
+                    result.name.primaryImage = placeholderImage;
                 }
             }
-
-            // If we didn't find any usable images, use a placeholder
-            if (i === result.name.images.length) {
+            else {
                 result.name.primaryImage = placeholderImage;
             }
-        }
-        else {
-            result.name.primaryImage = placeholderImage;
         }
     }
 
@@ -388,7 +442,7 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
     // and count until we've reached the max length allowed. If we run into an anchor tag, we briefly 
     // stop counting until we reach an appropriate closing tag. Once we have our stopping point, we 
     // keep going until we reach a space or carriage return, so we don't break in the middle of a word.
-    // We also need to make sure we aren't in the middle of an anchor so we produce malformed HTML.
+    // We also need to make sure we aren't in the middle of an anchor so we don't produce malformed HTML.
     var getShortDescription = function (inputStr) {
         var index;
         var count;

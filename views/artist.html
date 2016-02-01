@@ -1,43 +1,41 @@
-﻿<div>
-    <div class="container-fluid">
-        <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
+﻿<div class="container-fluid">
+    <div id="messagePanel" ng-show="hasMessage">{{msg}}</div>
 
-        <div ng-show="ready && !hasMessage">
-            <div class="lookupImageContainer">
-                <img ng-src="{{artist.primaryImage}}" title="Artist image" class="lookupImage" />
+    <div ng-show="ready && !hasMessage">
+        <div class="lookupImageContainer">
+            <img ng-src="{{artist.primaryImage}}" title="Artist image" class="lookupImage" />
+        </div>
+
+        <div class="lookupMetaContainer">
+            <div class="mainName">{{artist.name}}</div>
+
+            <div class="topPadding5">
+                <a ng-repeat="style in artist.musicStyles" ng-click="setCurrentStyle(style.name)" ng-href="#style/{{style.id}}" ng-attr-title="Look up {{style.name}}" class="styleLink">
+                    <span class="label label-primary label-clickable label-lookup metaLabel">{{style.name}}</span>
+                </a>
             </div>
 
-            <div class="lookupMetaContainer">
-                <div class="mainName">{{artist.name}}</div>
-
-                <div class="topPadding5">
-                    <a ng-repeat="style in artist.musicStyles" ng-click="setCurrentStyle(style.name)" ng-href="#style/{{style.id}}" ng-attr-title="Look up {{style.name}}" class="styleLink">
-                        <span class="label label-primary label-clickable label-lookup metaLabel">{{style.name}}</span>
-                    </a>
-                </div>
-
-                <div class="topPadding5 smallerText">
-                    <div>{{artist.originLabel}}&nbsp;{{artist.birth.date}}<span ng-show="hasBirthplace">,&nbsp;{{artist.birth.place}}</span></div>
-                    <div ng-show="ended">{{artist.endLabel}}&nbsp;{{artist.death.date}}</div>
-                </div>
-
-                <div class="yearsActiveContainer">
-                    <div class="smallerText" ng-show="hasYears">Years active:</div>
-                    <span class="label label-default metaLabel" ng-repeat="year in artist.active">{{year}}</span>
-                </div>
-
-                <div class="topPadding5 smallerText" ng-show="hasHeadlineBio">
-                    <span ng-bind-html="artist.headlineBioFormatted"></span><span ng-show="artist.musicBio">&nbsp;<a ng-href="{{fullBioLink}}">(more)</a></span>
-                </div>
+            <div class="topPadding5 smallerText">
+                <div>{{artist.originLabel}}&nbsp;{{artist.birth.date}}<span ng-show="hasBirthplace">,&nbsp;{{artist.birth.place}}</span></div>
+                <div ng-show="ended">{{artist.endLabel}}&nbsp;{{artist.death.date}}</div>
             </div>
 
-            <div class="discographyContainer" ng-show="hasDiscography">
-                <tabset class="discogTabs">
-                    <tab ng-repeat="pane in panes" heading="{{pane.title}}" select="setCurTab(pane.contentType)" active="pane.active">
-                        <ng-include src="'views/discogListItem.html'"></ng-include>
-                    </tab>
-                </tabset>
+            <div class="yearsActiveContainer">
+                <div class="smallerText" ng-show="hasYears">Years active:</div>
+                <span class="label label-default metaLabel" ng-repeat="year in artist.active">{{year}}</span>
             </div>
+
+            <div class="topPadding5 smallerText" ng-show="hasHeadlineBio">
+                <span ng-bind-html="artist.headlineBioFormatted"></span><span ng-show="artist.musicBio">&nbsp;<a ng-href="{{fullBioLink}}">(more)</a></span>
+            </div>
+        </div>
+
+        <div class="tabContainer" ng-show="hasVisibleTabs">
+            <uib-tabset class="tabs">
+                <uib-tab ng-repeat="pane in panes" heading="{{pane.title}}" ng-show="pane.visible" select="setCurTab(pane.title)" active="pane.active">
+                    <ng-include src="pane.content"></ng-include>
+                </uib-tab>
+            </uib-tabset>
         </div>
     </div>
 </div>

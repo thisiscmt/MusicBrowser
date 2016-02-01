@@ -1,5 +1,5 @@
-﻿// Service that includes common functionality for the entire app.
-musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function ($window, $modal, $rootScope) {
+﻿// Service that includes common functionality for the entire app
+musicBrowserApp.factory('mbCommon', ['$window', '$uibModal', '$rootScope', function ($window, $uibModal, $rootScope) {
     var curInstance = this;
     var loadingDialog = null;
 
@@ -52,33 +52,16 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function
         configurable: true
     });
 
-    // For some reason the modal functionality in UI Bootstrap requires that the controller for the modal
-    // window itself be a function, rather than a true Angular one created by calling the controller()
-    // method of the main app module. Maybe it's possible to use controller(), but this works well enough.
-    var modalCtrl = function ($scope, $modalInstance, loadingMsg) {
-        $scope.loadingMsg = loadingMsg;
-    };
-
     curInstance.showLoadingDialog = function (msg) {
-        loadingDialog = $modal.open({
+        loadingDialog = $uibModal.open({
             templateUrl: "views/loadingDialog.html",
-            controller: modalCtrl,
+            controller: 'ModalCtrl',
             keyboard: false,
             resolve: {
                 loadingMsg: function () {
                     return msg;
                 }
             }
-        });
-
-        // A bug in version 0.10 of UI Bootstrap causes the scope for a modal to not be discarded
-        // after use, so a subsequent attempt to open/close one will raise an exception. Setting
-        // the modal instance to basically nothing after we're done with it allows it to be safely 
-        // reused. A fix is slated for the next UI Bootstrap release.
-        loadingDialog.result.then(function () {
-        }, function () {
-        })['finally'](function () {
-            loadingDialog = undefined;
         });
     }
 
@@ -101,6 +84,28 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function
         $window.history.back();
     }
 
+    curInstance.sortArray = function(property) {
+        var sortOrder = 1;
+
+        if (property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+
+        return function (a, b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    }
+
+    curInstance.shorten = function(str, targetLen) {
+        var retVal = str;
+
+        if (str.length > targetLen) {
+            // TODO
+        }
+    }
+
     curInstance.formatDate = function(date, yearOnly, prettify) {
         var formattedDate = "";
         var newDate;
@@ -121,20 +126,18 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function
                 else {
                     if (dateBuffer.length === 2) {
                         if (prettify) {
-                            newDate = Date.parse(dateBuffer[1] + "/" + dateBuffer[0]);
-                            formattedDate = newDate.toString("MMMM, yyyy");
+                            formattedDate = moment(dateBuffer[1] + "/1/" + dateBuffer[0]).format("MMMM, YYYY");
                         }
                         else {
-                            formattedDate = Date.parse(dateBuffer[1] + "/" + dateBuffer[0]).toString("M/yyyy");
+                            formattedDate = moment(dateBuffer[1] + "/1/" + dateBuffer[0]).format("M/YYYY");
                         }
                     }
                     else {
                         if (prettify) {
-                            newDate = Date.parse(dateBuffer[1] + "/" + dateBuffer[2] + "/" + dateBuffer[0]); 
-                            formattedDate = newDate.toString("MMMM d, yyyy");
+                            formattedDate = moment(dateBuffer[1] + "/" + dateBuffer[2] + "/" + dateBuffer[0]).format("MMMM D, YYYY");
                         }
                         else {
-                            formattedDate = Date.parse(cleanDate).toString("M/d/yyyy");
+                            formattedDate = moment(cleanDate).format("M/D/YYYY");
                         }
                     }
                 }
@@ -187,7 +190,7 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function
         return formattedDuration;
     };
     
-    curInstance.formatError = function (error, status) {
+    curInstance.formatError = function (error) {
         var response;
         var msg;
 
@@ -211,8 +214,20 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function
                 msg = error.responseText;
             }
         }
+        else if (error.data) {
+            if (error.status) {
+                msg = "HTTP status " + error.status + ": ";
+            }
+
+            msg = msg + error.data;
+        }
         else {
-            msg = "HTTP error code " + status;
+            if (error.message) {
+                msg = error.message;
+            }
+            else {
+                msg = error;
+            }
         }
 
         return msg;
@@ -232,10 +247,7 @@ musicBrowserApp.factory('mbCommon', ['$window', '$modal', '$rootScope', function
         if (!mbConfig.albumChrono) {
             mbConfig.albumChrono = false;
         }
-        if (mbConfig.pageSize) {
-            mbConfig.pageSize = parseInt(mbConfig.pageSize);
-        }
-        else {
+        if (!mbConfig.pageSize) {
             mbConfig.pageSize = 20;
         }
 

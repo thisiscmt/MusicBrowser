@@ -41,7 +41,15 @@ namespace MusicBrowser
                     msg = "Access is forbidden";
                     break;
                 default:
-                    msg = HttpWorkerRequest.GetStatusDescription((int)status);
+                    if ((int)status == 596)
+                    {
+                        msg = "Service not found";
+                    }
+                    else
+                    {
+                        msg = HttpWorkerRequest.GetStatusDescription((int)status);
+                    }
+                    
                     break;
             }
 

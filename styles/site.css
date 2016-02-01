@@ -12,7 +12,6 @@
 }
 
 /* Bootstrap overrides */
-
 /* The following two classes make labels easier targets for touches on a mobile device */
 .label-clickable 
 {
@@ -25,7 +24,7 @@
 }
 
 /* Reduces the horizontal space consumed by a tab header, needed to prevent wrapping of the tabs */
-.discogTabs .nav > li > a
+.tabs .nav > li > a
 {
     padding-right:8px;
     padding-left:8px;
@@ -63,6 +62,16 @@
 .listItem
 {
     padding-bottom:10px;
+}
+
+.searchOption 
+{
+    margin-right:25px;
+}
+
+.searchOption:last-child 
+{
+    margin-right:0px;
 }
 
 .searchImage
@@ -151,15 +160,26 @@
     font-weight:600;
 }
 
+.mainHeading
+{
+    font-weight:600;
+    font-size:1.2em;
+}
+
 .yearsActiveContainer
 {
     padding-top:2px;
 }
 
-.discographyContainer
+.tabContainer
 {
     font-size:0.9em;
     padding-top:10px;
+}
+
+.discogContainer
+{
+    padding-top: 10px;
 }
 
 .discographyImage
@@ -167,6 +187,12 @@
     border-style:none;
     height:auto;
     width:25px;
+}
+
+.discogHeader
+{
+    font-weight:bold;
+    padding-bottom:5px;
 }
 
 .albumName
@@ -219,7 +245,6 @@ a.styleLink:active
 @media screen and (-webkit-min-device-pixel-ratio:0) {
     select:focus, textarea:focus, input:focus {
         font-size: 16px;
-        background: #eee;
     }
 }
 

@@ -7,23 +7,26 @@ and it's much easier to filter by a single value. The filtering context is based
 shown, which is associated with an item type.
 -->
 <ul class="standardList">
-    <li ng-repeat="album in artist.discography | filter:{formattedType: pane.contentType}" class="panel panel-default">
+    <li bindonce ng-repeat="album in discogSet(pane.context) | filter:{formattedType: pane.contentType}" class="panel panel-default">
         <div class="imageContainer">
-            <a ng-click="setCurrentAlbum(album.title)" ng-href="#album/{{album.ids.albumId}}">
-                <img ng-src="{{album.primaryImage}}" title="Album cover" class="discographyImage" />
+            <a ng-click="setCurrentAlbum(album.title)" bo-href="'#album/' + album.ids.albumId">
+                <img bo-src="album.primaryImage" title="Album cover" class="discographyImage" />
             </a>
         </div>
 
         <div class="metaContainer">
             <div>
-                <a ng-click="setCurrentAlbum(album.title)" ng-href="#album/{{album.ids.albumId}}" class="albumName">
-                    <div>{{album.title}}</div>
+                <a ng-click="setCurrentAlbum(album.title)" bo-href="'#album/' + album.ids.albumId" class="albumName">
+                    <div bo-text="album.title"></div>
                 </a>
             </div>
 
             <div class="smallText">
-                <span>{{album.year}}</span>
+                <span bo-text="album.year"></span>
             </div>
         </div>
+    </li>
+    <li ng-show="artist.hasFullDiscog && !showingFullDiscog">
+        <a ng-href="#artist/{{artist.ids.nameId}}/full-discog">View complete discography</a>
     </li>
 </ul>

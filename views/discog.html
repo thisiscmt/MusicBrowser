@@ -1,0 +1,15 @@
+﻿<div id="discography" class="container-fluid">
+    <div class="discogHeader">
+        <div>
+            {{artist.name}} Discography
+        </div>
+    </div>
+
+    <div class="tabContainer">
+        <uib-tabset class="tabs">
+            <uib-tab ng-repeat="pane in discogPanes" heading="{{pane.title}}" select="setCurDiscogTab(pane.title)" active="pane.active">
+                <ng-include src="'views/discogList.html'"></ng-include>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>

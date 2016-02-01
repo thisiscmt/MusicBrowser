@@ -12,7 +12,7 @@
         </div>
 
         <ul ng-show="ready && !noResults" class="standardList">
-            <li ng-repeat="album in albums" class="panel panel-default">
+            <li ng-repeat="album in albums track by $index" class="panel panel-default">
                 <div class="imageContainer">
                     <a ng-click="setCurrentAlbum(album.album.title)" ng-href="#album/{{album.id}}">
                         <img ng-src="{{album.album.primaryImage}}" title="Album cover" class="searchImage" />

@@ -3,7 +3,6 @@
 // The name of the module for the main app must match the ng-app attribute of the <html> tag in the 
 // startup page. The contents of the array are dependencies for the app:
 //   ngRoute:                  Provides routing support
-//   ngAnimate:                Provides animation support
 //   ngSanitize:               Sanitizes text that contains markup before binding it to a view, needed
 //                             for artist bios and album reviews which need to have line breaks and
 //                             possibly hyperlinks to other views
@@ -11,10 +10,10 @@
 //   musicBrowserControllers:  Module which will hold all controllers for the app
 var musicBrowserApp = angular.module('MusicBrowserApp', [
   'ngRoute',
-  'ngAnimate',
   'ngSanitize',
   'ui.bootstrap',
   'jmdobry.angular-cache',
+  'pasvaz.bindonce',
   'musicBrowserControllers'
 ]);
 
@@ -29,8 +28,8 @@ var musicBrowserControllers = angular.module('musicBrowserControllers', []);
 // /artist/<id>/full-bio        Shows only the complete bio for the artist represented by <id>
 // /album/<id>                  Shows the details for the album represented by <id>
 // /album/<id>/full-review      Shows only the complete review for the album represented by <id>
-// /genre/<id>                  Shows the details for the genre represented by <id>
 // /style/<id>                  Shows the details for the style represented by <id>
+// /genre/<id>                  Shows the details for the genre represented by <id>
 // /options                     Page for changing app options
 musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, $provide) {
     $routeProvider.when('/', { templateUrl: 'views/search.html', controller: 'SearchCtrl', title: "Search" });
@@ -40,6 +39,7 @@ musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, 
     $routeProvider.when('/search/song/:searchTerm', { templateUrl: 'views/songSearch.html', controller: 'SongSearchCtrl', title: "Song Search" });
     $routeProvider.when('/artist/:id', { templateUrl: 'views/artist.html', controller: 'ArtistLookupCtrl', title: "Artist" });
     $routeProvider.when('/artist/:id/full-bio', { templateUrl: 'views/artistBio.html', controller: 'ArtistLookupCtrl', title: "Artist Bio" });
+    $routeProvider.when('/artist/:id/full-discog', { templateUrl: 'views/discog.html', controller: 'ArtistLookupCtrl', title: "Artist Discography" });
     $routeProvider.when('/album/:id', { templateUrl: 'views/album.html', controller: 'AlbumLookupCtrl', title: "Album" });
     $routeProvider.when('/album/:id/full-review', { templateUrl: 'views/albumReview.html', controller: 'AlbumLookupCtrl', title: "Album Review" });
     $routeProvider.when('/style/:id', { templateUrl: 'views/style.html', controller: 'StyleLookupCtrl', title: "Style" });
@@ -49,15 +49,10 @@ musicBrowserApp.config(['$routeProvider', '$provide', function ($routeProvider, 
 }]);
 
 // Any startup code needed by the app should go here
-musicBrowserApp.run(['$rootScope', '$http', '$angularCacheFactory', 'mbCommon', function ($rootScope, $http, $angularCacheFactory, mbCommon) {
-    $http.defaults.headers.common["Accept-Encoding"] = "gzip,deflate";
-
-    // Stores the name of the current item being viewed, such as an artist, album, song, etc. We will
-    // use it below to set the page title, but it needs to be assigned in the respecitve controller 
-    // since it won't be part of any route
+musicBrowserApp.run(['$rootScope', '$http', '$angularCacheFactory', function ($rootScope, $http, $angularCacheFactory) {
     $rootScope.title = "Search";
 
-    // Create a custom cache for our data, and set the $http service to use it for its caching
+    // Create a custom cache for our data and set the $http service to use it
     $angularCacheFactory('dataCache', {
         // Items added to this cache expire after 60 minutes
         maxAge: 3600000,

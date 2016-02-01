@@ -133,21 +133,19 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="dev\bootstrap.css" />
-    <Content Include="dev\ui-bootstrap-tpls-0.10.0.js" />
+    <Content Include="scripts\controllers\modal.js" />
+    <Content Include="scripts\directives\bindonce.min.js" />
     <Content Include="scripts\directives\focusMe.js" />
-    <Content Include="scripts\lib\ui-bootstrap-custom-tpls-0.10.0.min.js" />
-    <Content Include="views\discogListItem.html" />
+    <Content Include="scripts\lib\moment.min.js" />
+    <Content Include="scripts\lib\thenBy.js" />
+    <Content Include="scripts\lib\ui-bootstrap-custom-tpls-1.1.1.min.js" />
+    <Content Include="views\artistMetaList.html" />
+    <Content Include="views\discog.html" />
+    <Content Include="views\discogList.html" />
     <Content Include="images\Placeholder_90.png" />
     <Content Include="scripts\controllers\genreLookup.js" />
     <Content Include="scripts\controllers\styleLookup.js" />
     <Content Include="views\albumReview.html" />
-    <Content Include="dev\angular-animate.js" />
-    <Content Include="dev\angular-cache.js" />
-    <Content Include="dev\angular-resource.js" />
-    <Content Include="dev\angular-route.js" />
-    <Content Include="dev\angular.js" />
-    <Content Include="dev\jquery-2.1.0.min.js" />
     <Content Include="images\Placeholder_25.png" />
     <Content Include="images\Placeholder_50.png" />
     <Content Include="images\Placeholder_80.png" />
@@ -173,7 +171,6 @@
     <Content Include="views\genre.html" />
     <Content Include="views\loadingDialog.html" />
     <Content Include="views\options.html" />
-    <Content Include="scripts\lib\date.js" />
     <None Include="Properties\PublishProfiles\MB_WD.pubxml" />
     <Content Include="scripts\app.js" />
     <Content Include="scripts\services\mb-common.js" />

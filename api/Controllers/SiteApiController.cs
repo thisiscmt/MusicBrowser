@@ -74,36 +74,33 @@ namespace MusicBrowser.Controllers
             ResultViewModel result;
             string url;
             string queryString = string.Empty;
-            string size = DEFAULT_RESULT_SIZE;
-            string offset = DEFAULT_OFFSET;
 
             if (ConfigurationManager.AppSettings["LogIDs"] == bool.TrueString)
             {
                 MusicBrowser.Common.WriteEvent("debug", "Collection-" + collection + " | ID-" + id, DateTime.Now);
             }
 
-            var parms = Request.RequestUri.ParseQueryString();
-
-            if (parms["size"] != null)
-            {
-                size = parms["size"];
-            }
-            if (parms["offset"] != null)
-            {
-                offset = parms["offset"];
-            }
-
             switch (collection)
             {
                 case "artist":
                     url = ConfigurationManager.AppSettings["RoviDataEndpoint"] + "name/info";
-                    queryString = "?nameid=" + id + "&include=discography,images,musicstyles,musicbio&type=main,singles,compilations&imagesize=90-300x0-300&imagesort=width&imagecount=" + IMAGES_TO_RETRIEVE;
+                    queryString = "?nameid=" + id + "&include=discography,images,musicstyles,musicbio,groupmembers,similars&type=main,singles,compilations&imagesize=90-300x0-300&imagesort=width&imagecount=" + IMAGES_TO_RETRIEVE;
                     result = SubmitRequest(url, queryString);
 
                     break;
                 case "album":
                     url = ConfigurationManager.AppSettings["RoviDataEndpoint"] + "album/info";
-                    queryString = "?albumid=" + id + "&include=tracks,images,styles,primaryreview&imagesize=90-300x0-300&imagesort=width&imagecount=" + IMAGES_TO_RETRIEVE;
+
+                    if (id.ToUpper().StartsWith("R"))
+                    {
+                        queryString = "?amgpopid=";
+                    }
+                    else
+                    {
+                        queryString = "?albumId=";
+                    }
+                    
+                    queryString = queryString + id + "&include=tracks,images,styles,primaryreview&imagesize=90-300x0-300&imagesort=width&imagecount=" + IMAGES_TO_RETRIEVE;
                     result = SubmitRequest(url, queryString);
 
                     break;
@@ -161,8 +158,6 @@ namespace MusicBrowser.Controllers
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Accept.Add((new MediaTypeWithQualityHeaderValue("application/json")));
-                client.DefaultRequestHeaders.AcceptEncoding.Add((new StringWithQualityHeaderValue("gzip")));
-                client.DefaultRequestHeaders.AcceptEncoding.Add((new StringWithQualityHeaderValue("deflate")));
                 finalQueryString = queryString + "&format=json&apikey=" + ConfigurationManager.AppSettings["RoviApiKey"] + "&sig=" + Common.GetApiSignature();
 
                 using (response = client.GetAsync(url + finalQueryString).Result)

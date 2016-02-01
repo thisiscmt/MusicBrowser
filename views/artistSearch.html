@@ -12,7 +12,7 @@
         </div>
 
         <ul ng-show="ready && !noResults" class="standardList">
-            <li ng-repeat="artist in artists" class="panel panel-default">
+            <li ng-repeat="artist in artists track by $index" class="panel panel-default">
                 <div class="imageContainer">
                     <a ng-click="setCurrentArtist(artist.name.name)" ng-href="#artist/{{artist.id}}">
                         <img ng-src="{{artist.name.primaryImage}}" title="Artist image" class="searchImage" />

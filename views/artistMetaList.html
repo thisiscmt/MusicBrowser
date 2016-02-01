@@ -1,0 +1,18 @@
+﻿<ul class="standardList">
+    <li bindonce ng-repeat="item in artist.metaItems | filter:{formattedType: pane.contentType}" class="panel panel-default">
+        <div class="imageContainer">
+            <a ng-click="setCurrentArtist(item.name)" bo-href="'#artist/' + item.id">
+                <img bo-src="item.primaryImage" title="Artist image" class="discographyImage" />
+            </a>
+        </div>
+
+        <div class="metaContainer">
+            <div>
+                <a ng-click="setCurrentArtist(item.name)" bo-href="'#artist/' + item.id">
+                    <div bo-text="item.name"></div>
+                </a>
+            </div>
+        </div>
+    </li>
+</ul>
+
