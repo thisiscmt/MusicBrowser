@@ -19,9 +19,9 @@
         mbCommon.currentArtist = name;
     }
 
-    mbData.searchForAlbum($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (val) {
-        if (val.data.searchResult) {
-            $scope.albums = val.data.searchResult;
+    mbData.searchForAlbum($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (result) {
+        if (result.data) {
+            $scope.albums = result.data;
             offsetVal = parseInt($routeParams.offset);
             sizeVal = parseInt($routeParams.size);
 
@@ -34,16 +34,12 @@
 
             $scope.offset = $scope.curPage * sizeVal;
         }
+        else if (result.error) {
+            $scope.msg = result.error;
+            $scope.hasMessage = true;
+        }
         else {
             $scope.noResults = true;
-        }
-
-        mbCommon.closeLoadingDialog();
-        $scope.ready = true;
-    }, function (val) {
-        if (val) {
-            $scope.msg = JSON.parse(val.data);
-            $scope.hasMessage = true;
         }
 
         mbCommon.closeLoadingDialog();

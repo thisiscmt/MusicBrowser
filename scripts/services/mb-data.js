@@ -15,15 +15,20 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
         var url = "api/search/artist/" + encodeURIComponent(query) + "?size=" + size + "&offset=" + offset;
 
         return $http.get(url, { cache: true }).
-            success(function (data, status, headers, config) {
-                var result = JSON.parse(data.Content);
+            then(function successCallback(response) {
+                var data = JSON.parse(response.data.Content);
+                var result = {};
 
-                if (result.searchResponse) {
-                    data.searchResult = result.searchResponse.results.map(function (element) {
+                if (data.searchResponse) {
+                    result.data = data.searchResponse.results.map(function (element) {
                         setPrimaryImage(element, mbCommon.placeholderImageMedium);
                         return element;
                     });
                 }
+
+                return result;
+            }, function errorCallback(response) {
+                return { error: mbCommon.formatError(response) };
             });
     };
     
@@ -183,9 +188,9 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
                     result.name.metaItems.push.apply(result.name.metaItems, result.name.similars);
                 }
 
-                return {data: result.name};
+                return { data: result.name };
             }, function errorCallback(response) {
-                return {error: mbCommon.formatError(response)};
+                return { error: mbCommon.formatError(response) };
         });
     };
 
@@ -193,11 +198,12 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
         var url = "api/search/album/" + encodeURIComponent(query) + "?size=" + size + "&offset=" + offset;
 
         return $http.get(url, { cache: true }).
-            success(function (data, status, headers, config) {
-                var result = JSON.parse(data.Content);
+            then(function successCallback(response) {
+                var data = JSON.parse(response.data.Content);
+                var result = {};
 
-                if (result.searchResponse) {
-                    data.searchResult = result.searchResponse.results.map(function (element) {
+                if (data.searchResponse) {
+                    result.data = data.searchResponse.results.map(function (element) {
                         if (element.album.images && element.album.images.length > 0) {
                             element.album.primaryImage = element.album.images[0].url;
                         }
@@ -208,15 +214,19 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
                         return element;
                     });
                 }
-            })
+
+                return result;
+            }, function errorCallback(response) {
+                return { error: mbCommon.formatError(response) };
+            });
     };
 
     curInstance.lookupAlbum = function (id) {
         var url = "api/album/" + encodeURIComponent(id);
 
         return $http.get(url, { cache: true }).
-            success(function (data, status, headers, config) {
-                var result = JSON.parse(data.Content);
+            then(function successCallback(response) {
+                var result = JSON.parse(response.data.Content);
                 var primaryImage;
                 var formattedReviewText;
 
@@ -258,7 +268,9 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
                     }
                 }
 
-                data.lookupResult = result.album;
+                return { data: result.album };
+            }, function errorCallback(response) {
+                return {error: mbCommon.formatError(response)};
             })
     };
 
@@ -266,11 +278,12 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
         var url = "api/search/song/" + encodeURIComponent(query) + "?size=" + size + "&offset=" + offset;
 
         return $http.get(url, { cache: true }).
-            success(function (data, status, headers, config) {
-                var result = JSON.parse(data.Content);
+            then(function successCallback(response) {
+                var data = JSON.parse(response.data.Content);
+                var result = {};
 
-                if (result.searchResponse) {
-                    data.searchResult = result.searchResponse.results.map(function (element) {
+                if (data.searchResponse) {
+                    result.data = data.searchResponse.results.map(function (element) {
                         if (element.song.images && element.song.images.length > 0) {
                             element.song.primaryImage = element.song.images[0].url;
                         }
@@ -281,6 +294,10 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
                         return element;
                     });
                 }
+
+                return result;
+            }, function errorCallback(response) {
+                return { error: mbCommon.formatError(response) };
             })
     };
 
@@ -288,23 +305,28 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
         var url = "api/style/" + encodeURIComponent(id);
 
         return $http.get(url, { cache: true }).
-            success(function (data, status, headers, config) {
-                var result = JSON.parse(data.Content);
+            then(function successCallback(response) {
+                var data = JSON.parse(response.data.Content);
                 var items;
+                var result = {};
 
                 // Some styles are stored by Rovi in their subgenres collection, so we need to check 
                 // what results we have
-                if (result.styles) {
-                    items = result.styles;
+                if (data.styles) {
+                    items = data.styles;
                 }
                 else {
-                    items = result.subgenres;
+                    items = data.subgenres;
                 }
 
-                data.lookupResult = items.map(function (element) {
+                result.data = items.map(function (element) {
                     element.formattedDescription = replaceRoviLinks(element.description);
                     return element;
                 });
+
+                return result;
+            }, function errorCallback(response) {
+                return { error: mbCommon.formatError(response) };
             })
     }
 
@@ -312,13 +334,18 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
         var url = "api/genre/" + encodeURIComponent(id);
 
         return $http.get(url, { cache: true }).
-            success(function (data, status, headers, config) {
-                var result = JSON.parse(data.Content);
+            then(function successCallback(response) {
+                var data = JSON.parse(response.data.Content);
+                var result = {};
 
-                data.lookupResult = result.genres.map(function (element) {
+                result.data = data.genres.map(function (element) {
                     element.formattedDescription = replaceRoviLinks(element.description);
                     return element;
                 });
+
+                return result;
+            }, function errorCallback(response) {
+                return { error: mbCommon.formatError(response) };
             })
     }
 
@@ -442,7 +469,7 @@ musicBrowserApp.factory('mbData', ['mbCommon', '$http', '$angularCacheFactory', 
     // and count until we've reached the max length allowed. If we run into an anchor tag, we briefly 
     // stop counting until we reach an appropriate closing tag. Once we have our stopping point, we 
     // keep going until we reach a space or carriage return, so we don't break in the middle of a word.
-    // We also need to make sure we aren't in the middle of an anchor so we don't produce malformed HTML.
+    // We also need to make sure we aren't in the middle of an anchor so we don't render malformed HTML.
     var getShortDescription = function (inputStr) {
         var index;
         var count;

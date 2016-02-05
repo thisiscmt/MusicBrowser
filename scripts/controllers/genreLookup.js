@@ -8,20 +8,16 @@
         mbCommon.showLoadingDialog("Retrieving genre ...");
     }
 
-    mbData.lookupGenre($routeParams.id).then(function (val) {
-        if (val.data.lookupResult) {
-            $scope.genres = val.data.lookupResult;
+    mbData.lookupGenre($routeParams.id).then(function (result) {
+        if (result.data) {
+            $scope.genres = result.data;
+        }
+        else if (result.error) {
+            $scope.msg = result.error;
+            $scope.hasMessage = true;
         }
         else {
             $scope.noResults = true;
-        }
-
-        mbCommon.closeLoadingDialog();
-        $scope.ready = true;
-    }, function (val) {
-        if (val) {
-            $scope.msg = JSON.parse(val.data);
-            $scope.hasMessage = true;
         }
 
         mbCommon.closeLoadingDialog();

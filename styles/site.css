@@ -1,7 +1,7 @@
 ﻿/* Home page */
 #mainContent
 {
-    padding-top:10px;
+    /*padding-top:10px;*/
     padding-bottom:10px;
 }
 
@@ -12,6 +12,24 @@
 }
 
 /* Bootstrap overrides */
+/* Fix for mobile Safari zooming in too far after a Bootstrap-based modal is opened */
+body 
+{
+  padding-right: 0px !important
+}
+
+.modal-open 
+{
+  overflow-y: auto;
+}
+
+/* Prevents mobile Safari from zooming in slightly when an input element is selected, which forces the
+   user to zoom out to see everything */
+.form-group .form-control
+{
+    font-size: 16px;
+}
+
 /* The following two classes make labels easier targets for touches on a mobile device */
 .label-clickable 
 {

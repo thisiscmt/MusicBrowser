@@ -8,20 +8,16 @@
         mbCommon.showLoadingDialog("Retrieving style ...");
     }
 
-    mbData.lookupStyle($routeParams.id).then(function (val) {
-        if (val.data.lookupResult) {
-            $scope.styles = val.data.lookupResult;
+    mbData.lookupStyle($routeParams.id).then(function (result) {
+        if (result.data) {
+            $scope.styles = result.data;
+        }
+        else if (result.error) {
+            $scope.msg = result.error;
+            $scope.hasMessage = true;
         }
         else {
             $scope.noResults = true;
-        }
-
-        mbCommon.closeLoadingDialog();
-        $scope.ready = true;
-    }, function (val) {
-        if (val) {
-            $scope.msg = JSON.parse(val.data);
-            $scope.hasMessage = true;
         }
 
         mbCommon.closeLoadingDialog();

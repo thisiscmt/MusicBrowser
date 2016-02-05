@@ -234,11 +234,11 @@ musicBrowserApp.factory('mbCommon', ['$window', '$uibModal', '$rootScope', funct
     };
 
     curInstance.getConfiguration = function () {
-        var val = localStorage.getItem("MBConfig");
+        var data = localStorage.getItem("MBConfig");
         var mbConfig;
 
-        if (val) {
-            mbConfig = JSON.parse(val);
+        if (data) {
+            mbConfig = JSON.parse(data);
         }
         else {
             mbConfig = {};

@@ -28,12 +28,12 @@
         mbCommon.currentGenre = name;
     }
 
-    mbData.searchForArtist($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (val) {
+    mbData.searchForArtist($routeParams.searchTerm, $routeParams.size, $routeParams.offset).then(function (result) {
         var offsetVal;
         var sizeVal;
 
-        if (val.data.searchResult) {
-            $scope.artists = val.data.searchResult;
+        if (result.data) {
+            $scope.artists = result.data;
             offsetVal = parseInt($routeParams.offset);
             sizeVal = parseInt($routeParams.size);
 
@@ -46,18 +46,12 @@
 
             $scope.offset = $scope.curPage * sizeVal;
         }
+        else if (result.error) {
+            $scope.msg = result.error;
+            $scope.hasMessage = true;
+        }
         else {
             $scope.noResults = true;
-        }
-
-        mbCommon.closeLoadingDialog();
-        $scope.ready = true;
-    }, function (val) {
-        if (val) {
-            // The argument passed to the error handler will be JSON, so we need to parse it in 
-            // order to get the exact string value we want
-            $scope.msg = JSON.parse(val.data);
-            $scope.hasMessage = true;
         }
 
         mbCommon.closeLoadingDialog();

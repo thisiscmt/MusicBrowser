@@ -101,7 +101,7 @@
             }
 
             var buffer;
-            var val;
+            var curTab;
             var panes;
 
             // Check if a previously saved tab exists, and if the artist matches the one being viewed 
@@ -109,16 +109,16 @@
             // goes back, they will return to the tab they were at. We include the artist's ID so when 
             // they view some other artist it will default to the first tab in the view.
             if (url.indexOf("full-discog") > -1) {
-                val = sessionStorage.getItem("curDiscogTab");
+                curTab = sessionStorage.getItem("curDiscogTab");
                 panes = $scope.discogPanes;
             }
             else {
-                val = sessionStorage.getItem("curTab");
+                curTab = sessionStorage.getItem("curTab");
                 panes = $scope.panes;
             }
 
-            if (val) {
-                buffer = val.split("|");
+            if (curTab) {
+                buffer = curTab.split("|");
 
                 for (var i = 0; i < panes.length; i++) {
                     if (panes[i].title === buffer[0] && $routeParams.id === buffer[1]) {
