@@ -140,7 +140,9 @@
     <Content Include="scripts\lib\moment.min.js" />
     <Content Include="scripts\lib\thenBy.js" />
     <Content Include="scripts\lib\ui-bootstrap-custom-tpls-1.1.1.min.js" />
+    <Content Include="scripts\sourceMap.map" />
     <None Include="scripts\_references.js" />
+    <Content Include="scripts\mb-core.min.js" />
     <Content Include="views\artistMetaList.html" />
     <Content Include="views\discog.html" />
     <Content Include="views\discogList.html" />
