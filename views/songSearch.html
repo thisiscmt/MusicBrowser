@@ -31,8 +31,8 @@
 
         <div ng-show="!noResults" class="alignCenter">
             <a ng-show="curPage > 1" ng-href="#search/song/{{searchTerm}}?size={{pageSize}}&offset={{offset - (pageSize * 2)}}" class="btn btn-default navLink">Previous</a>
-            <span ng-show="curPage > 1 && songs.length === pageSize" class="pageTextSpacing">Page {{curPage}}</span>
-            <a ng-show="songs.length === pageSize" ng-href="#search/song/{{searchTerm}}?size={{pageSize}}&offset={{offset}}" class="btn btn-default navLink">Next</a>
+            <span ng-show="curPage > 1 && songs.length >= pageSize" class="pageTextSpacing">Page {{curPage}}</span>
+            <a ng-show="songs.length >= pageSize" ng-href="#search/song/{{searchTerm}}?size={{pageSize}}&offset={{offset}}" class="btn btn-default navLink">Next</a>
         </div>
 
         <div ng-show="noResults">

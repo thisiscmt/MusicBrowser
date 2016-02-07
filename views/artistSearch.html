@@ -37,10 +37,11 @@
 
         <div ng-show="!noResults" class="alignCenter">
             <a ng-show="curPage > 1" ng-href="#search/artist/{{searchTerm}}?size={{pageSize}}&offset={{offset - (pageSize * 2)}}" class="btn btn-default navLink">Previous</a>
-            <span ng-show="curPage > 1 && artists.length === pageSize" class="pageTextSpacing">Page {{curPage}}</span>
+            <span ng-show="curPage > 1 && artists.length >= pageSize" class="pageTextSpacing">Page {{curPage}}</span>
             <!-- Since there isn't a practical way of knowing if there are results beyond the current 
-                 page, we show the Next link if the number of items being viewed equals the page size -->
-            <a ng-show="artists.length === pageSize" ng-href="#search/artist/{{searchTerm}}?size={{pageSize}}&offset={{offset}}" class="btn btn-default navLink">Next</a>
+                 page, we show the Next link if the number of items being viewed is equal to or greater 
+                 than the page size -->
+            <a ng-show="artists.length >= pageSize" ng-href="#search/artist/{{searchTerm}}?size={{pageSize}}&offset={{offset}}" class="btn btn-default navLink">Next</a>
         </div>
 
         <div ng-show="noResults">

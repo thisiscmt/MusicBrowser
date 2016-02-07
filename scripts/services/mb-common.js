@@ -258,5 +258,14 @@ musicBrowserApp.factory('mbCommon', ['$window', '$uibModal', '$rootScope', funct
         localStorage.setItem("MBConfig", JSON.stringify(config))
     };
 
+    curInstance.isMobile = function () {
+        if (/Mobi/.test(navigator.userAgent)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     return curInstance;
 }]);

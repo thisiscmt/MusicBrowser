@@ -6,7 +6,9 @@
 //   ngSanitize:               Sanitizes text that contains markup before binding it to a view, needed
 //                             for artist bios and album reviews which need to have line breaks and
 //                             possibly hyperlinks to other views
+//   ui.bootstrap:             Collection of directives written in AngularJS that utilize Bootstrap styling
 //   jmdobry.angular-cache:    Custom caching implementation for use with the $http service
+//   pasvaz.bindonce:          Collection of directives that provide watch-free binding
 //   musicBrowserControllers:  Module which will hold all controllers for the app
 var musicBrowserApp = angular.module('MusicBrowserApp', [
   'ngRoute',

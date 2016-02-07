@@ -133,12 +133,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="gruntfile.js" />
     <Content Include="scripts\controllers\modal.js" />
-    <Content Include="scripts\directives\bindonce.min.js" />
+    <Content Include="scripts\directives\bindonce.js" />
     <Content Include="scripts\directives\focusMe.js" />
     <Content Include="scripts\lib\moment.min.js" />
     <Content Include="scripts\lib\thenBy.js" />
     <Content Include="scripts\lib\ui-bootstrap-custom-tpls-1.1.1.min.js" />
+    <None Include="scripts\_references.js" />
     <Content Include="views\artistMetaList.html" />
     <Content Include="views\discog.html" />
     <Content Include="views\discogList.html" />
@@ -157,7 +159,6 @@
     <Content Include="scripts\controllers\search.js" />
     <Content Include="scripts\controllers\songSearch.js" />
     <Content Include="scripts\lib\angular-cache.min.js" />
-    <Content Include="scripts\lib\detectmobilebrowser.js" />
     <Content Include="scripts\services\mb-data.js" />
     <Content Include="views\album.html" />
     <Content Include="views\albumSearch.html" />
@@ -171,6 +172,7 @@
     <Content Include="views\genre.html" />
     <Content Include="views\loadingDialog.html" />
     <Content Include="views\options.html" />
+    <Content Include="package.json" />
     <None Include="Properties\PublishProfiles\MB_WD.pubxml" />
     <Content Include="scripts\app.js" />
     <Content Include="scripts\services\mb-common.js" />
@@ -187,7 +189,6 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="scripts\_references.js" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -221,6 +222,9 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>"C:\Dev\MusicBrowser\Run Grunt.cmd"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

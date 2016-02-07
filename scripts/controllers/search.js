@@ -9,7 +9,7 @@
     // If the user agent is a mobile device, we don't want to automatically focus on the search 
     // field since it will cause any virtual keyboard to appear at improper times. Note that the
     // custom directive that is driven by this property expects boolean values
-    if (jQuery.browser.mobile) {
+    if (mbCommon.isMobile()) {
         $scope.shouldFocus = false;
     }
     else {
