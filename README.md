@@ -20,5 +20,3 @@ It uses the following open source libraries:
 It includes a [Web API](http://www.asp.net/web-api)-based service that wraps calls to Rovi's RESTful service. This API could be easily modified to support different metadata sources.
 
 Future work includes being able to look up releases that a song appears on, show noteworthy artists for a music style, and various other sundry improvements to better utilize Angular and provide a great UI.
-
-A live version can be found at [cmtybur.com/mb](http://cmtybur.com/mb)
