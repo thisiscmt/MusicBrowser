@@ -2,8 +2,11 @@
 
 # compiled output
 /dist
+/music-browser/dist
+/music-browser-api/dist
 /tmp
 /out-tsc
+
 # Only exists if Bazel was run
 /bazel-out
 

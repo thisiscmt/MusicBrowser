@@ -1,0 +1,43 @@
+#trigger:
+#- master
+#
+#pool:
+#  vmImage: 'windows-latest'
+#
+#jobs:
+#  - job: Build
+#    steps:
+#    - task: NodeTool@0
+#      inputs:
+#        versionSpec: '14.x'
+#      displayName: 'Install Node.js'
+#    - script: |
+#        npm install
+#      workingDirectory: $(Build.SourcesDirectory)\music-browser
+#      displayName: 'Install UI dependencies'
+#    - script: |
+#        npm run build
+#      workingDirectory: $(Build.SourcesDirectory)\music-browser
+#      displayName: 'Build the UI'
+#    - script: |
+#        npm run test
+#      workingDirectory: $(Build.SourcesDirectory)\music-browser
+#      displayName: 'Run UI unit tests'
+#    - task: CopyFiles@2
+#      inputs:
+#        sourceFolder: '$(Build.SourcesDirectory)\music-browser-api\dist'
+#        contents: '*.*'
+#        targetFolder: '$(Build.SourcesDirectory)\music-browser\dist'
+#      displayName: 'Copy API build output'
+#    - task: ArchiveFiles@2
+#      inputs:
+#        rootFolderOrFile: '$(Build.SourcesDirectory)\music-browser\dist'
+#        includeRootFolder: false
+#        archiveType: zip
+#        archiveFile: '$(Build.ArtifactStagingDirectory)\music-browser-$(Build.BuildId).zip'
+#      displayName: 'Create artifact'
+#    - task: PublishBuildArtifacts@1
+#      inputs:
+#        PathtoPublish: '$(Build.ArtifactStagingDirectory)\music-browser-$(Build.BuildId).zip'
+#        ArtifactName: music-browser
+#      displayName: 'Publish artifact'
