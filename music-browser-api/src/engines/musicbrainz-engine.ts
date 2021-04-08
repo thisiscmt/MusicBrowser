@@ -18,17 +18,17 @@ class MusicBrainzEngine extends Engine {
         let query: IFormData;
         let searchResult: ISearchResult;
 
-        query = {
-            query: encodeURIComponent(searchText)
-        };
-
         switch (collection) {
             case 'artist':
-                searchResult = await this.mbApi.searchArtist(query, page, pageSize);
+                searchResult = await this.mbApi.searchArtist(searchText, page, pageSize);
 
                 break;
             case 'album':
-                query.type = 'album';
+                query = {
+                    type: 'album',
+                    query: searchText
+                };
+
                 searchResult = await this.mbApi.searchReleaseGroup(query, page, pageSize);
 
                 break;
@@ -74,6 +74,7 @@ class MusicBrainzEngine extends Engine {
 
                 artistList.artists.forEach((result: any)  => {
                     artist = new Artist();
+                    artist.id = result.id;
                     artist.name = result.name;
                     artist.type = result.type || '';
                     artist.description = result.disambiguation;
