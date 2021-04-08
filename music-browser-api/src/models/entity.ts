@@ -13,9 +13,13 @@ export default class Entity {
 
     public type = '';
 
+    public secondaryType = '';
+
     public description = '';
 
     public longDescription = '';
+
+    public score = 0;
 
     public tags = new Array<string>();
 

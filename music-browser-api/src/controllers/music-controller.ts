@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 
 import Engine from '../engines/engine';
 import Utils from '../utils/utils';
+import {EntityType} from "../models/entity";
 
 class MusicController {
     public search = async (req: Request, res: Response) => {
@@ -43,7 +44,21 @@ class MusicController {
             return;
         }
 
-        const response = await engine.runSearch(collection, searchText, page, pageSize);
+        let entityType: EntityType;
+
+        switch (collection) {
+            case 'artist':
+                entityType = EntityType.ARTIST;
+                break;
+            case 'album':
+                entityType = EntityType.ALBUM;
+                break;
+            case 'song':
+                entityType = EntityType.SONG;
+                break;
+        }
+
+        const response = await engine.runSearch(entityType, searchText, page, pageSize);
 
         res.status(200).json(response);
         res.send();

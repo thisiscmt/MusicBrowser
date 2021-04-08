@@ -1,4 +1,4 @@
-import {IAlias, IArtistList, IArtistMatch, IFormData, ISearchResult, MusicBrainzApi} from 'musicbrainz-api';
+import {IAlias, IArtistList, IReleaseGroupList, ISearchResult, MusicBrainzApi} from 'musicbrainz-api';
 
 import Engine from './engine';
 import LookupResponse from '../models/lookup-response';
@@ -14,25 +14,21 @@ class MusicBrainzEngine extends Engine {
         appContactInfo: 'http://cmtybur.com/about'
     });
 
-    public async runSearch(collection: string, searchText: string, page: number, pageSize: number) {
-        let query: IFormData;
+    public async runSearch(entityType: EntityType, searchText: string, page: number, pageSize: number) {
+        let query: string;
         let searchResult: ISearchResult;
 
-        switch (collection) {
-            case 'artist':
+        switch (entityType) {
+            case EntityType.ARTIST:
                 searchResult = await this.mbApi.searchArtist(searchText, page, pageSize);
 
                 break;
-            case 'album':
-                query = {
-                    type: 'album',
-                    query: searchText
-                };
-
+            case EntityType.ALBUM:
+                query = searchText + ' AND type:album'
                 searchResult = await this.mbApi.searchReleaseGroup(query, page, pageSize);
 
                 break;
-            case 'song':
+            case EntityType.SONG:
                 // TODO
 
                 searchResult = {
@@ -52,7 +48,7 @@ class MusicBrainzEngine extends Engine {
                 break;
         }
 
-        return this.prepareSearchResponse(EntityType.ARTIST, searchResult);
+        return this.prepareSearchResponse(entityType, searchResult);
     }
 
     public async runLookup() {
@@ -63,8 +59,10 @@ class MusicBrainzEngine extends Engine {
 
     private prepareSearchResponse = (entityType: EntityType, searchResult: ISearchResult): SearchResponse => {
         const response = new SearchResponse();
-        let artist: Artist;
         let artistList: IArtistList;
+        let albumList: IReleaseGroupList;
+        let artist: Artist;
+        let album: Album;
 
         response.count = searchResult.count;
 
@@ -78,6 +76,7 @@ class MusicBrainzEngine extends Engine {
                     artist.name = result.name;
                     artist.type = result.type || '';
                     artist.description = result.disambiguation;
+                    artist.score = result.score;
 
                     if (result.area) {
                         artist.country = result.area.name;
@@ -105,6 +104,23 @@ class MusicBrainzEngine extends Engine {
 
                 break;
             case EntityType.ALBUM:
+                albumList = (searchResult as IReleaseGroupList)
+
+                albumList["release-groups"].forEach((result: any)  => {
+                    album = new Album();
+                    album.id = result.id;
+                    album.name = result.title;
+                    album.type = result["primary-type"];
+                    album.dateCreated = result["life-span"]?.begin;
+                    album.score = result.score;
+
+                    if (result['artist-credit'] && result['artist-credit'].length > 0) {
+                        album.artist = result['artist-credit'][0];
+                    }
+
+                    response.results.push(album);
+                });
+
                 break;
         }
 
