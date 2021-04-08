@@ -1,7 +1,11 @@
-import { IFormData, ISearchResult, MusicBrainzApi } from 'musicbrainz-api'
+import {IAlias, IArtistList, IArtistMatch, IFormData, ISearchResult, MusicBrainzApi} from 'musicbrainz-api';
 
-import Engine from './engine'
-import ResponsePayload from "../models/response-payload";
+import Engine from './engine';
+import LookupResponse from '../models/lookup-response';
+import Artist from '../models/artist';
+import SearchResponse from "../models/search-response";
+import {EntityType} from "../models/entity";
+import Album from "../models/album";
 
 class MusicBrainzEngine extends Engine {
     private mbApi = new MusicBrainzApi({
@@ -11,23 +15,23 @@ class MusicBrainzEngine extends Engine {
     });
 
     public async runSearch(collection: string, searchText: string, page: number, pageSize: number) {
-        let query: IFormData
-        let searchResult: ISearchResult
+        let query: IFormData;
+        let searchResult: ISearchResult;
 
         query = {
             query: encodeURIComponent(searchText)
-        }
+        };
 
         switch (collection) {
             case 'artist':
-                searchResult = await this.mbApi.searchArtist(query, page, pageSize)
+                searchResult = await this.mbApi.searchArtist(query, page, pageSize);
 
-                break
+                break;
             case 'album':
-                query.type = 'album'
-                searchResult = await this.mbApi.searchReleaseGroup(query, page, pageSize)
+                query.type = 'album';
+                searchResult = await this.mbApi.searchReleaseGroup(query, page, pageSize);
 
-                break
+                break;
             case 'song':
                 // TODO
 
@@ -35,39 +39,95 @@ class MusicBrainzEngine extends Engine {
                     created: new Intl.DateTimeFormat(),
                     count: 0,
                     offset: 0
-                }
+                };
 
-                break
+                break;
             default:
                 searchResult = {
                     created: new Intl.DateTimeFormat(),
                     count: 0,
                     offset: 0
-                }
+                };
 
-                break
+                break;
         }
 
-        return this.prepareSearchResponse(searchResult)
+        return this.prepareSearchResponse(EntityType.ARTIST, searchResult);
     }
 
     public async runLookup() {
         // TODO
 
-        return this.prepareLookupResponse(null);
+        return this.prepareLookupResponse(EntityType.ALBUM, null);
     }
 
-    private prepareSearchResponse = (searchResult: ISearchResult): ResponsePayload => {
-        // TODO
+    private prepareSearchResponse = (entityType: EntityType, searchResult: ISearchResult): SearchResponse => {
+        const response = new SearchResponse();
+        let artist: Artist;
+        let artistList: IArtistList;
 
-        return new ResponsePayload()
-    }
+        response.count = searchResult.count;
 
-    private prepareLookupResponse = (lookupResult: any): ResponsePayload => {
-        // TODO
+        switch (entityType) {
+            case EntityType.ARTIST:
+                artistList = (searchResult as IArtistList)
 
-        return new ResponsePayload()
-    }
+                artistList.artists.forEach((result: any)  => {
+                    artist = new Artist();
+                    artist.name = result.name;
+                    artist.type = result.type || '';
+                    artist.description = result.disambiguation;
+
+                    if (result.area) {
+                        artist.country = result.area.name;
+                    } else {
+                        artist.country = result.country
+                    }
+
+                    if (result["begin-area"]) {
+                        artist.region = result["begin-area"].name;
+                    }
+
+                    if (result["life-span"]) {
+                        artist.dateCreated = result["life-span"]?.begin
+                        artist.dateEnded = result["life-span"]?.end
+                    }
+
+                    if (result.aliases) {
+                        artist.aliases = result.aliases.map((alias: IAlias) => {
+                            return alias.name;
+                        })
+                    }
+
+                    response.results.push(artist);
+                });
+
+                break;
+            case EntityType.ALBUM:
+                break;
+        }
+
+        return response;
+    };
+
+    private prepareLookupResponse = (entityType: EntityType, lookupResult: any): LookupResponse => {
+        let response = new LookupResponse(undefined);
+
+        switch (entityType) {
+            case EntityType.ARTIST:
+                const artist = new Artist();
+                response = new LookupResponse(artist);
+
+                break;
+            case EntityType.ALBUM:
+                const album = new Album();
+                response = new LookupResponse(album);
+
+                break;
+        }
+
+        return response;
+    };
 }
 
-export default MusicBrainzEngine
+export default MusicBrainzEngine;

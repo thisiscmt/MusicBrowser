@@ -1,14 +1,10 @@
-import Entity from './entity';
+import Entity, {EntityType} from './entity';
 
 class Album extends Entity {
-    private _trackList = new Array<string>()
+    public trackList = new Array<string>();
 
-    get trackList(): string[] {
-        return this._trackList;
-    }
-
-    set trackList(value: string[]) {
-        this._trackList = value;
+    constructor() {
+        super(EntityType.ALBUM);
     }
 }
 

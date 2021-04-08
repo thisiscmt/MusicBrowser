@@ -1,47 +1,22 @@
-import Entity from './entity';
+import Entity, {EntityType} from './entity';
 import Album from './album';
 
 class Artist extends Entity {
-    private _generes = new Array<string>();
+    public albums = new Array<Album>();
 
-    private _albums = new Array<Album>();
+    public members = new Array<string>();
 
-    private _dateFormed?: Date;
+    public aliases = new Array<string>();
 
-    private _dateEnded?: Date;
+    public country? = '';
 
-    get generes(): string[] {
-        return this._generes;
+    public region? = '';
+
+    public dateEnded?: string;
+
+    constructor() {
+        super(EntityType.ARTIST);
     }
-
-    set generes(value: string[]) {
-        this._generes = value;
-    }
-
-    get albums(): Album[] {
-        return this._albums;
-    }
-
-    set albums(value: Album[]) {
-        this._albums = value;
-    }
-
-    get dateFormed(): Date | undefined {
-        return this._dateFormed;
-    }
-
-    set dateFormed(value: Date | undefined) {
-        this._dateFormed = value;
-    }
-
-    get dateEnded(): Date | undefined {
-        return this._dateEnded;
-    }
-
-    set dateEnded(value: Date | undefined) {
-        this._dateEnded = value;
-    }
-
 }
 
 export default Artist;

@@ -1,70 +1,27 @@
-enum EntityType {
+export enum EntityType {
     ARTIST,
     ALBUM,
-    SONG,
-    UNKNOWN
+    SONG
 }
 
-class Entity {
-    private _entityType = EntityType.UNKNOWN;
+export default class Entity {
+    public readonly entityType;
 
-    private _id = '';
+    public id = '';
 
-    private _name = '';
+    public name = '';
 
-    private _description = '';
+    public type = '';
 
-    private _longDescription = '';
+    public description = '';
 
-    private _dateCreated?: Date;
+    public longDescription = '';
 
-    get entityType(): EntityType {
-        return this._entityType;
-    }
+    public tags = new Array<string>();
 
-    set entityType(value: EntityType) {
-        this._entityType = value;
-    }
+    public dateCreated?: string;
 
-    get id(): string {
-        return this._id;
-    }
-
-    set id(value: string) {
-        this._id = value;
-    }
-
-    get name(): string {
-        return this._name;
-    }
-
-    set name(value: string) {
-        this._name = value;
-    }
-
-    get description(): string {
-        return this._description;
-    }
-
-    set description(value: string) {
-        this._description = value;
-    }
-
-    get longDescription(): string {
-        return this._longDescription;
-    }
-
-    set longDescription(value: string) {
-        this._longDescription = value;
-    }
-
-    get dateCreated(): Date | undefined {
-        return this._dateCreated;
-    }
-
-    set dateCreated(value: Date | undefined) {
-        this._dateCreated = value;
+    constructor (entityType: EntityType) {
+        this.entityType = entityType;
     }
 }
-
-export default Entity;
