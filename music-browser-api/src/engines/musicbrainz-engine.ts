@@ -1,4 +1,4 @@
-import {IAlias, IArtistList, IReleaseGroupList, ISearchResult, MusicBrainzApi} from 'musicbrainz-api';
+import { IAlias, IArtistList, IReleaseGroupList, ISearchResult, MusicBrainzApi } from 'musicbrainz-api';
 
 import Engine from './engine';
 import LookupResponse from '../models/lookup-response';
@@ -11,21 +11,32 @@ class MusicBrainzEngine extends Engine {
     private mbApi = new MusicBrainzApi({
         appName: 'music-browser',
         appVersion: '2.0.0',
-        appContactInfo: 'http://cmtybur.com/about'
+        appContactInfo: 'http://cmtybur.com/about',
+        botAccount: {}
     });
 
     public async runSearch(entityType: EntityType, searchText: string, page: number, pageSize: number) {
-        let query: string;
         let searchResult: ISearchResult;
 
         switch (entityType) {
             case EntityType.ARTIST:
-                searchResult = await this.mbApi.searchArtist(searchText, page, pageSize);
+                const artistQuery = {
+                    query: searchText,
+                    offset: 0,
+                    limit: 10
+                }
+
+                searchResult = await this.mbApi.searchArtist(artistQuery);
 
                 break;
             case EntityType.ALBUM:
-                query = searchText + ' AND type:album'
-                searchResult = await this.mbApi.searchReleaseGroup(query, page, pageSize);
+                const albumQuery = {
+                    query: searchText + ' AND type:album',
+                    offset: 0,
+                    limit: 10
+                }
+
+                searchResult = await this.mbApi.searchReleaseGroup(albumQuery);
 
                 break;
             case EntityType.SONG:

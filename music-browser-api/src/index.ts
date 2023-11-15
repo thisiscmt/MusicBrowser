@@ -1,20 +1,35 @@
-import express from 'express';
-import debug from 'debug';
+import http from 'http';
 
-import router from "./routes";
+import app from './app.js';
 
-debug('music-browser');
+function onError(error: NodeJS.ErrnoException) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-const app = express();
-const port = process.env.MB_PORT || 3030;
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-app.on('error', (error: any) => {
-    // TODO: Log this somewhere
-    console.log('An error occurred: %o', error.message);
-});
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
 
+const port = process.env.PORT || 3060;
 app.set('port', port);
-app.use(router)
-app.listen(port);
 
-console.log(`Listening on port ${port}`)
+const server = http.createServer(app);
+server.listen(port);
+server.on('error', onError);
+
+console.log(`Music Browser API has started on port ${port}`);

@@ -1,14 +1,17 @@
 {
     "compilerOptions": {
-        "target": "es2018",
-        "module": "commonjs",
+        "module": "es2020",
+        "esModuleInterop": true,
+        "target": "es2020",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "types": ["node"],
+        "allowSyntheticDefaultImports": true,
         "sourceMap": true,
         "outDir": "dist",
-        "rootDir": "src",
-        "declaration": true,
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
-    }
+        "importHelpers": true,
+        "allowJs": true,
+        "strict": true
+    },
+    "lib": ["es2020"]
 }
