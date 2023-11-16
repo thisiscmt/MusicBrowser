@@ -14,12 +14,12 @@ metadataRouter.get('/:collection/search/', async (request: Request, response: Re
     let pageSize = request.query.pageSize || 10;
 
     if (collection !== 'artist' && collection !== 'album' && collection !== 'song') {
-        response.status(400).json('Unsupported collection value');
+        response.status(400).send('Unsupported collection value');
         return;
     }
 
     if (!request.query.q) {
-        response.status(400).json('Missing query parameter');
+        response.status(400).send('Missing query parameter');
         return;
     } else {
         searchText = request.query.q.toString();
