@@ -2,19 +2,14 @@ trigger:
   - main
 
 variables:
-  # Azure Resource Manager connection created during pipeline creation
   azureServiceConnectionId: 'e0b8ce18-604b-466e-87b8-67cfbb5d61e4'
 
-  # Web app name
   webAppName: 'cmt-mb-api'
 
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
-  # Environment name
   environmentName: 'cmt-mb-api'
 
-  # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
 
   pythonVersion: '3.12'
@@ -30,7 +25,7 @@ stages:
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python $(pythonVersion)'
+            displayName: 'Install Python'
 
           - script: |
               python -m venv antenv
@@ -39,10 +34,10 @@ stages:
               pip install setup
               pip install -r requirements.txt
             workingDirectory: $(projectRoot)/music-browser-api
-            displayName: 'Install requirements'
+            displayName: 'Install API dependencies'
 
           - task: ArchiveFiles@2
-            displayName: 'Archive files'
+            displayName: 'Create API artifact'
             inputs:
               rootFolderOrFile: '$(projectRoot)/music-browser-api'
               includeRootFolder: false
@@ -51,8 +46,8 @@ stages:
               replaceExistingArchive: true
 
           - upload: $(Build.ArtifactStagingDirectory)/music-browser-api-$(Build.BuildId).zip
-            artifact: drop
-            displayName: 'Upload package'
+            artifact: music-browser-api
+            displayName: 'Upload API artifact'
 
 #  - stage: Deploy
 #    displayName: 'Deploy Web App'
