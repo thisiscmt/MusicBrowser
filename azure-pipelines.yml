@@ -15,7 +15,7 @@ stages:
   - stage: Build
     displayName: Build stage
     jobs:
-      - job: Build API
+      - job: Build_API
         steps:
           - task: UsePythonVersion@0
             inputs:
