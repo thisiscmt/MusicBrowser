@@ -1,26 +1,21 @@
 trigger:
-  - main
+  - master
+
+pool:
+  vmImage: 'ubuntu-latest'
 
 variables:
-  azureServiceConnectionId: 'e0b8ce18-604b-466e-87b8-67cfbb5d61e4'
-
-  webAppName: 'cmt-mb-api'
-
-  vmImageName: 'ubuntu-latest'
-
-  environmentName: 'cmt-mb-api'
-
   projectRoot: $(System.DefaultWorkingDirectory)
-
   pythonVersion: '3.12'
+  azureServiceConnectionId: 'e0b8ce18-604b-466e-87b8-67cfbb5d61e4'
+  webAppName: 'cmt-mb-api'
+  environmentName: 'cmt-mb-api'
 
 stages:
   - stage: Build
     displayName: Build stage
     jobs:
-      - job: BuildJob
-        pool:
-          vmImage: $(vmImageName)
+      - job: Build API
         steps:
           - task: UsePythonVersion@0
             inputs:
@@ -55,8 +50,6 @@ stages:
 #    condition: succeeded()
 #    jobs:
 #      - deployment: DeploymentJob
-#        pool:
-#          vmImage: $(vmImageName)
 #        environment: $(environmentName)
 #        strategy:
 #          runOnce:
