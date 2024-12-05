@@ -37,10 +37,10 @@ stages:
               rootFolderOrFile: '$(projectRoot)/music-browser-api'
               includeRootFolder: false
               archiveType: zip
-              archiveFile: $(Build.ArtifactStagingDirectory)/music-browser-api-$(Build.BuildId).zip
+              archiveFile: $(Build.ArtifactStagingDirectory)/music-browser-api.zip
               replaceExistingArchive: true
 
-          - upload: $(Build.ArtifactStagingDirectory)/music-browser-api-$(Build.BuildId).zip
+          - upload: $(Build.ArtifactStagingDirectory)/music-browser-api.zip
             artifact: music-browser-api
             displayName: 'Upload API artifact'
 
