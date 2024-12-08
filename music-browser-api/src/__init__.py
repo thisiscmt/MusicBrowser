@@ -1,17 +1,19 @@
 import os
 
 from apiflask import APIFlask
-from apiflask.fields import String, Number
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 
-from src.services.utils import allowed_collection
-
+from src.config import Config
+from src.schema.schema import SearchParameters
+from src.services.utils import supported_entity_type, get_data_provider
+from src.providers.music_brainz_provider import MusicBrainzProvider
+from src.enums.enums import EntityType
 
 def create_app(test_config=None):
     new_app = APIFlask(__name__, instance_relative_config=True)
 
     if test_config is None:
-        new_app.config.from_pyfile("config.py", silent=True)
+        new_app.config.from_object(Config())
     else:
         new_app.config.from_mapping(test_config)
 
@@ -25,37 +27,48 @@ def create_app(test_config=None):
 
 app = create_app()
 
-@app.get("/")
+@app.get('/')
 def home():
-    return "This is the Music Browser API"
+    return 'This is the Music Browser API'
 
-@app.get("/search/<string:collection>")
-@app.input({"q": String(), "page": Number(), "pageSize": Number()}, location="query")
-def search(collection, query_data):
-    # results = dict(rows=[])
-    # return make_response(results, 200)
+@app.get('/search/<string:entity_type_param>')
+@app.input(SearchParameters, location='query')
+def search(entity_type_param, query_data):
+    if supported_entity_type(entity_type_param):
+        if 'query' not in query_data:
+            raise BadRequest(description='Missing query parameter')
 
-    if allowed_collection(collection):
-        results = dict(collection=collection, q=query_data["q"])
+        db = get_data_provider(app.config['DATA_PROVIDER'])
+        entity_type = None
+
+        match entity_type_param:
+            case 'artist':
+                entity_type = EntityType.ARTIST
+            case 'album':
+                entity_type = EntityType.ALBUM
+            case 'song':
+                entity_type = EntityType.SONG
+
+        results = db.run_search(entity_type, query_data['query'], query_data['page'], query_data['pageSize'])
+
         return results
     else:
-        raise NotFound
+        raise BadRequest(description='Unsupported entity type')
 
-
-@app.get("/lookup/<string:collection>/<string:rec_id>")
-def lookup(collection, rec_id):
-    # results = dict()
-    # return make_response(results, 200)
-
-    if allowed_collection(collection):
-        result = dict(collection=collection, rec_id=rec_id)
+@app.get('/lookup/<string:entity_type_param>/<string:entity_id>')
+def lookup(entity_type_param, entity_id):
+    if supported_entity_type(entity_type_param):
+        result = dict(entity_type_param=entity_type_param, entity_id=entity_id)
         return result
     else:
-        raise NotFound
+        raise BadRequest(description='Unsupported entity type')
 
 
-@app.errorhandler(404)
-def not_found(error):
+@app.errorhandler(NotFound)
+def handle_not_found(error):
     # TODO: Log this somethere
-    return "", 404
+    return '', 404
 
+@app.errorhandler(BadRequest)
+def handle_bad_request_error(error):
+    return error.description, 400
