@@ -6,9 +6,9 @@ class BaseProvider:
         pass
 
     @abstractmethod
-    def run_search(self, entity_type, query, page, page_size):
+    def run_search(self, entity_type: str, query: str, page: int, page_size: int):
         pass
 
     @abstractmethod
-    def run_lookup(self, entity_type, entity_id):
+    def run_lookup(self, entity_type: str, entity_id: str):
         pass

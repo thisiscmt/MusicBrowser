@@ -1,5 +1,3 @@
-import os
-
 from apiflask import APIFlask
 from werkzeug.exceptions import NotFound, BadRequest
 
@@ -17,11 +15,6 @@ def create_app(test_config=None):
     else:
         new_app.config.from_mapping(test_config)
 
-    try:
-        os.makedirs(new_app.instance_path)
-    except OSError:
-        pass
-
     return new_app
 
 
@@ -35,9 +28,6 @@ def home():
 @app.input(SearchParameters, location='query')
 def search(entity_type_param, query_data):
     if supported_entity_type(entity_type_param):
-        if 'query' not in query_data:
-            raise BadRequest(description='Missing query parameter')
-
         db = get_data_provider(app.config['DATA_PROVIDER'])
         entity_type = None
 
