@@ -1,8 +1,12 @@
+#from importlib.metadata import metadata
+
 from apiflask import APIFlask
+#from dataclasses import field
 from werkzeug.exceptions import NotFound, BadRequest
 
 from src.config import Config
-from src.schema.schema import SearchParameters
+from src.models.artist import Artist
+from src.schema.schema import SearchParameters, SearchOutput
 from src.services.utils import supported_entity_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType
@@ -24,31 +28,32 @@ app = create_app()
 def home():
     return 'This is the Music Browser API'
 
-@app.get('/search/<string:entity_type_param>')
+@app.get('/search/<string:entity_type>')
 @app.input(SearchParameters, location='query')
-def search(entity_type_param, query_data):
-    if supported_entity_type(entity_type_param):
+@app.output(SearchOutput)
+def search(entity_type, query_data):
+    if supported_entity_type(entity_type):
         db = get_data_provider(app.config['DATA_PROVIDER'])
-        entity_type = None
+        entity_type_param = None
 
-        match entity_type_param:
+        match entity_type:
             case 'artist':
-                entity_type = EntityType.ARTIST
+                entity_type_param = EntityType.ARTIST
             case 'album':
-                entity_type = EntityType.ALBUM
+                entity_type_param = EntityType.ALBUM
             case 'song':
-                entity_type = EntityType.SONG
+                entity_type_param = EntityType.SONG
 
-        results = db.run_search(entity_type, query_data['query'], query_data['page'], query_data['pageSize'])
+        results = db.run_search(entity_type_param, query_data['query'], query_data['page'], query_data['pageSize'])
 
         return results
     else:
         raise BadRequest(description='Unsupported entity type')
 
-@app.get('/lookup/<string:entity_type_param>/<string:entity_id>')
-def lookup(entity_type_param, entity_id):
-    if supported_entity_type(entity_type_param):
-        result = dict(entity_type_param=entity_type_param, entity_id=entity_id)
+@app.get('/lookup/<string:entity_type>/<string:entity_id>')
+def lookup(entity_type, entity_id):
+    if supported_entity_type(entity_type):
+        result = dict(entity_type=entity_type, entity_id=entity_id)
         return result
     else:
         raise BadRequest(description='Unsupported entity type')
