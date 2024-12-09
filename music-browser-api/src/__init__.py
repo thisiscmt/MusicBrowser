@@ -1,11 +1,8 @@
-#from importlib.metadata import metadata
 
 from apiflask import APIFlask
-#from dataclasses import field
 from werkzeug.exceptions import NotFound, BadRequest
 
 from src.config import Config
-from src.models.artist import Artist
 from src.schema.schema import SearchParameters, SearchOutput
 from src.services.utils import supported_entity_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider

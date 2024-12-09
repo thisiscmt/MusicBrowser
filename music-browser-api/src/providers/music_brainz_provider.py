@@ -15,11 +15,11 @@ class MusicBrainzProvider(BaseProvider):
 
         match entity_type:
             case EntityType.ARTIST:
-                data = musicbrainzngs.search_artists(artist=query, type='group', offset=page-1, limit=page_size)
-                results = self.__build_artist_search_results(data)
+                data = musicbrainzngs.search_artists(artist=query, offset=page-1, limit=page_size)
+                results = build_artist_search_results(data)
             case EntityType.ALBUM:
                 data = musicbrainzngs.search_release_groups(releasegroup=query, type='album', offset=page-1, limit=page_size)
-                results = self.__build_album_search_results(data)
+                results = build_album_search_results(data)
             case EntityType.SONG:
                 pass
 
@@ -28,35 +28,56 @@ class MusicBrainzProvider(BaseProvider):
     def run_lookup(self, entity_type, entity_id):
         pass
 
-    @staticmethod
-    def __build_artist_search_results(data):
-        results = []
 
-        for rec in data['artist-list']:
-            result = SearchResult()
-            result.id = rec['id']
-            result.name = rec['name']
+def build_artist_search_results(data):
+    results = []
 
-            results.append(result)
+    for rec in data['artist-list']:
+        result = SearchResult()
+        result.id = rec['id']
+        result.name = rec['name']
+        result.score = rec['ext:score']
 
-        return {
-            'rows': results,
-            'count': data['artist-count']
-        }
+        if 'tag-list' in rec:
+            result.tags = build_tag_list(rec['tag-list'])
 
-    @staticmethod
-    def __build_album_search_results(data):
-        results = []
+        results.append(result)
 
-        for rec in data['release-group-list']:
-            result = SearchResult()
-            result.id = rec['id']
-            result.name = rec['title']
+    return {
+        'rows': results,
+        'count': data['artist-count']
+    }
 
-            results.append(result)
+def build_album_search_results(data):
+    results = []
 
-        return {
-            'rows': results,
-            'count': data['release-group-count']
-        }
+    for rec in data['release-group-list']:
+        result = SearchResult()
+        result.id = rec['id']
+        result.name = rec['title']
+        result.artist = rec['artist-credit-phrase']
+        result.score = rec['ext:score']
 
+        if 'tag-list' in rec:
+            result.tags = build_tag_list(rec['tag-list'])
+
+        results.append(result)
+
+    return {
+        'rows': results,
+        'count': data['release-group-count']
+    }
+
+def build_tag_list(data: list):
+    sorted_tags = sorted(data, key=lambda x: int(x['count']), reverse=True)
+    end_index = 3
+
+    if len(sorted_tags) < 3:
+        end_index = len(sorted_tags)
+
+    tags = []
+
+    for tag in sorted_tags[0:end_index]:
+        tags.append(tag['name'])
+
+    return tags

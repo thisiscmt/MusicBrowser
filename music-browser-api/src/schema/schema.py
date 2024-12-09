@@ -11,7 +11,10 @@ class SearchParameters(Schema):
 class SearchResult(Schema):
     id = String()
     name = String()
+    artist = String()
+    score = Integer()
+    tags = List(String())
 
 class SearchOutput(Schema):
-    rows = List(Nested(SearchResult))
+    rows = List(Nested(SearchResult()))
     count = Integer()
