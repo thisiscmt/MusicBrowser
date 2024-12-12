@@ -70,14 +70,9 @@ def build_album_search_results(data):
 
 def build_tag_list(data: list):
     sorted_tags = sorted(data, key=lambda x: int(x['count']), reverse=True)
-    end_index = 3
-
-    if len(sorted_tags) < 3:
-        end_index = len(sorted_tags)
-
     tags = []
 
-    for tag in sorted_tags[0:end_index]:
+    for tag in sorted_tags:
         tags.append(tag['name'])
 
     return tags

@@ -5,10 +5,11 @@ from src import app
 from src.services.utils import supported_data_provider
 
 if 'DATA_PROVIDER' not in app.config:
-    print('Missing data provider configuration, exiting the app')
+    print('Missing data provider configuration, shutting down')
     sys.exit()
-elif not supported_data_provider(app.config['DATA_PROVIDER']):
-    print('Unsupported data provider, exiting the app')
+
+if not supported_data_provider(app.config['DATA_PROVIDER']):
+    print('Unsupported data provider, shutting down')
     sys.exit()
 
 print('Starting the Music Browser API')

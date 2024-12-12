@@ -8,13 +8,20 @@ class SearchParameters(Schema):
     page = Integer(load_default=1)
     pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
 
+class Image(Schema):
+    height = Integer()
+    width = Integer()
+    url = String()
+
 class SearchResult(Schema):
     id = String()
     name = String()
     artist = String()
     score = Integer()
     tags = List(String())
+    images = List(Nested(Image()))
 
 class SearchOutput(Schema):
     rows = List(Nested(SearchResult()))
     count = Integer()
+

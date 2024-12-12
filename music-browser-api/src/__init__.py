@@ -30,7 +30,7 @@ def home():
 @app.output(SearchOutput)
 def search(entity_type, query_data):
     if supported_entity_type(entity_type):
-        db = get_data_provider(app.config['DATA_PROVIDER'])
+        db = get_data_provider(app.config)
         entity_type_param = None
 
         match entity_type:
