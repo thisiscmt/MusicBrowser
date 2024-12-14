@@ -1,5 +1,5 @@
 from apiflask import Schema
-from apiflask.fields import String, Integer, List, Nested
+from apiflask.fields import String, Integer, List, Nested, Dict, Date
 from marshmallow.validate import OneOf
 
 
@@ -24,4 +24,24 @@ class SearchResult(Schema):
 class SearchOutput(Schema):
     rows = List(Nested(SearchResult()))
     count = Integer()
+
+class Album(Schema):
+    id = String()
+    name = String()
+    artist = String()
+    release_date = String()
+    tags = List(String())
+    image = Nested(Image())
+
+class Artist(Schema):
+    id = String()
+    name = String()
+    description = String()
+    life_span = Dict()
+    area = Dict()
+    begin_area = Dict()
+    tags = List(String())
+    images = List(Nested(Image()))
+    albums = List(Nested(Album()))
+    members = List(String())
 

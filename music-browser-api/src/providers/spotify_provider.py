@@ -25,12 +25,28 @@ class SpotifyProvider(BaseProvider):
                 data = sp.search(q=query, offset=page-1, limit=page_size, type='album')
                 results = build_album_search_results(data)
             case EntityType.SONG:
-                pass  # TODO
+                pass # TODO
 
         return results
 
     def run_lookup(self, entity_type, entity_id):
-        pass
+        auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
+        sp = spotipy.Spotify(auth_manager=auth_manager)
+        result = None
+
+        match entity_type:
+            case EntityType.ARTIST:
+                pass # TODO
+                # data = sp.artist(artist_id=entity_id)
+                # result = build_artist(data)
+            case EntityType.ALBUM:
+                pass # TODO
+                # data = sp.search(q=query, offset=page-1, limit=page_size, type='album')
+                # result = build_album_search_results(data)
+            case EntityType.SONG:
+                pass # TODO
+
+        return result
 
 
 def build_artist_search_results(data):
@@ -76,3 +92,6 @@ def build_album_search_results(data):
         'rows': results,
         'count': data['albums']['total']
     }
+
+def build_artist(data):
+    pass # TODO
