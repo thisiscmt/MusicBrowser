@@ -1,8 +1,9 @@
 import musicbrainzngs
+import requests
 
 from src.enums.enums import EntityType
 from src.providers.base_provider import BaseProvider
-from src.schema.schema import SearchResult, Artist, Album, Image
+from src.schema.schema import SearchResult, Artist, Album, Image, BandMember
 from src.services.fanart_api import get_images_for_artist, get_album_images_for_artist
 
 
@@ -31,12 +32,11 @@ class MusicBrainzProvider(BaseProvider):
 
         match entity_type:
             case EntityType.ARTIST:
-                data = musicbrainzngs.get_artist_by_id(id=entity_id, includes=['tags', 'release-groups', 'artist-rels'])
+                data = musicbrainzngs.get_artist_by_id(id=entity_id, includes=['tags', 'release-groups', 'artist-rels', 'url-rels', 'annotation'])
                 result = build_artist(data)
             case EntityType.ALBUM:
-                pass # TODO
-                # data = sp.search(q=query, offset=page-1, limit=page_size, type='album')
-                # result = build_album_search_results(data)
+                data = musicbrainzngs.get_release_group_by_id(id=entity_id, includes=['tags', 'artist-credits', 'url-rels', 'annotation'])
+                result = build_album(data)
             case EntityType.SONG:
                 pass # TODO
 
@@ -89,7 +89,9 @@ def build_artist(data):
     artist.name = record['name']
     artist.life_span = record['life-span']
     artist.area = dict({'name': record['area']['name']})
-    artist.begin_area = dict({'name': record['begin-area']['name']})
+
+    if 'begin-area' in record:
+        artist.begin_area = dict({'name': record['begin-area']['name']})
 
     if 'disambiguation' in record:
         artist.description = record['disambiguation']
@@ -118,33 +120,86 @@ def build_artist(data):
         albums = sorted(albums, key=lambda x: x.release_date)
 
     for album in albums:
-        if album.id in album_images:
+        if album.id in album_images and len(album_images[album.id]['albumcover']) > 0:
             album.image = Image()
             album.image.url = album_images[album.id]['albumcover'][0]['url']
 
     artist.albums = albums
 
+    members = []
+
+    if 'artist-relation-list' in record:
+        for relation in record['artist-relation-list']:
+            if ('type' in relation and
+                    str(relation['type']).lower() == 'member of band' and
+                    'artist' in relation and 'type' in relation['artist'] and
+                    str(relation['artist']['type']).lower() == 'person' and
+                    relation['artist']['name'] not in members):
+                member = BandMember()
+                member.name = relation['artist']['name']
+                member.begin = relation['begin'] if 'begin' in relation else ''
+                member.end = relation['end'] if 'end' in relation else ''
+                member.ended = relation['ended'] if 'ended' in relation else ''
+
+                members.append(member)
+
+    artist.members = members
+
+    links = []
+
+    if 'url-relation-list' in record:
+        for link in record['url-relation-list']:
+            if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
+                links.append(link['target'])
+
+                if link['type'] == 'wikidata':
+                    artist.description = get_entity_description(link['target'])
+
+    artist.links = links
+
     return artist
 
 def build_album(data):
-    record = data['artist']
+    record = data['release-group']
 
-    artist = Artist()
-    artist.id = record['id']
-    artist.name = record['name']
-    artist.life_span = record['life-span']
-    artist.area = dict({'name': record['area']['name']})
-    artist.begin_area = dict({'name': record['begin-area']['name']})
+    album = Album()
+    album.id = record['id']
+    album.name = record['title']
 
-    if 'disambiguation' in record:
-        artist.description = record['disambiguation']
+    if 'first-release-date' in record:
+        album.release_date = record['first-release-date']
+
+    image = Image()
+
+    if 'artist-credit' in record and len(record['artist-credit']) > 0:
+        if 'artist' in record['artist-credit'][0]:
+            album.artist = record['artist-credit'][0]['artist']['name']
+            images = get_album_images_for_artist(record['artist-credit'][0]['artist']['id'])
+
+            if len(images) > 0:
+                image = Image()
+
+                if record['id'] in images and 'albumcover' in images[record['id']] and len(images[record['id']]['albumcover']) > 0:
+                    image.url = images[record['id']]['albumcover'][0]['url']
+
+    album.image = image
 
     if 'tag-list' in record:
-        artist.tags = build_tag_list(record['tag-list'])
+        album.tags = build_tag_list(record['tag-list'])
 
-    artist.images = get_images_for_artist(record['id'])
+    links = []
 
-    return artist
+    if 'url-relation-list' in record:
+        for link in record['url-relation-list']:
+            if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
+                links.append(link['target'])
+
+                if link['type'] == 'wikidata':
+                    album.description = get_entity_description(link['target'])
+
+    album.links = links
+
+    return album
 
 
 def build_tag_list(data: list):
@@ -155,3 +210,54 @@ def build_tag_list(data: list):
         tags.append(tag['name'])
 
     return tags
+
+def get_entity_description(wikidata_url: str):
+    page_title = get_wikipedia_page_title(wikidata_url)
+    desc = get_wikipedia_page_intro(page_title)
+
+    return desc
+
+def get_wikipedia_page_title(wikidata_url: str):
+    page_title = ''
+
+    try:
+        wikidata_id = wikidata_url[wikidata_url.rindex('/') + 1:]
+        url = f'https://www.wikidata.org/w/api.php?action=wbgetentities&props=sitelinks&ids={wikidata_id}&sitefilter=enwiki&format=json'
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            content = response.json()
+
+            if 'entities' in content:
+                if 'sitelinks' in content['entities'][wikidata_id] and 'enwiki' in content['entities'][wikidata_id]['sitelinks']:
+                    page_title = content['entities'][wikidata_id]['sitelinks']['enwiki']['title']
+    except RuntimeError:
+        # TODO: Log this somewhere
+        print(f'Error fetching entity description: {RuntimeError}')
+
+    return page_title
+
+def get_wikipedia_page_intro(page_title: str):
+    intro = ''
+
+    if page_title is not None and page_title != '':
+        try:
+            url = f'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exlimit=1&exintro=true&titles={page_title}&explaintext=1&format=json'
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                content = response.json()
+
+                if 'query' in content and 'pages' in content['query']:
+                    keys = list(content['query']['pages'].keys())
+
+                    if len(keys) > 0:
+                        entry = content['query']['pages'][keys[0]]
+
+                        if 'extract' in entry:
+                            intro = content['query']['pages'][keys[0]]['extract']
+        except RuntimeError:
+            # TODO: Log this somewhere
+            print(f'Error fetching Wikipedia content: {RuntimeError}')
+
+    return intro

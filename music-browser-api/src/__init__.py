@@ -3,7 +3,7 @@ from apiflask import APIFlask
 from werkzeug.exceptions import NotFound, BadRequest
 
 from src.config import Config
-from src.schema.schema import SearchParameters, SearchOutput, Artist
+from src.schema.schema import SearchParameters, SearchOutput, Artist, Album
 from src.services.utils import supported_entity_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType
@@ -47,31 +47,25 @@ def search(entity_type, query_data):
     else:
         raise BadRequest(description='Unsupported entity type')
 
-@app.get('/lookup/<string:entity_type>/<string:entity_id>')
+@app.get('/lookup/artist/<string:entity_id>')
 @app.output(Artist)
-def lookup(entity_type, entity_id):
-    if supported_entity_type(entity_type):
+def lookup_artist(entity_id):
         db = get_data_provider(app.config)
-        entity_type_param = None
-
-        match entity_type:
-            case 'artist':
-                entity_type_param = EntityType.ARTIST
-            case 'album':
-                entity_type_param = EntityType.ALBUM
-            case 'song':
-                entity_type_param = EntityType.SONG
-
-        result = db.run_lookup(entity_type_param, entity_id)
+        result = db.run_lookup(EntityType.ARTIST, entity_id)
 
         return result
-    else:
-        raise BadRequest(description='Unsupported entity type')
 
+@app.get('/lookup/album/<string:entity_id>')
+@app.output(Album)
+def lookup_album(entity_id):
+        db = get_data_provider(app.config)
+        result = db.run_lookup(EntityType.ALBUM, entity_id)
+
+        return result
 
 @app.errorhandler(NotFound)
 def handle_not_found(error):
-    # TODO: Log this somethere
+    # TODO: Log this somewhere
     return '', 404
 
 @app.errorhandler(BadRequest)
