@@ -1,0 +1,11 @@
+$primaryFontFamily: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+
+:root {
+    color-scheme: light dark;
+    font-family: $primaryFontFamily;
+    font-synthesis: none;
+    margin: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
