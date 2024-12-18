@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router';
-import { tss } from 'tss-react';
+import { tss } from 'tss-react/mui';
 
 const useStyles = tss.create({
     header: {
