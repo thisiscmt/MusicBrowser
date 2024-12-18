@@ -1,0 +1,15 @@
+body {
+    background-color: #EEEEEE;
+    color-scheme: light dark;
+    font-family: -apple-system, BlinkMacSystemFont, Roboto, 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', Helvetica, Arial, sans-serif;
+    font-synthesis: none;
+    margin: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+    display: flex;
+    justify-content: center;
+}
