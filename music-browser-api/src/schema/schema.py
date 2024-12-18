@@ -19,7 +19,6 @@ class SearchResult(Schema):
     artist = String()
     score = Integer()
     tags = List(String())
-    images = List(Nested(Image()))
 
 class SearchOutput(Schema):
     rows = List(Nested(SearchResult()))

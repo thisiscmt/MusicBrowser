@@ -20,7 +20,7 @@ class MusicBrainzProvider(BaseProvider):
                 data = musicbrainzngs.search_artists(artist=query, offset=page-1, limit=page_size)
                 results = build_artist_search_results(data)
             case EntityType.ALBUM:
-                data = musicbrainzngs.search_release_groups(releasegroup=query, type='album', offset=page-1, limit=page_size)
+                data = musicbrainzngs.search_release_groups(query=query, type='album', offset=page-1, limit=page_size)
                 results = build_album_search_results(data)
             case EntityType.SONG:
                 pass # TODO
