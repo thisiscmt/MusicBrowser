@@ -4,9 +4,9 @@ from marshmallow.validate import OneOf
 
 
 class SearchParameters(Schema):
-    query = String(required=True, metadata={'description': 'The search text'})
     page = Integer(load_default=1)
     pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
+    query = String(required=True, metadata={'description': 'The search text'})
 
 class Image(Schema):
     height = Integer()

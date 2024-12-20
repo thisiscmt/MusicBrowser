@@ -37,12 +37,8 @@ class SpotifyProvider(BaseProvider):
         match entity_type:
             case EntityType.ARTIST:
                 pass # TODO
-                # data = sp.artist(artist_id=entity_id)
-                # result = build_artist(data)
             case EntityType.ALBUM:
                 pass # TODO
-                # data = sp.search(q=query, offset=page-1, limit=page_size, type='album')
-                # result = build_album_search_results(data)
             case EntityType.SONG:
                 pass # TODO
 

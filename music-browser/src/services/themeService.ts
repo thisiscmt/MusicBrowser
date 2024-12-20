@@ -20,8 +20,7 @@ export const buildTheme = () => {
             MuiOutlinedInput: {
                 styleOverrides: {
                     root: {
-                        borderRadius: '6px',
-                        paddingRight: '6px'
+                        borderRadius: '6px'
                     }
                 }
             },

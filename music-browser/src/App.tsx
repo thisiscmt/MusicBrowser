@@ -18,7 +18,7 @@ const useStyles = tss.create(({ theme }) => ({
         },
 
         [theme.breakpoints.down(600)]: {
-            width: '90%'
+            width: '100%'
         }
     },
 }));

@@ -1,7 +1,11 @@
 export interface Image {
     url: string;
-    height?: number;
-    width?: number;
+}
+
+export interface SearchParams {
+    page?: number;
+    pageSize?: number;
+    query: string;
 }
 
 export interface SearchResultEntity {
