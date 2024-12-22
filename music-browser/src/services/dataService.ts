@@ -15,7 +15,7 @@ const search = async (entityType: ENTITY_TYPE, searchParams: SearchParams): Prom
     const config = getRequestConfig();
     config.params = { ...searchParams };
 
-    const response = await Axios.get(`${process.env.REACT_APP_API_URL}/search/${entityType}`, config);
+    const response = await Axios.get(`${import.meta.env.VITE_API_URL}/search/${entityType}`, config);
     return response.data;
 };
 

@@ -8,6 +8,11 @@ export interface SearchParams {
     query: string;
 }
 
+export interface SearchResults {
+    rows: SearchResultEntity[];
+    count: number;
+}
+
 export interface SearchResultEntity {
     id: string;
     name: string;

@@ -1,5 +1,6 @@
 
 from apiflask import APIFlask
+from flask_cors import CORS
 from werkzeug.exceptions import NotFound, BadRequest
 
 from src.config import Config
@@ -20,6 +21,7 @@ def create_app(test_config=None):
 
 
 app = create_app()
+CORS(app, origins=['http://localhost:3010', 'https://mb.cmtybur.com'])
 
 @app.get('/')
 def home():

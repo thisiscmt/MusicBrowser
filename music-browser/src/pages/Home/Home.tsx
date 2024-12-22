@@ -1,11 +1,13 @@
-import {FC, RefObject, useContext, useState} from 'react';
-import {Box, Button, CircularProgress, FormControl, FormControlLabel, Grid, Radio, RadioGroup, TextField} from '@mui/material';
+import { FC, RefObject, useContext, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
+import { Box, Button, CircularProgress, FormControl, FormControlLabel, Grid, Radio, RadioGroup, TextField } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-import { SearchResultEntity } from '../../models/models.ts';
+import {SearchResults, SearchResultEntity, SearchParams} from '../../models/models.ts';
 import { ENTITY_TYPE } from '../../enums/enums.ts';
 import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
+import * as DataService from '../../services/dataService';
 
 const useStyles = tss.create(({ theme }) => ({
     mainContainer: {
@@ -76,26 +78,53 @@ interface HomeProps {
 
 const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     const { classes, cx } = useStyles();
+    const { setBanner } = useContext(MainContext);
     const [ searchText, setSearchText ] = useState<string>('');
-    const [ entityType, setEntityType ] = useState<string>('');
+    const [ entityType, setEntityType ] = useState<string>(ENTITY_TYPE.Artist);
     const [ searchResults, setSearchResults ] = useState<SearchResultEntity[]>([]);
+    const [ pageCount, setPageCount ] = useState<number>(1);
     const [ searchTextInputError, setSearchTextInputError ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
-    const { setBanner } = useContext(MainContext);
+    const [ searchParams, setSearchParams ] = useSearchParams();
+    const navigate = useNavigate();
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         if (searchText === '') {
-            setBanner('');
-        } else {
             setBanner('You must provide search text', 'error');
             return;
+        } else {
+            setBanner('');
         }
 
+        const searchRequestParams: SearchParams = { query: searchText };
+        const page = searchParams.get('page') || '1';
+        const pageSize = searchParams.get('pageSize') || '10';
 
+        searchRequestParams.page = page ? Number(page) : 1;
+        searchRequestParams.pageSize = pageSize ? Number(pageSize) : 10;
 
+        let results: SearchResults = {
+            rows: [],
+            count: 0
+        };
+
+        switch (entityType)
+            {
+                case ENTITY_TYPE.Artist:
+                    results = await DataService.searchArtists(searchRequestParams);
+                    break;
+
+                case ENTITY_TYPE.Album:
+                    results = await DataService.searchAlbums(searchRequestParams);
+                    break;
+
+                case ENTITY_TYPE.Song:
+                    break;
+            }
+
+        setSearchResults(results.rows);
+        setPageCount(results.count);
     };
-
-
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -142,7 +171,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
             </Grid>
 
             <Grid item xs={12} className={cx(classes.row)}>
-                <Button onClick={handleSearch} variant='contained' color='primary' disabled={loading}>Submit
+                <Button onClick={handleSearch} size='small' variant='contained' color='primary' disabled={loading}>Submit
                     {loading && (
                         <CircularProgress size={20} className={cx(classes.saveIndicator)} />
                     )}
@@ -150,7 +179,25 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
             </Grid>
 
             <Grid item xs={12} className={cx(classes.row)}>
-                Results go here
+                {
+                    searchResults.length > 0
+                        ?
+                            <>
+                                {
+                                    searchResults.map((item: SearchResultEntity) => {
+                                        return (
+                                            <Box>
+                                                {item.id}, {item.name}, {item.score}, {item.tags}
+                                            </Box>
+                                        )
+                                    })
+                                }
+                            </>
+                        :
+                            <>
+                                No results
+                            </>
+                }
             </Grid>
         </Box>
     );
