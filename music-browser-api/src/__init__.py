@@ -1,4 +1,3 @@
-
 from apiflask import APIFlask
 from flask_cors import CORS
 from werkzeug.exceptions import NotFound, BadRequest
@@ -10,18 +9,23 @@ from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType
 
 def create_app(test_config=None):
-    new_app = APIFlask(__name__, instance_relative_config=True)
+    flask_app = APIFlask(__name__, instance_relative_config=True)
 
     if test_config is None:
-        new_app.config.from_object(Config())
+        flask_app.config.from_object(Config())
     else:
-        new_app.config.from_mapping(test_config)
+        flask_app.config.from_mapping(test_config)
 
-    return new_app
+    return flask_app
 
 
 app = create_app()
-CORS(app, origins=['http://localhost:3010', 'https://mb.cmtybur.com'])
+allowed_origin = '*'
+
+if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower() == 'true':
+    allowedOrigin = app.config['ALLOWED_ORIGIN']
+
+CORS(app, origins=[allowed_origin])
 
 @app.get('/')
 def home():
@@ -72,4 +76,5 @@ def handle_not_found(error):
 
 @app.errorhandler(BadRequest)
 def handle_bad_request_error(error):
+    # TODO: Log this somewhere
     return error.description, 400

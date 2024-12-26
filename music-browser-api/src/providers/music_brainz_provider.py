@@ -42,6 +42,7 @@ class MusicBrainzProvider(BaseProvider):
 
         return result
 
+
 def build_artist_search_results(data):
     results = []
 
