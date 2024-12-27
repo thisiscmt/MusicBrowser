@@ -3,7 +3,7 @@ import musicbrainzngs
 from src.enums.enums import EntityType
 from src.providers.base_provider import BaseProvider
 from src.schema.schema import SearchResult, Artist, Album, Image, BandMember
-from src.services.fanart_api import get_images_for_artist, get_album_images_for_artist
+from src.services.fanart_service import get_images_for_artist, get_album_images_for_artist
 from src.services.wikipedia import get_entity_description
 
 
@@ -48,6 +48,7 @@ def build_artist_search_results(data):
 
     for record in data['artist-list']:
         result = SearchResult()
+        result.entityType = EntityType.ARTIST.value
         result.id = record['id']
         result.name = record['name']
         result.score = record['ext:score']
@@ -67,6 +68,7 @@ def build_album_search_results(data):
 
     for record in data['release-group-list']:
         result = SearchResult()
+        result.entityType = EntityType.ALBUM.value
         result.id = record['id']
         result.name = record['title']
         result.artist = record['artist-credit-phrase']
@@ -88,11 +90,11 @@ def build_artist(data):
     artist = Artist()
     artist.id = record['id']
     artist.name = record['name']
-    artist.life_span = record['life-span']
+    artist.lifeSpan = record['life-span']
     artist.area = dict({'name': record['area']['name']})
 
     if 'begin-area' in record:
-        artist.begin_area = dict({'name': record['begin-area']['name']})
+        artist.beginArea = dict({'name': record['begin-area']['name']})
 
     if 'disambiguation' in record:
         artist.description = record['disambiguation']
@@ -112,13 +114,13 @@ def build_artist(data):
                 album.name = rel_group['title']
 
                 if 'first-release-date' in rel_group:
-                    album.release_date = rel_group['first-release-date']
+                    album.releaseDate = rel_group['first-release-date']
                 else:
-                    album.release_date = ''
+                    album.releaseDate = ''
 
                 albums.append(album)
 
-        albums = sorted(albums, key=lambda x: x.release_date)
+        albums = sorted(albums, key=lambda x: x.releaseDate)
 
     for album in albums:
         if album.id in album_images and len(album_images[album.id]['albumcover']) > 0:
@@ -168,7 +170,7 @@ def build_album(data):
     album.name = record['title']
 
     if 'first-release-date' in record:
-        album.release_date = record['first-release-date']
+        album.releaseDate = record['first-release-date']
 
     image = Image()
 

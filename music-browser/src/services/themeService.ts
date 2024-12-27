@@ -4,6 +4,7 @@ import { grey } from '@mui/material/colors';
 export const Colors = {
     primaryTextColor: grey[800],
     backgroundGray: '#F3F3F3',
+    chipBackgroundColor: '#4678B2',
     white: '#FFFFFF',
     black: '#000000'
 };
@@ -29,9 +30,6 @@ export const buildTheme = () => {
                     root: {
                         borderRadius: '6px'
                     }
-                },
-                defaultProps: {
-                    elevation: 2
                 }
             },
             MuiCardContent: {

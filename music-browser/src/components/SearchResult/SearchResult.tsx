@@ -2,40 +2,57 @@ import React, { FC } from 'react';
 import { Box, Typography, Card, CardContent} from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-import * as SharedService from '../../services/sharedService';
 import { SearchResultEntity } from '../../models/models.ts';
+import { Colors } from '../../services/themeService.ts';
+import * as SharedService from '../../services/sharedService';
 
 const useStyles = tss.create(({ theme }) => ({
+    card: {
+        marginBottom: '2px',
+
+        '&:last-child': {
+            marginBottom: 0,
+        }
+    },
+
     cardContent: {
         display: 'flex',
-        gap: '8px',
+        gap: '16px',
+        padding: '10px',
 
-        [theme.breakpoints.down(500)]: {
-            flexDirection: 'column'
-        },
+        '&:last-child': {
+            paddingBottom: '10px',
+        }
     },
 
     thumbnail: {
-        alignItems: 'start',
+        height: '100px',
+        width: '100px'
+    },
+
+    tagContainer: {
         display: 'flex',
-        // minWidth: `${PHOTO_THUMBNAIL_SIZE}px`,
-        // width: `${PHOTO_THUMBNAIL_SIZE}px`
+        flexWrap: 'wrap'
     },
 
     tag: {
-//        height: 'auto',
-        padding: '2px',
-//        display: 'block',
-        whiteSpace: 'normal'
+        backgroundColor: Colors.chipBackgroundColor,
+        borderRadius: '4px',
+        color: Colors.white,
+        fontSize: '14px',
+        marginRight: '6px',
+        marginTop: '6px',
+        padding: '3px 5px'
      }
 }));
 
 interface SearchResultProps {
     entity: SearchResultEntity;
     image: string;
+    className?: string;
 }
 
-const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
+const SearchResult: FC<SearchResultProps> = ({ entity, image, className }) => {
     const { classes, cx } = useStyles();
     // const thumbnailSrc = SharedService.getThumbnailSrc(hike.filePath || '');
     // const hikers = hike.fullNames ? hike.fullNames.split(',') : [];
@@ -51,20 +68,22 @@ const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
     // };
 
     return (
-        <Card variant='outlined'>
+        <Card variant='outlined' className={className}>
             <CardContent className={cx(classes.cardContent)}>
-                <Box><img src={`/assets/images/${image}`} alt='Search result image'/></Box>
+                {/*<Box className={cx(classes.thumbnailContainer)}>*/}
+                    <img src={image} alt='Search result image' className={cx(classes.thumbnail)}/>
+                {/*</Box>*/}
 
                 <Box>
-                    <Typography variant='body2'>{entity.name}</Typography>
+                    <Typography variant='body1'>{entity.name}</Typography>
 
                     {
-                        entity.tags.length > 0 &&
-                        <Box>
+                        entity.tags && entity.tags.length > 0 &&
+                        <Box className={cx(classes.tagContainer)}>
                             {
-                                entity.tags.map((item: string) => {
+                                entity.tags.slice(0, 5).map((item: string, index: number) => {
                                     return (
-                                        <span className={cx(classes.tag)}>{item}</span>
+                                        <Box key={index} className={cx(classes.tag)}>{item}</Box>
                                     )
                                 })
 

@@ -1,3 +1,5 @@
+import { EntityType } from '../enums/enums.ts';
+
 export interface Image {
     url: string;
 }
@@ -19,4 +21,5 @@ export interface SearchResultEntity {
     artist: string;
     score: number;
     tags: string[];
+    entityType: EntityType;
 }

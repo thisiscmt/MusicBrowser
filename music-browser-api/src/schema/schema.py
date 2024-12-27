@@ -19,6 +19,7 @@ class SearchResult(Schema):
     artist = String()
     score = Integer()
     tags = List(String())
+    entityType = String()
 
 class SearchOutput(Schema):
     rows = List(Nested(SearchResult()))
@@ -34,7 +35,7 @@ class Album(Schema):
     id = String()
     name = String()
     artist = String()
-    release_date = String()
+    releaseDate = String()
     description = String()
     tags = List(String())
     image = Nested(Image())
@@ -44,9 +45,9 @@ class Artist(Schema):
     id = String()
     name = String()
     description = String()
-    life_span = Dict()
+    lifeSpan = Dict()
     area = Dict()
-    begin_area = Dict()
+    beginArea = Dict()
     tags = List(String())
     images = List(Nested(Image()))
     albums = List(Nested(Album()))
