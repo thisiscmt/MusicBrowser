@@ -4,9 +4,8 @@ import { tss } from 'tss-react/mui';
 
 import { SearchResultEntity } from '../../models/models.ts';
 import { Colors } from '../../services/themeService.ts';
-import * as SharedService from '../../services/sharedService';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = tss.create(() => ({
     card: {
         marginBottom: '2px',
 
@@ -49,10 +48,9 @@ const useStyles = tss.create(({ theme }) => ({
 interface SearchResultProps {
     entity: SearchResultEntity;
     image: string;
-    className?: string;
 }
 
-const SearchResult: FC<SearchResultProps> = ({ entity, image, className }) => {
+const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
     const { classes, cx } = useStyles();
     // const thumbnailSrc = SharedService.getThumbnailSrc(hike.filePath || '');
     // const hikers = hike.fullNames ? hike.fullNames.split(',') : [];
@@ -68,11 +66,9 @@ const SearchResult: FC<SearchResultProps> = ({ entity, image, className }) => {
     // };
 
     return (
-        <Card variant='outlined' className={className}>
+        <Card variant='outlined'>
             <CardContent className={cx(classes.cardContent)}>
-                {/*<Box className={cx(classes.thumbnailContainer)}>*/}
-                    <img src={image} alt='Search result image' className={cx(classes.thumbnail)}/>
-                {/*</Box>*/}
+                <img src={image} alt='Search result image' className={cx(classes.thumbnail)}/>
 
                 <Box>
                     <Typography variant='body1'>{entity.name}</Typography>

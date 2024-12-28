@@ -4,7 +4,7 @@ from src.enums.enums import EntityType
 from src.providers.base_provider import BaseProvider
 from src.schema.schema import SearchResult, Artist, Album, Image, BandMember
 from src.services.fanart_service import get_images_for_artist, get_album_images_for_artist
-from src.services.wikipedia import get_entity_description
+from src.services.wikipedia_service import get_entity_description
 
 
 class MusicBrainzProvider(BaseProvider):

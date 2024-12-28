@@ -2,7 +2,7 @@ import sys
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from src import app
-from src.services.utils import supported_data_provider
+from src.services.shared_service import supported_data_provider
 
 if app.config['DATA_PROVIDER'] is None:
     print('Missing data provider configuration, shutting down')

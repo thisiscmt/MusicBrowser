@@ -3,7 +3,6 @@ import {Link, useSearchParams} from 'react-router';
 import {
     Box,
     Button,
-    CircularProgress,
     FormControl,
     FormControlLabel,
     Grid,
@@ -113,7 +112,7 @@ const useStyles = tss.create(({ theme }) => ({
         },
 
         '& .searchResult': {
-            marginBottom: '3px',
+            marginBottom: '4px',
 
             '&:last-child': {
                 marginBottom: 0,
@@ -140,12 +139,13 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     const { setBanner } = useContext(MainContext);
     const [ searchText, setSearchText ] = useState<string>('');
     const [ entityType, setEntityType ] = useState<string>(EntityType.Artist);
-    const [ searchResults, setSearchResults ] = useState<SearchResultEntity[]>([]);
+    const [ searchResults, setSearchResults ] = useState<SearchResultEntity[] | undefined>(undefined);
     const [ currentPage, setCurrentPage ] = useState<number>(1);
     const [ pageCount, setPageCount ] = useState<number>(0);
     const [ currentQueryString, setCurrentQueryString ] = useState<string>('');
     const [ searchTextInputError, setSearchTextInputError ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
+    const [ noResults, setNoResults ] = useState<boolean>(false);
     const [ searchParams, setSearchParams ] = useSearchParams();
 
     const getSearchResults = useCallback(async (searchParamsArg: URLSearchParams) => {
@@ -184,8 +184,11 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
 
             setSearchResults(results.rows);
             setPageCount(results.count);
+            setNoResults(results.rows.length === 0);
+
             SharedService.scrollToTop(topOfPageRef);
         } catch (error) {
+            // TODO: Log this somewhere
             setBanner('An error occurred retrieving search results', 'error');
         } finally {
             setLoading(false);
@@ -227,11 +230,9 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
 
     const handleClearSearchText = () => {
         setSearchText('');
-        setSearchResults([]);
-        setPageCount(0);
-
         searchParams.delete('searchText');
         setSearchParams(searchParams);
+        setNoResults(false);
     };
 
     const handleChangePage = (_event: React.ChangeEvent<unknown>, value: number) => {
@@ -267,8 +268,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         getSearchResults(searchParams);
     };
 
-    const searchResultImage = entityType === EntityType.Artist ? Constants.STOCK_ARTIST_IMAGE :
-        (entityType === EntityType.Album ? Constants.STOCK_ALBUM_IMAGE : Constants.STOCK_SONG_IMAGE);
+    const searchResultsToRender = searchResults || [];
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -344,29 +344,35 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                         :
                             <>
                                 {
-                                    searchResults.length > 0
+                                    searchResultsToRender.length > 0
                                         ?
                                             <>
                                                 <Box className={cx(classes.searchResultContainer)}>
                                                     {
-                                                        searchResults.map((item: SearchResultEntity) => (
-                                                            <Link to={`/${item.entityType}`}>
+                                                        searchResultsToRender.map((item: SearchResultEntity) => {
+                                                            const searchResultImage = item.entityType === EntityType.Artist ? Constants.STOCK_ARTIST_IMAGE :
+                                                                (item.entityType === EntityType.Album ? Constants.STOCK_ALBUM_IMAGE : Constants.STOCK_SONG_IMAGE);
+
+                                                            return (
                                                                 <Box className='searchResult'>
-                                                                    <SearchResult key={item.id} entity={item} image={searchResultImage} />
+                                                                    <Link to={`/${item.entityType}/${item.id}`}>
+                                                                        <SearchResult key={item.id} entity={item} image={searchResultImage} />
+                                                                    </Link>
                                                                 </Box>
-                                                            </Link>
-                                                        ))
+                                                            );
+                                                        })
                                                     }
                                                 </Box>
 
                                                 <Box>
-                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount} className={cx(classes.pagination)} />
+                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount}
+                                                                className={cx(classes.pagination)} />
                                                 </Box>
                                             </>
                                         :
                                             <>
                                                 {
-                                                    searchText && !loading &&
+                                                    !loading && noResults &&
                                                     <Box>No results for '{searchText}'</Box>
                                                 }
                                             </>

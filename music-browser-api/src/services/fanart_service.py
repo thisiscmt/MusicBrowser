@@ -31,12 +31,11 @@ def get_images_for_artist(artist_id: str):
         if 'hdmusiclogo' in artist and len(artist['hdmusiclogo']) > 0 and len(images) == 0:
             images = list(map(lambda x: Image().load({ 'url': x['url'] }), artist['hdmusiclogo']))
 
-    except:
+    except RuntimeError:
         # TODO: Log this somewhere
         print(f'Error fetching artist images: {RuntimeError}')
 
     return images
-
 
 def get_album_images_for_artist(artist_id: str):
     images = []
@@ -54,7 +53,7 @@ def get_album_images_for_artist(artist_id: str):
         artist = request.response()
         images = artist['albums']
 
-    except:
+    except RuntimeError:
         # TODO: Log this somewhere
         print(f'Error fetching album images for artist: {RuntimeError}')
 

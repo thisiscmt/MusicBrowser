@@ -4,9 +4,10 @@ from werkzeug.exceptions import NotFound, BadRequest
 
 from src.config import Config
 from src.schema.schema import SearchParameters, SearchOutput, Artist, Album
-from src.services.utils import supported_entity_type, get_data_provider
+from src.services.shared_service import supported_entity_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType
+
 
 def create_app(test_config=None):
     flask_app = APIFlask(__name__, instance_relative_config=True)
@@ -17,7 +18,6 @@ def create_app(test_config=None):
         flask_app.config.from_mapping(test_config)
 
     return flask_app
-
 
 app = create_app()
 allowed_origin = '*'
@@ -68,6 +68,15 @@ def lookup_album(entity_id):
         result = db.run_lookup(EntityType.ALBUM, entity_id)
 
         return result
+
+# TODO
+# @app.get('/lookup/song/<string:entity_id>')
+# @app.output(Song)
+# def lookup_song(entity_id):
+#     db = get_data_provider(app.config)
+#     result = db.run_lookup(EntityType.SONG, entity_id)
+#
+#     return result
 
 @app.errorhandler(NotFound)
 def handle_not_found(error):
