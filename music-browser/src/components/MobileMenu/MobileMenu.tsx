@@ -2,11 +2,11 @@ import React, { FC } from 'react';
 import { Link } from 'react-router';
 import { Box, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { CloseOutlined, HomeOutlined, SettingsOutlined } from '@mui/icons-material';
-import { tss } from 'tss-react';
+import { tss } from 'tss-react/mui';
 
 import { Colors } from '../../services/themeService';
 
-const useStyles = tss.create({
+const useStyles = tss.create(({ theme } ) => ({
     mainContainer: {
         height: '100%',
         width: '180px'
@@ -31,7 +31,7 @@ const useStyles = tss.create({
             minWidth: '36px'
         }
     }
-});
+}));
 
 interface MobileMenuProps {
     onClose: () => void;

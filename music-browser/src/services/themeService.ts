@@ -3,6 +3,7 @@ import { grey } from '@mui/material/colors';
 
 export const Colors = {
     primaryTextColor: grey[800],
+    secondaryTextColor: grey[600],
     backgroundGray: '#F3F3F3',
     chipBackgroundColor: '#4678B2',
     white: '#FFFFFF',

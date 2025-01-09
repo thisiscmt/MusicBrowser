@@ -17,6 +17,7 @@ class SearchResult(Schema):
     id = String()
     name = String()
     artist = String()
+    artistId = String()
     score = Integer()
     tags = List(String())
     entityType = String()

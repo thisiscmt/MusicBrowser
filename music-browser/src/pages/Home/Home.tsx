@@ -1,5 +1,5 @@
 import React, { FC, RefObject, useContext, useEffect, useState, useCallback } from 'react';
-import {Link, useSearchParams} from 'react-router';
+import { useSearchParams } from 'react-router';
 import {
     Box,
     Button,
@@ -10,11 +10,10 @@ import {
     RadioGroup,
     TextField,
     Pagination,
-    InputAdornment,
-    IconButton
+    Skeleton
 } from '@mui/material';
 import { CloseOutlined } from '@mui/icons-material';
-import { tss } from 'tss-react/mui';
+import { makeStyles } from 'tss-react/mui';
 
 import {SearchResults, SearchResultEntity, SearchParams} from '../../models/models.ts';
 import { EntityType } from '../../enums/enums.ts';
@@ -25,7 +24,7 @@ import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants';
 import SearchResult from '../../components/SearchResult/SearchResult.tsx';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = makeStyles()((theme) => ({
     mainContainer: {
         [theme.breakpoints.down(600)]: {
             marginLeft: '12px',
@@ -112,7 +111,7 @@ const useStyles = tss.create(({ theme }) => ({
         },
 
         '& .searchResult': {
-            marginBottom: '4px',
+            marginBottom: '8px',
 
             '&:last-child': {
                 marginBottom: 0,
@@ -120,9 +119,17 @@ const useStyles = tss.create(({ theme }) => ({
         },
     },
 
+    skeleton: {
+        marginBottom: '8px',
+
+        '&:last-child': {
+            marginBottom: 0,
+        }
+    },
+
     pagination: {
         marginTop: '16px',
-        paddingBottom: '16px',
+        paddingBottom: '20px',
 
         '& .MuiPagination-ul': {
             justifyContent: 'center'
@@ -156,11 +163,12 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         setLoading(true);
 
         const searchRequestParams: SearchParams = { query: searchParamsArg.get('searchText') || '' };
+        const entityTypeArg = searchParamsArg.get('entityType') || EntityType.Artist;
         const page = searchParamsArg.get('page') || '1';
-        const pageSize = searchParamsArg.get('pageSize') || '25';
+        const pageSize = searchParamsArg.get('pageSize') || '10';
 
         searchRequestParams.page = page ? Number(page) : 1;
-        searchRequestParams.pageSize = pageSize ? Number(pageSize) : 25;
+        searchRequestParams.pageSize = pageSize ? Number(pageSize) : 10;
 
         let results: SearchResults = {
             rows: [],
@@ -168,7 +176,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         };
 
         try {
-            switch (entityType)
+            switch (entityTypeArg)
             {
                 case EntityType.Artist:
                     results = await DataService.searchArtists(searchRequestParams);
@@ -193,7 +201,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         } finally {
             setLoading(false);
         }
-    }, [entityType, setBanner, topOfPageRef]);
+    }, [setBanner, topOfPageRef]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -201,22 +209,34 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         }
 
         const queryStringChanged = currentQueryString !== searchParams.toString();
+        let getData = true;
 
         // The check for whether the query string changed is to handle the user clicking the browser's Back button, so we can do a data fetch since
         // we likely need different data.
         if (queryStringChanged) {
             const searchTextQueryParam = searchParams.get('searchText');
+            const entityTypeQueryParam = searchParams.get('entityType');
 
             // If the user clicked the browser's Back button and no longer has a search text query param we need to clear the text box. Or if they
             // clicked Back and have a search text query param we need to put it in the text box.
             if (!searchTextQueryParam && searchText) {
                 setSearchText('');
-            } else if (searchTextQueryParam && !searchText) {
+                setSearchResults([]);
+
+                getData = false;
+            } else if (searchTextQueryParam) {
                 setSearchText(searchTextQueryParam);
             }
 
+            if (entityTypeQueryParam) {
+                setEntityType(entityTypeQueryParam);
+            }
+
             setCurrentQueryString(searchParams.toString());
-            fetchData();
+
+            if (getData) {
+                fetchData();
+            }
         }
     }, [searchParams, currentQueryString, searchText, getSearchResults, setSearchText]);
 
@@ -228,13 +248,6 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         setEntityType(event.target.value);
     };
 
-    const handleClearSearchText = () => {
-        setSearchText('');
-        searchParams.delete('searchText');
-        setSearchParams(searchParams);
-        setNoResults(false);
-    };
-
     const handleChangePage = (_event: React.ChangeEvent<unknown>, value: number) => {
         searchParams.set('page', value.toString());
 
@@ -243,7 +256,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         getSearchResults(searchParams);
     }
 
-    const handleClickSearch = () => {
+    const handleSearch = () => {
         if (searchText === '') {
             setSearchTextInputError(true);
             setBanner('You must provide search text', 'error');
@@ -259,6 +272,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
             searchParams.delete('searchText');
         }
 
+        searchParams.set('entityType', entityType);
+
         if (currentPage !== 1) {
             searchParams.set('page', '1');
             setCurrentPage(1);
@@ -268,7 +283,14 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         getSearchResults(searchParams);
     };
 
+    const handleEnterKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
     const searchResultsToRender = searchResults || [];
+    const loadingIndicators = [1, 2, 3, 4, 5];
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -288,23 +310,9 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                                 error={searchTextInputError}
                                 fullWidth={true}
                                 autoCorrect='off'
-                                InputProps={ searchText ?
-                                    {
-                                        endAdornment:
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    aria-label="clear search input"
-                                                    onClick={handleClearSearchText}
-                                                    title='Clear search text'
-                                                    type='submit'
-                                                >
-                                                    <CloseOutlined />
-                                                </IconButton>
-                                            </InputAdornment>
-                                    } : undefined
-                                }
                                 inputProps={{ maxLength: 255 }}
                                 onChange={handleChangeSearchText}
+                                onKeyDown={handleEnterKeyDown}
                             />
                         }
                     />
@@ -319,8 +327,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                         label='Entity'
                         classes={{ label: `${classes.fieldLabel} ${classes.entityTypeLabel}` }}
                         control={
-                            <RadioGroup onChange={handleChangeEntityType} aria-labelledby='entity-type' row={true} defaultValue={EntityType.Artist}
-                                        className={cx(classes.entityTypeOptions)}>
+                            <RadioGroup onChange={handleChangeEntityType} aria-labelledby='entity-type' row={true} value={entityType}
+                                        className={cx(classes.entityTypeOptions)} onKeyDown={handleEnterKeyDown}>
                                 <FormControlLabel value={EntityType.Artist} control={<Radio />} label='Artist' />
                                 <FormControlLabel value={EntityType.Album} control={<Radio />} label='Album' />
                                 <FormControlLabel value={EntityType.Song} control={<Radio />} label='Song' />
@@ -331,7 +339,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
             </Grid>
 
             <Grid item xs={12} className={cx(classes.submitButtonRow)}>
-                <Button onClick={handleClickSearch} size='small' variant='contained' color='primary' disabled={loading}>Submit</Button>
+                <Button onClick={handleSearch} size='small' variant='contained' color='primary' disabled={loading}>Submit</Button>
             </Grid>
 
             <Grid item xs={12} className={cx(classes.resultsRow)}>
@@ -339,7 +347,11 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                     loading
                         ?
                             <Box>
-                                Loading
+                                {
+                                    loadingIndicators.map((item: number) => {
+                                        return (<Skeleton key={item} variant='rectangular' width='100%' height='120px' className={cx(classes.skeleton)} />);
+                                    })
+                                }
                             </Box>
                         :
                             <>
@@ -354,10 +366,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                                                                 (item.entityType === EntityType.Album ? Constants.STOCK_ALBUM_IMAGE : Constants.STOCK_SONG_IMAGE);
 
                                                             return (
-                                                                <Box className='searchResult'>
-                                                                    <Link to={`/${item.entityType}/${item.id}`}>
-                                                                        <SearchResult key={item.id} entity={item} image={searchResultImage} />
-                                                                    </Link>
+                                                                <Box key={item.id} className='searchResult'>
+                                                                    <SearchResult entity={item} image={searchResultImage} />
                                                                 </Box>
                                                             );
                                                         })

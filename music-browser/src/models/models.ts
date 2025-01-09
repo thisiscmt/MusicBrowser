@@ -19,6 +19,7 @@ export interface SearchResultEntity {
     id: string;
     name: string;
     artist: string;
+    artistId: string;
     score: number;
     tags: string[];
     entityType: EntityType;

@@ -74,6 +74,10 @@ def build_album_search_results(data):
         result.artist = record['artist-credit-phrase']
         result.score = record['ext:score']
 
+        if 'artist-credit' in record and len(record['artist-credit']) > 0:
+            if 'artist' in record['artist-credit'][0]:
+                result.artistId = record['artist-credit'][0]['artist']['id']
+
         if 'tag-list' in record:
             result.tags = build_tag_list(record['tag-list'])
 

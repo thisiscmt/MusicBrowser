@@ -1,11 +1,13 @@
-import React, { FC } from 'react';
-import { Box, Typography, Card, CardContent} from '@mui/material';
-import { tss } from 'tss-react/mui';
+import React, {FC} from 'react';
+import {Box, Card, CardContent, Typography} from '@mui/material';
+import {tss} from 'tss-react/mui';
 
-import { SearchResultEntity } from '../../models/models.ts';
-import { Colors } from '../../services/themeService.ts';
+import {SearchResultEntity} from '../../models/models.ts';
+import {Colors} from '../../services/themeService.ts';
+import {EntityType} from '../../enums/enums.ts';
+import { Link } from 'react-router';
 
-const useStyles = tss.create(() => ({
+const useStyles = tss.create(({ theme }) => ({
     card: {
         marginBottom: '2px',
 
@@ -27,6 +29,28 @@ const useStyles = tss.create(() => ({
     thumbnail: {
         height: '100px',
         width: '100px'
+    },
+
+    mainTitle: {
+        fontWeight: 'bold'
+    },
+
+    link: {
+        lineHeight: 1,
+        marginBottom: '8px',
+
+        '& a': {
+            color: theme.palette.text.primary,
+            textDecoration: 'none',
+
+            '&:hover': {
+                color: Colors.secondaryTextColor
+            }
+        }
+    },
+
+    secondaryLink: {
+        marginBottom: '5px'
     },
 
     tagContainer: {
@@ -52,18 +76,6 @@ interface SearchResultProps {
 
 const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
     const { classes, cx } = useStyles();
-    // const thumbnailSrc = SharedService.getThumbnailSrc(hike.filePath || '');
-    // const hikers = hike.fullNames ? hike.fullNames.split(',') : [];
-    //
-    // const getHikeDateValue = () => {
-    //     let dateValue = SharedService.formatDateValue(hike.dateOfHike);
-    //
-    //     if (hike.endDateOfHike) {
-    //         dateValue += ` - ${SharedService.formatDateValue(hike.endDateOfHike)}`;
-    //     }
-    //
-    //     return dateValue;
-    // };
 
     return (
         <Card variant='outlined'>
@@ -71,7 +83,16 @@ const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
                 <img src={image} alt='Search result image' className={cx(classes.thumbnail)}/>
 
                 <Box>
-                    <Typography variant='body1'>{entity.name}</Typography>
+                    <Typography variant='body1' className={cx(classes.mainTitle, classes.link)}>
+                        <Link to={`/${entity.id}`}>{entity.name}</Link>
+                    </Typography>
+
+                    {
+                        entity.entityType !== EntityType.Artist &&
+                        <Typography variant='body2' className={cx(classes.link, classes.secondaryLink)}>
+                            <Link to={`/${entity.artistId}`}>{entity.artist}</Link>
+                        </Typography>
+                    }
 
                     {
                         entity.tags && entity.tags.length > 0 &&
