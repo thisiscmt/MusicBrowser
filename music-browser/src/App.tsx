@@ -7,6 +7,7 @@ import Header from './components/Header/Header.tsx';
 import Home from './pages/Home/Home.tsx';
 import Preferences from './pages/Preferences/Preferences.tsx';
 import ErrorPage from './pages/ErrorPage/ErrorPage.tsx';
+import Artist from './pages/Artist/Artist.tsx';
 
 const useStyles = tss.create(({ theme }) => ({
     siteContainer: {
@@ -36,7 +37,7 @@ function App() {
 
                 <Routes>
                     <Route path='/' element={<Home topOfPageRef={topOfPageRef} />} />
-                    {/*<Route path='/hike' element={<EditHike topOfPageRef={topOfPageRef} />} />*/}
+                    <Route path='/artist/:artistId' element={<Artist />} />
                     {/*<Route path='/hike/:hikeId' element={<ViewHike topOfPageRef={topOfPageRef} />} />*/}
                     {/*<Route path='/hike/:hikeId/edit' element={<EditHike topOfPageRef={topOfPageRef} />} />*/}
                     {/*<Route path='/admin/session' element={<Sessions />} />*/}

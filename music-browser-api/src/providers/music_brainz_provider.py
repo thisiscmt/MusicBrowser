@@ -2,7 +2,7 @@ import musicbrainzngs
 
 from src.enums.enums import EntityType
 from src.providers.base_provider import BaseProvider
-from src.schema.schema import SearchResult, Artist, Album, Image, BandMember
+from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link
 from src.services.fanart_service import get_images_for_artist, get_album_images_for_artist
 from src.services.wikipedia_service import get_entity_description
 
@@ -139,14 +139,17 @@ def build_artist(data):
         for relation in record['artist-relation-list']:
             if ('type' in relation and
                     str(relation['type']).lower() == 'member of band' and
-                    'artist' in relation and 'type' in relation['artist'] and
+                    'artist' in relation and
+                    'type' in relation['artist'] and
                     str(relation['artist']['type']).lower() == 'person' and
                     relation['artist']['name'] not in members):
-                member = BandMember()
+                member = Member()
                 member.name = relation['artist']['name']
-                member.begin = relation['begin'] if 'begin' in relation else ''
-                member.end = relation['end'] if 'end' in relation else ''
-                member.ended = relation['ended'] if 'ended' in relation else ''
+
+                member.lifeSpan = LifeSpan()
+                member.lifeSpan.begin = relation['begin'] if 'begin' in relation else ''
+                member.lifeSpan.end = relation['end'] if 'end' in relation else ''
+                member.lifeSpan.ended = relation['ended'] if 'ended' in relation else ''
 
                 members.append(member)
 
@@ -157,7 +160,11 @@ def build_artist(data):
     if 'url-relation-list' in record:
         for link in record['url-relation-list']:
             if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
-                links.append(link['target'])
+                if link['type'] != 'wikidata':
+                    link_entry = Link()
+                    link_entry.type = link['type']
+                    link_entry.target = link['target']
+                    links.append(link_entry)
 
                 if link['type'] == 'wikidata':
                     artist.description = get_entity_description(link['target'])
@@ -199,7 +206,8 @@ def build_album(data):
     if 'url-relation-list' in record:
         for link in record['url-relation-list']:
             if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
-                links.append(link['target'])
+                if link['type'] != 'wikidata':
+                    links.append(link['target'])
 
                 if link['type'] == 'wikidata':
                     album.description = get_entity_description(link['target'])
@@ -217,4 +225,3 @@ def build_tag_list(data: list):
         tags.append(tag['name'])
 
     return tags
-

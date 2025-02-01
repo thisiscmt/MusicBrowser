@@ -10,24 +10,21 @@ import { MainContext } from '../../contexts/MainContext.tsx';
 
 const useStyles = tss.create(({ theme }) => ({
     headerContainer: {
+        alignItems: 'center',
         backgroundColor: Colors.black,
         color: Colors.white,
         display: 'flex',
-        justifyContent: 'space-between',
         padding: '16px'
     },
 
     headerText: {
         color: Colors.white,
         lineHeight: 1,
-        textDecoration: 'none',
-
-        [theme.breakpoints.down(600)]: {
-            fontSize: '1.0rem'
-        }
+        textDecoration: 'none'
     },
 
     prefsButton: {
+        marginLeft: 'auto',
         padding: 0,
 
         '& svg': {
@@ -40,9 +37,11 @@ const useStyles = tss.create(({ theme }) => ({
     },
 
     mobileMenuButton: {
+        color: Colors.white,
         display: 'none',
+        padding: '4px',
 
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down(600)]: {
             display: 'inline-flex',
             marginRight: '10px'
         }

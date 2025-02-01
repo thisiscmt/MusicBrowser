@@ -12,7 +12,6 @@ import {
     Pagination,
     Skeleton
 } from '@mui/material';
-import { CloseOutlined } from '@mui/icons-material';
 import { makeStyles } from 'tss-react/mui';
 
 import {SearchResults, SearchResultEntity, SearchParams} from '../../models/models.ts';
@@ -204,9 +203,9 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     }, [setBanner, topOfPageRef]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            await getSearchResults(searchParams);
-        }
+            const fetchData = async () => {
+                await getSearchResults(searchParams);
+            }
 
         const queryStringChanged = currentQueryString !== searchParams.toString();
         let getData = true;

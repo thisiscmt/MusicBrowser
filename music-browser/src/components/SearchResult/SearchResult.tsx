@@ -5,7 +5,7 @@ import {tss} from 'tss-react/mui';
 import {SearchResultEntity} from '../../models/models.ts';
 import {Colors} from '../../services/themeService.ts';
 import {EntityType} from '../../enums/enums.ts';
-import { Link } from 'react-router';
+import {Link} from 'react-router';
 
 const useStyles = tss.create(({ theme }) => ({
     card: {
@@ -55,7 +55,8 @@ const useStyles = tss.create(({ theme }) => ({
 
     tagContainer: {
         display: 'flex',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        marginBottom: '9px'
     },
 
     tag: {
@@ -63,7 +64,7 @@ const useStyles = tss.create(({ theme }) => ({
         borderRadius: '4px',
         color: Colors.white,
         fontSize: '14px',
-        marginRight: '6px',
+        marginRight: '8px',
         marginTop: '6px',
         padding: '3px 5px'
      }
@@ -84,13 +85,13 @@ const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
 
                 <Box>
                     <Typography variant='body1' className={cx(classes.mainTitle, classes.link)}>
-                        <Link to={`/${entity.id}`}>{entity.name}</Link>
+                        <Link to={`/${entity.entityType.toString()}/${entity.id}`}>{entity.name}</Link>
                     </Typography>
 
                     {
                         entity.entityType !== EntityType.Artist &&
                         <Typography variant='body2' className={cx(classes.link, classes.secondaryLink)}>
-                            <Link to={`/${entity.artistId}`}>{entity.artist}</Link>
+                            <Link to={`/artist/${entity.artistId}`}>{entity.artist}</Link>
                         </Typography>
                     }
 
@@ -106,6 +107,13 @@ const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
 
                             }
                         </Box>
+                    }
+
+                    {
+                        entity.score !== undefined &&
+                        <Typography variant='body2'>
+                            Score: {entity.score}
+                        </Typography>
                     }
                 </Box>
 

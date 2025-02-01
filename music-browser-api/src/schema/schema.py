@@ -26,11 +26,18 @@ class SearchOutput(Schema):
     rows = List(Nested(SearchResult()))
     count = Integer()
 
-class BandMember(Schema):
-    name = String()
+class LifeSpan(Schema):
     begin = String()
     end = String()
     ended = Boolean()
+
+class Member(Schema):
+    name = String()
+    lifeSpan = Nested(LifeSpan())
+
+class Link(Schema):
+    type = String()
+    target = String()
 
 class Album(Schema):
     id = String()
@@ -46,12 +53,12 @@ class Artist(Schema):
     id = String()
     name = String()
     description = String()
-    lifeSpan = Dict()
+    lifeSpan = Nested(LifeSpan())
     area = Dict()
     beginArea = Dict()
     tags = List(String())
     images = List(Nested(Image()))
     albums = List(Nested(Album()))
-    members = List(Nested(BandMember()))
-    links = List(String())
+    members = List(Nested(Member()))
+    links = List(Nested(Link()))
 

@@ -1,4 +1,5 @@
 import { RefObject } from 'react';
+import {AlbumEntity, ArtistEntity, Member} from '../models/models.ts';
 
 // export const formatDateValue = (date: string) => {
 //     const dateParts = date.split('-');
@@ -21,6 +22,22 @@ import { RefObject } from 'react';
 //
 //     return formattedDate;
 // }
+
+export const getEmptyArtist = (): ArtistEntity => {
+    return {
+        id: '',
+        name: '',
+        description: '',
+        lifeSpan: { begin: '', end: '', ended: false },
+        area: { name: '' },
+        beginArea: { name: '' },
+        tags: [],
+        images: [],
+        albums: [],
+        members: [],
+        links: []
+    }
+}
 
 export const scrollToTop = (ref: RefObject<HTMLElement>) => {
     if (ref && ref.current) {
