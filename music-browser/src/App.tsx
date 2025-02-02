@@ -8,9 +8,11 @@ import Home from './pages/Home/Home.tsx';
 import Preferences from './pages/Preferences/Preferences.tsx';
 import ErrorPage from './pages/ErrorPage/ErrorPage.tsx';
 import Artist from './pages/Artist/Artist.tsx';
+import { Colors } from './services/themeService.ts';
 
 const useStyles = tss.create(({ theme }) => ({
     siteContainer: {
+        backgroundColor: Colors.white,
         height: '100vh',
         width: '50%',
 

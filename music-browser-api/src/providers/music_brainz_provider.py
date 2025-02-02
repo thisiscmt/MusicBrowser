@@ -160,14 +160,20 @@ def build_artist(data):
     if 'url-relation-list' in record:
         for link in record['url-relation-list']:
             if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
-                if link['type'] != 'wikidata':
-                    link_entry = Link()
-                    link_entry.type = link['type']
-                    link_entry.target = link['target']
-                    links.append(link_entry)
-
                 if link['type'] == 'wikidata':
                     artist.description = get_entity_description(link['target'])
+                else:
+                    link_entry = Link()
+
+                    if link['type'] == 'allmusic':
+                        link_entry.label = 'All Music'
+                    elif link['type'] == 'discogs':
+                        link_entry.label = 'Discogs'
+                    else:
+                        link_entry.label = link['type']
+
+                    link_entry.target = link['target']
+                    links.append(link_entry)
 
     artist.links = links
 
@@ -206,11 +212,10 @@ def build_album(data):
     if 'url-relation-list' in record:
         for link in record['url-relation-list']:
             if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
-                if link['type'] != 'wikidata':
-                    links.append(link['target'])
-
                 if link['type'] == 'wikidata':
                     album.description = get_entity_description(link['target'])
+                else:
+                    links.append(link['target'])
 
     album.links = links
 

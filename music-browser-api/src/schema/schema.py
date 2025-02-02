@@ -36,7 +36,7 @@ class Member(Schema):
     lifeSpan = Nested(LifeSpan())
 
 class Link(Schema):
-    type = String()
+    label = String()
     target = String()
 
 class Album(Schema):

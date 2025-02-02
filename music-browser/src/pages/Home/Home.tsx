@@ -25,10 +25,14 @@ import SearchResult from '../../components/SearchResult/SearchResult.tsx';
 
 const useStyles = makeStyles()((theme) => ({
     mainContainer: {
-        [theme.breakpoints.down(600)]: {
-            marginLeft: '12px',
-            marginRight: '12px'
-        }
+        backgroundColor: Colors.white,
+        paddingLeft: '12px',
+        paddingRight: '12px',
+
+        // [theme.breakpoints.down(600)]: {
+        //     marginLeft: '12px',
+        //     marginRight: '12px'
+        // }
     },
 
     searchTextRow: {

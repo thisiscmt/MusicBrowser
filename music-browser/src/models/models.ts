@@ -45,7 +45,7 @@ export interface Area {
 }
 
 export interface LinkEntry {
-    type: string;
+    label: string;
     target: string;
 }
 

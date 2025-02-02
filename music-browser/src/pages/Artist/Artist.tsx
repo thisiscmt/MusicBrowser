@@ -7,23 +7,25 @@ import 'react-image-gallery/styles/css/image-gallery.css';
 
 import { ArtistEntity, LinkEntry } from '../../models/models.ts';
 import { MainContext, AlertSeverity } from '../../contexts/MainContext.tsx';
+import { Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants.ts';
-import {Colors} from '../../services/themeService.ts';
 
 const useStyles = tss.create(({ theme }) => ({
     mainContainer: {
+        backgroundColor: Colors.white,
         display: 'flex',
         flexDirection: 'column',
-        paddingBottom: '8px',
-        paddingTop: '8px'
+        padding: '12px'
     },
 
     imageContainer: {
+        marginBottom: '12px',
+
         '& .image-gallery-left-nav .image-gallery-svg, .image-gallery-right-nav .image-gallery-svg': {
-            height: '60px',
-            width: '30px'
+            height: '40px',
+            width: '20px'
         },
 
         '& .image-gallery-slide .image-gallery-image': {
@@ -37,10 +39,14 @@ const useStyles = tss.create(({ theme }) => ({
         alignSelf: 'center'
     },
 
+    entityName: {
+        marginBottom: '8px'
+    },
+
     tagContainer: {
         display: 'flex',
         flexWrap: 'wrap',
-        marginBottom: '9px'
+        marginBottom: '12px',
     },
 
     tag: {
@@ -51,7 +57,13 @@ const useStyles = tss.create(({ theme }) => ({
         marginRight: '8px',
         marginTop: '6px',
         padding: '3px 5px'
+    },
+
+    entityDesc: {
+        marginBottom: '12px',
+        whiteSpace: 'pre-wrap'
     }
+
 }));
 
 const Artist: FC = () => {
@@ -89,60 +101,80 @@ const Artist: FC = () => {
         };
     })
 
+    // We normalize the line breaks in the description then double each one so we get nice spacing between blocks of text
+    const desc = entity.description.replace(/\n\n/g, '\n').replace(/\n/g, '\n\n');
+
     return (
         <Box className={cx(classes.mainContainer)}>
-            <Box className={cx(classes.imageContainer)}>
-                <ImageGallery items={images} showPlayButton={false} showFullscreenButton={false} />
-            </Box>
-
-            <Typography variant='body2'>{entity.name}</Typography>
-
             {
-                entity.tags && entity.tags.length > 0 &&
-                <Box className={cx(classes.tagContainer)}>
-                    {
-                        entity.tags.map((item: string, index: number) => {
-                            return (
-                                <Box key={index} className={cx(classes.tag)}>{item}</Box>
-                            )
-                        })
-
-                    }
-                </Box>
+                loading &&
+                <>
+                </>
             }
 
-            <Typography variant='body2'>Formed:</Typography>
-
-            <Typography variant='body2'>Dissolved:</Typography>
-
-            <Typography variant='body2'>Description goes here</Typography>
-
             {
-                entity.links.length > 0 &&
-                <Box>
+                !loading &&
+                <>
                     {
-                        entity.links.map((item: LinkEntry) => {
-                            return (
-                                <Box>
-                                    <Button
-                                        component={Link}
-                                        to={item.target}
-                                        target='_blank'
-                                        disableRipple={true}
-                                    >
-                                        {item.type}
-                                    </Button>
-                                </Box>
-                            )
-                        })
+                        images.length > 0 &&
+                        // <Box className={cx(classes.imageContainer)}>
+                            <ImageGallery items={images} showPlayButton={false} additionalClass={cx(classes.imageContainer)} showFullscreenButton={false} />
+                        // </Box>
                     }
-                </Box>
-            }
 
-            <Tabs value={currentTab}>
-                <Tab label='Discography' />
-                <Tab label='Members' />
-            </Tabs>
+                    <Typography variant='h5' className={cx(classes.entityName)}>{entity.name}</Typography>
+
+                    {
+                        entity.tags.length > 0 &&
+                        <Box className={cx(classes.tagContainer)}>
+                            {
+                                entity.tags.map((item: string, index: number) => {
+                                    return (
+                                        <Box key={index} className={cx(classes.tag)}>{item}</Box>
+                                    )
+                                })
+
+                            }
+                        </Box>
+                    }
+
+                    <Typography variant='body2'>Formed:</Typography>
+
+                    <Typography variant='body2'>Dissolved:</Typography>
+
+                    {
+                        entity.description &&
+                        <Typography variant='body2' className={cx(classes.entityDesc)}>{desc}</Typography>
+                    }
+
+                    {
+                        entity.links.length > 0 &&
+                        <Box>
+                            {
+                                entity.links.map((item: LinkEntry, index: number) => {
+                                    return (
+                                        <Box key={index}>
+                                            <Button
+                                                component={Link}
+                                                to={item.target}
+                                                target='_blank'
+                                                disableRipple={true}
+                                            >
+                                                {item.label}
+                                            </Button>
+                                        </Box>
+                                    )
+                                })
+                            }
+                        </Box>
+                    }
+
+                    <Tabs value={currentTab}>
+                        <Tab label='Discography' />
+                        <Tab label='Members' />
+                    </Tabs>
+                </>
+            }
         </Box>
     )
 };
