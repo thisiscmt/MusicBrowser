@@ -1,4 +1,5 @@
 import os
+import datetime
 from itertools import chain
 import fanart
 from fanart.core import Request
@@ -19,7 +20,10 @@ def get_images_for_artist(artist_id: str):
             limit=fanart.LIMIT.ONE,
         )
 
+        begin_time = datetime.datetime.now()
         artist = request.response()
+        end_time = datetime.datetime.now()
+        print(f'Fanart artist images time: {end_time - begin_time}')
 
         # We get all thumbnails and background images for the artist. If there are none of those, we return any logos present.
         if 'artistthumb' in artist and len(artist['artistthumb']) > 0:
@@ -50,7 +54,11 @@ def get_album_images_for_artist(artist_id: str):
             limit=fanart.LIMIT.ONE,
         )
 
+        begin_time = datetime.datetime.now()
         artist = request.response()
+        end_time = datetime.datetime.now()
+        print(f'Fanart album images time: {end_time - begin_time}')
+
         images = artist['albums']
 
     except RuntimeError:

@@ -1,3 +1,4 @@
+import datetime
 import requests
 
 
@@ -13,7 +14,11 @@ def get_wikipedia_page_title(wikidata_url: str):
     try:
         wikidata_id = wikidata_url[wikidata_url.rindex('/') + 1:]
         url = f'https://www.wikidata.org/w/api.php?action=wbgetentities&props=sitelinks&ids={wikidata_id}&sitefilter=enwiki&format=json'
+
+        begin_time = datetime.datetime.now()
         response = requests.get(url)
+
+        print(f'Wikipedia page title time: {datetime.datetime.now() - begin_time}')
 
         if response.status_code == 200:
             content = response.json()
@@ -33,7 +38,11 @@ def get_wikipedia_page_intro(page_title: str):
     if page_title is not None and page_title != '':
         try:
             url = f'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exlimit=1&exintro=true&titles={page_title}&explaintext=1&format=json'
+
+            begin_time = datetime.datetime.now()
             response = requests.get(url)
+
+            print(f'Wikipedia page intro time: {datetime.datetime.now() - begin_time}')
 
             if response.status_code == 200:
                 content = response.json()

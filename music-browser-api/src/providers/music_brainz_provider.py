@@ -1,3 +1,4 @@
+import datetime
 import musicbrainzngs
 
 from src.enums.enums import EntityType
@@ -14,31 +15,45 @@ class MusicBrainzProvider(BaseProvider):
 
     def run_search(self, entity_type, query, page, page_size):
         results = None
+        begin_time = datetime.datetime.now()
 
         match entity_type:
             case EntityType.ARTIST:
                 data = musicbrainzngs.search_artists(artist=query, offset=page-1, limit=page_size)
+                print(f'MusicBrainz artist search time: {datetime.datetime.now() - begin_time}')
+
                 results = build_artist_search_results(data)
             case EntityType.ALBUM:
                 data = musicbrainzngs.search_release_groups(query=query, type='album', offset=page-1, limit=page_size)
+                print(f'MusicBrainz album search time: {datetime.datetime.now() - begin_time}')
+
                 results = build_album_search_results(data)
             case EntityType.SONG:
                 pass # TODO
+
+        print(f'Search total time: {datetime.datetime.now() - begin_time}')
 
         return results
 
     def run_lookup(self, entity_type, entity_id):
         result = None
+        begin_time = datetime.datetime.now()
 
         match entity_type:
             case EntityType.ARTIST:
                 data = musicbrainzngs.get_artist_by_id(id=entity_id, includes=['tags', 'release-groups', 'artist-rels', 'url-rels', 'annotation'])
+                print(f'MusicBrainz artist lookup time: {datetime.datetime.now() - begin_time}')
+
                 result = build_artist(data)
             case EntityType.ALBUM:
                 data = musicbrainzngs.get_release_group_by_id(id=entity_id, includes=['tags', 'artist-credits', 'url-rels', 'annotation'])
+                print(f'MusicBrainz album lookup time: {datetime.datetime.now() - begin_time}')
+
                 result = build_album(data)
             case EntityType.SONG:
                 pass # TODO
+
+        print(f'Lookup total time: {datetime.datetime.now() - begin_time}')
 
         return result
 
@@ -112,7 +127,7 @@ def build_artist(data):
 
     if 'release-group-list' in record:
         for rel_group in record['release-group-list']:
-            if str(rel_group['type']).lower() == 'album':
+            if 'type' in rel_group and str(rel_group['type']).lower() == 'album':
                 album = Album()
                 album.id = rel_group['id']
                 album.name = rel_group['title']

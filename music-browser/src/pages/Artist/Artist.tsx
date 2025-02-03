@@ -6,11 +6,13 @@ import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 
 import { ArtistEntity, LinkEntry } from '../../models/models.ts';
-import { MainContext, AlertSeverity } from '../../contexts/MainContext.tsx';
+import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants.ts';
+import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
+import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
 
 const useStyles = tss.create(({ theme }) => ({
     mainContainer: {
@@ -74,6 +76,8 @@ const Artist: FC = () => {
     const [ loading, setLoading ] = useState<boolean>(true);
     const { artistId } = useParams() as { artistId: string };
 
+    useDocumentTitle(entity.name === '' ? 'Artist - Music Browser' : `Artist - ${entity.name} - Music Browser`);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -88,14 +92,12 @@ const Artist: FC = () => {
             }
         }
 
-        document.title = 'Artist -  - Music Browser';
-
         if (entity.name === '') {
             fetchData();
         }
     });
 
-    const images = entity.images.map((item) => {
+    const images = entity.images.slice(0, 10).map((item) => {
         return {
             original: item.url
         };
@@ -107,9 +109,7 @@ const Artist: FC = () => {
     return (
         <Box className={cx(classes.mainContainer)}>
             {
-                loading &&
-                <>
-                </>
+                loading && <ArtistLoader />
             }
 
             {
@@ -117,9 +117,7 @@ const Artist: FC = () => {
                 <>
                     {
                         images.length > 0 &&
-                        // <Box className={cx(classes.imageContainer)}>
-                            <ImageGallery items={images} showPlayButton={false} additionalClass={cx(classes.imageContainer)} showFullscreenButton={false} />
-                        // </Box>
+                        <ImageGallery items={images} showPlayButton={false} additionalClass={cx(classes.imageContainer)} showFullscreenButton={false} />
                     }
 
                     <Typography variant='h5' className={cx(classes.entityName)}>{entity.name}</Typography>

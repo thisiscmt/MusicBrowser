@@ -9,8 +9,7 @@ import {
     Radio,
     RadioGroup,
     TextField,
-    Pagination,
-    Skeleton
+    Pagination
 } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 
@@ -22,6 +21,7 @@ import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants';
 import SearchResult from '../../components/SearchResult/SearchResult.tsx';
+import SearchResultLoader from '../../components/SearchResultLoader/SearchResultLoader.tsx';
 
 const useStyles = makeStyles()((theme) => ({
     mainContainer: {
@@ -122,8 +122,8 @@ const useStyles = makeStyles()((theme) => ({
         },
     },
 
-    skeleton: {
-        marginBottom: '8px',
+    loader: {
+        marginBottom: '12px',
 
         '&:last-child': {
             marginBottom: 0,
@@ -293,7 +293,6 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     };
 
     const searchResultsToRender = searchResults || [];
-    const loadingIndicators = [1, 2, 3, 4, 5];
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -349,13 +348,15 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                 {
                     loading
                         ?
-                            <Box>
+                            <>
                                 {
-                                    loadingIndicators.map((item: number) => {
-                                        return (<Skeleton key={item} variant='rectangular' width='100%' height='120px' className={cx(classes.skeleton)} />);
+                                    [1, 2, 3, 4, 5].map((item: number) => {
+                                        return (
+                                            <Box key={item} className={cx(classes.loader)}><SearchResultLoader entityType={entityType as EntityType} /></Box>
+                                        );
                                     })
                                 }
-                            </Box>
+                            </>
                         :
                             <>
                                 {
