@@ -1,10 +1,12 @@
 import datetime
+from concurrent.futures import ThreadPoolExecutor
 import musicbrainzngs
 
 from src.enums.enums import EntityType
+from src.models.models import ImageRequest
 from src.providers.base_provider import BaseProvider
 from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link
-from src.services.fanart_service import get_images_for_artist, get_album_images_for_artist
+from src.services.fanart_service import get_images, get_album_images_for_artist
 from src.services.wikipedia_service import get_entity_description
 
 
@@ -116,13 +118,31 @@ def build_artist(data):
         artist.beginArea = dict({'name': record['begin-area']['name']})
 
     if 'disambiguation' in record:
-        artist.description = record['disambiguation']
+        artist.comment = record['disambiguation']
+
+    if 'annotation' in record and 'text' in record['annotation']:
+        artist.annotation = record['annotation']['text']
 
     if 'tag-list' in record:
         artist.tags = build_tag_list(record['tag-list'])
 
-    artist.images = get_images_for_artist(record['id'])
-    album_images = get_album_images_for_artist(record['id'])
+    artist_image_request = ImageRequest()
+    artist_image_request.image_type = 'artist'
+    artist_image_request.artist_id = record['id']
+
+    album_image_request = ImageRequest()
+    album_image_request.image_type = 'album'
+    album_image_request.artist_id = record['id']
+
+    begin_time = datetime.datetime.now()
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        images = list(executor.map(get_images, [artist_image_request, album_image_request]))
+
+    print(f'Fanart artist and album images time: {datetime.datetime.now() - begin_time}')
+
+    artist.images = images[0]
+    album_images = images[1]
     albums = []
 
     if 'release-group-list' in record:
@@ -209,7 +229,10 @@ def build_album(data):
     if 'artist-credit' in record and len(record['artist-credit']) > 0:
         if 'artist' in record['artist-credit'][0]:
             album.artist = record['artist-credit'][0]['artist']['name']
+
+            begin_time = datetime.datetime.now()
             images = get_album_images_for_artist(record['artist-credit'][0]['artist']['id'])
+            print(f'Fanart album images time: {datetime.datetime.now() - begin_time}')
 
             if len(images) > 0:
                 image = Image()

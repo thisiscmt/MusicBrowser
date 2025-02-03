@@ -53,6 +53,8 @@ class Artist(Schema):
     id = String()
     name = String()
     description = String()
+    comment = String()
+    annotation = String()
     lifeSpan = Nested(LifeSpan())
     area = Dict()
     beginArea = Dict()
