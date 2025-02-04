@@ -1,6 +1,7 @@
 import { RefObject } from 'react';
+import { ReactImageGalleryItem } from 'react-image-gallery';
 
-import { ArtistEntity } from '../models/models.ts';
+import {AlbumEntity, ArtistEntity} from '../models/models.ts';
 
 export const formatDateValue = (dateStr: string) => {
     let formattedDate = dateStr;
@@ -31,6 +32,14 @@ export const formatDateValue = (dateStr: string) => {
     }
 
     return formattedDate;
+};
+
+export const getEntityImageList = (entity: ArtistEntity | AlbumEntity): ReactImageGalleryItem[] => {
+    return entity.images.slice(0, 10).map((item) => {
+        return {
+            original: item.url
+        };
+    });
 };
 
 export const getEmptyArtist = (): ArtistEntity => {

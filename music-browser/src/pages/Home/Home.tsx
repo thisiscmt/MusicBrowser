@@ -27,8 +27,8 @@ import * as Constants from '../../constants/constants';
 const useStyles = makeStyles()((theme) => ({
     mainContainer: {
         backgroundColor: Colors.white,
-        paddingLeft: '12px',
-        paddingRight: '12px',
+        paddingLeft: '16px',
+        paddingRight: '16px',
 
         // [theme.breakpoints.down(600)]: {
         //     marginLeft: '12px',

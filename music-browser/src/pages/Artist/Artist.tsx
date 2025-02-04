@@ -10,17 +10,17 @@ import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
-//import * as Constants from '../../constants/constants.ts';
 import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
 import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
+import {EntityType} from '../../enums/enums.ts';
 
 const useStyles = tss.create(() => ({
     mainContainer: {
         backgroundColor: Colors.white,
         display: 'flex',
         flexDirection: 'column',
-        padding: '12px'
+        padding: '16px'
     },
 
     section: {
@@ -76,13 +76,18 @@ const useStyles = tss.create(() => ({
     }
 }));
 
+interface EntityDescription {
+    short: string;
+    full: string;
+}
+
 const Artist: FC = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<ArtistEntity>(SharedService.getEmptyArtist());
     const [ currentTab, setCurrentTab] = useState<number>(0);
     const [ loading, setLoading ] = useState<boolean>(true);
-    const { artistId } = useParams() as { artistId: string };
+    const { id: artistId } = useParams() as { id: string };
 
     useDocumentTitle(entity.name === '' ? 'Artist - Music Browser' : `Artist - ${entity.name} - Music Browser`);
 
@@ -119,14 +124,38 @@ const Artist: FC = () => {
         }
     });
 
-    const images = entity.images.slice(0, 10).map((item) => {
-        return {
-            original: item.url
-        };
-    })
+    const getEntityDescription = (): EntityDescription => {
+        const entityDesc = {
+            short: '',
+            full: ''
+        }
 
-    // We normalize the line breaks in the description so we get nice spacing between blocks of text
-    const entityDesc = entity.description ? entity.description.replace(/\n\n/g, '\n').replace(/\n/g, '\n\n').trim() : '';
+        if (entity.description) {
+            // We normalize the line breaks in the description so we get nice spacing between blocks of text
+            const desc = entity.description.replace(/\n\n/g, '\n').trim();
+            const descParts = desc.split('\n');
+            entityDesc.full = desc.replace(/\n/g, '\n\n');
+
+            if (descParts.length > 1) {
+                entityDesc.short = descParts[0];
+//                entityDesc.full = desc;
+            } else {
+//                entityDesc.full = desc.replace(/\n/g, '\n\n');
+            }
+        }
+
+        return entityDesc;
+    };
+
+    const images = SharedService.getEntityImageList(entity);
+    const entityDesc = getEntityDescription();
+
+    const entityDescState = {
+        images,
+        desc: entityDesc.full,
+        entityName: entity.name,
+        entityType: EntityType.Artist
+    };
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -161,8 +190,15 @@ const Artist: FC = () => {
                             }
 
                             {
-                                entityDesc &&
-                                <Typography variant='body2' className={cx(classes.entityDesc)}>{entityDesc}</Typography>
+                                entityDesc.short
+                                    ?
+                                        <Typography variant='body2' className={cx(classes.entityDesc)}>
+                                            {entityDesc.short}
+                                            &nbsp;
+                                            <Link to={`/artist/${entity.id}/description`} state={entityDescState} className='app-link'>(see more)</Link>
+                                        </Typography>
+                                    :
+                                        <Typography variant='body2' className={cx(classes.entityDesc)}>{entityDesc.full}</Typography>
                             }
 
                             {

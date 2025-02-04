@@ -10,6 +10,19 @@ export const Colors = {
     black: '#000000'
 };
 
+export const ImageContainerStyles = {
+    marginBottom: '12px',
+
+    '& .image-gallery-left-nav .image-gallery-svg, .image-gallery-right-nav .image-gallery-svg': {
+        height: '40px',
+            width: '20px'
+    },
+
+    '& .image-gallery-slide .image-gallery-image': {
+        width: '400px'
+    }
+};
+
 export const buildTheme = () => {
     return createTheme({
         typography: {

@@ -115,7 +115,9 @@ def build_artist(data):
     artist.id = record['id']
     artist.name = record['name']
     artist.artistType = record['type']
-    artist.lifeSpan = record['life-span']
+
+    if 'life-span' in record:
+        artist.lifeSpan = record['life-span']
 
     if 'area' in record:
         artist.area = dict({'name': record['area']['name']})
