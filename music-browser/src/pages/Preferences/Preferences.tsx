@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box } from '@mui/material';
+import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
 
 const Preferences = () => {
-    useEffect(() => {
-        document.title = 'Preferences - Music Browser';
-    });
+    useDocumentTitle('Preferences - Music Browser');
 
     return (
         <Box>

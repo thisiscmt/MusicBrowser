@@ -1,12 +1,11 @@
 import datetime
-from concurrent.futures import ThreadPoolExecutor
 import musicbrainzngs
 
 from src.enums.enums import EntityType
-from src.models.models import ImageRequest
+from src.models.models import Links
 from src.providers.base_provider import BaseProvider
 from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link
-from src.services.fanart_service import get_images, get_album_images_for_artist
+from src.services.fanart_service import get_all_images, get_album_images_for_artist
 from src.services.wikipedia_service import get_entity_description
 
 
@@ -14,6 +13,7 @@ class MusicBrainzProvider(BaseProvider):
     def __init__(self):
         super().__init__()
         musicbrainzngs.set_useragent('Music Browser', '2.0.0', 'http://cmtybur.com')
+
 
     def run_search(self, entity_type, query, page, page_size):
         results = None
@@ -36,6 +36,7 @@ class MusicBrainzProvider(BaseProvider):
         print(f'Search total time: {datetime.datetime.now() - begin_time}')
 
         return results
+
 
     def run_lookup(self, entity_type, entity_id):
         result = None
@@ -80,6 +81,7 @@ def build_artist_search_results(data):
         'count': data['artist-count']
     }
 
+
 def build_album_search_results(data):
     results = []
 
@@ -105,17 +107,24 @@ def build_album_search_results(data):
         'count': data['release-group-count']
     }
 
+
 def build_artist(data):
     record = data['artist']
 
     artist = Artist()
     artist.id = record['id']
     artist.name = record['name']
+    artist.artistType = record['type']
     artist.lifeSpan = record['life-span']
-    artist.area = dict({'name': record['area']['name']})
+
+    if 'area' in record:
+        artist.area = dict({'name': record['area']['name']})
 
     if 'begin-area' in record:
         artist.beginArea = dict({'name': record['begin-area']['name']})
+
+    if 'end-area' in record:
+        artist.endArea = dict({'name': record['end-area']['name']})
 
     if 'disambiguation' in record:
         artist.comment = record['disambiguation']
@@ -126,21 +135,7 @@ def build_artist(data):
     if 'tag-list' in record:
         artist.tags = build_tag_list(record['tag-list'])
 
-    artist_image_request = ImageRequest()
-    artist_image_request.image_type = 'artist'
-    artist_image_request.artist_id = record['id']
-
-    album_image_request = ImageRequest()
-    album_image_request.image_type = 'album'
-    album_image_request.artist_id = record['id']
-
-    begin_time = datetime.datetime.now()
-
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        images = list(executor.map(get_images, [artist_image_request, album_image_request]))
-
-    print(f'Fanart artist and album images time: {datetime.datetime.now() - begin_time}')
-
+    images = get_all_images(record['id'])
     artist.images = images[0]
     album_images = images[1]
     albums = []
@@ -190,29 +185,12 @@ def build_artist(data):
 
     artist.members = members
 
-    links = []
-
-    if 'url-relation-list' in record:
-        for link in record['url-relation-list']:
-            if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
-                if link['type'] == 'wikidata':
-                    artist.description = get_entity_description(link['target'])
-                else:
-                    link_entry = Link()
-
-                    if link['type'] == 'allmusic':
-                        link_entry.label = 'All Music'
-                    elif link['type'] == 'discogs':
-                        link_entry.label = 'Discogs'
-                    else:
-                        link_entry.label = link['type']
-
-                    link_entry.target = link['target']
-                    links.append(link_entry)
-
-    artist.links = links
+    links = build_link_list(record)
+    artist.links = links.items
+    artist.description = links.entity_description
 
     return artist
+
 
 def build_album(data):
     record = data['release-group']
@@ -245,17 +223,9 @@ def build_album(data):
     if 'tag-list' in record:
         album.tags = build_tag_list(record['tag-list'])
 
-    links = []
-
-    if 'url-relation-list' in record:
-        for link in record['url-relation-list']:
-            if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
-                if link['type'] == 'wikidata':
-                    album.description = get_entity_description(link['target'])
-                else:
-                    links.append(link['target'])
-
-    album.links = links
+    links = build_link_list(record)
+    album.links = links.items
+    album.description = links.entity_description
 
     return album
 
@@ -268,3 +238,27 @@ def build_tag_list(data: list):
         tags.append(tag['name'])
 
     return tags
+
+
+def build_link_list(data: dict):
+    links = Links()
+
+    if 'url-relation-list' in data:
+        for link in data['url-relation-list']:
+            if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
+                if link['type'] == 'wikidata':
+                    links.entity_description = get_entity_description(link['target'])
+                else:
+                    link_entry = Link()
+
+                    if link['type'] == 'allmusic':
+                        link_entry.label = 'All Music'
+                    elif link['type'] == 'discogs':
+                        link_entry.label = 'Discogs'
+                    else:
+                        link_entry.label = link['type']
+
+                    link_entry.target = link['target']
+                    links.items.append(link_entry)
+
+    return links

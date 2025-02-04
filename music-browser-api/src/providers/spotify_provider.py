@@ -12,6 +12,7 @@ class SpotifyProvider(BaseProvider):
         self.client_id = client_id
         self.client_secret = client_secret
 
+
     def run_search(self, entity_type, query, page, page_size):
         auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
         sp = spotipy.Spotify(auth_manager=auth_manager)
@@ -28,6 +29,7 @@ class SpotifyProvider(BaseProvider):
                 pass # TODO
 
         return results
+
 
     def run_lookup(self, entity_type, entity_id):
         auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
@@ -67,6 +69,7 @@ def build_artist_search_results(data):
         'count': data['artists']['total']
     }
 
+
 def build_album_search_results(data):
     results = []
 
@@ -88,6 +91,7 @@ def build_album_search_results(data):
         'rows': results,
         'count': data['albums']['total']
     }
+
 
 def build_artist(data):
     pass # TODO

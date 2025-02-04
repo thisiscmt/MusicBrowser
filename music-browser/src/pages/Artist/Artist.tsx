@@ -10,16 +10,21 @@ import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
-import * as Constants from '../../constants/constants.ts';
+//import * as Constants from '../../constants/constants.ts';
 import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
 import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
+import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = tss.create(() => ({
     mainContainer: {
         backgroundColor: Colors.white,
         display: 'flex',
         flexDirection: 'column',
         padding: '12px'
+    },
+
+    section: {
+        marginBottom: '12px'
     },
 
     imageContainer: {
@@ -42,7 +47,7 @@ const useStyles = tss.create(({ theme }) => ({
     },
 
     entityName: {
-        marginBottom: '8px'
+        marginBottom: '6px'
     },
 
     tagContainer: {
@@ -64,8 +69,11 @@ const useStyles = tss.create(({ theme }) => ({
     entityDesc: {
         marginBottom: '12px',
         whiteSpace: 'pre-wrap'
-    }
+    },
 
+    button: {
+        textTransform: 'none'
+    }
 }));
 
 const Artist: FC = () => {
@@ -84,6 +92,20 @@ const Artist: FC = () => {
                 setBanner('');
 
                 const artist = await DataService.getArtist(artistId);
+
+                if (artist.lifeSpan) {
+                    artist.lifeSpan.begin = SharedService.formatDateValue(artist.lifeSpan.begin);
+                    artist.lifeSpan.end = SharedService.formatDateValue(artist.lifeSpan.end);
+                }
+
+                if (artist.members) {
+                    for (let i = 0; i < artist.members.length; i++) {
+                        if (artist.members[i].lifeSpan) {
+                            artist.members[i].lifeSpan.begin = SharedService.formatDateValue(artist.members[i].lifeSpan.begin);
+                        }
+                    }
+                }
+
                 setEntity(artist);
             } catch (error: any) {
                 setBanner(error.message, 'error');
@@ -103,75 +125,68 @@ const Artist: FC = () => {
         };
     })
 
-    // We normalize the line breaks in the description then double each one so we get nice spacing between blocks of text
-    const desc = entity.description.replace(/\n\n/g, '\n').replace(/\n/g, '\n\n');
+    // We normalize the line breaks in the description so we get nice spacing between blocks of text
+    const entityDesc = entity.description ? entity.description.replace(/\n\n/g, '\n').replace(/\n/g, '\n\n').trim() : '';
 
     return (
         <Box className={cx(classes.mainContainer)}>
             {
-                loading && <ArtistLoader />
-            }
-
-            {
-                !loading &&
-                <>
-                    {
-                        images.length > 0 &&
-                        <ImageGallery items={images} showPlayButton={false} additionalClass={cx(classes.imageContainer)} showFullscreenButton={false} />
-                    }
-
-                    <Typography variant='h5' className={cx(classes.entityName)}>{entity.name}</Typography>
-
-                    {
-                        entity.tags.length > 0 &&
-                        <Box className={cx(classes.tagContainer)}>
+                loading
+                    ?
+                        <ArtistLoader />
+                    :
+                        <>
                             {
-                                entity.tags.map((item: string, index: number) => {
-                                    return (
-                                        <Box key={index} className={cx(classes.tag)}>{item}</Box>
-                                    )
-                                })
-
+                                images.length > 0 &&
+                                <ImageGallery items={images} showPlayButton={false} additionalClass={cx(classes.imageContainer)} showFullscreenButton={false} />
                             }
-                        </Box>
-                    }
 
-                    <Typography variant='body2'>Formed:</Typography>
+                            <Typography variant='h5' className={cx(classes.entityName)}>{entity.name}</Typography>
 
-                    <Typography variant='body2'>Dissolved:</Typography>
-
-                    {
-                        entity.description &&
-                        <Typography variant='body2' className={cx(classes.entityDesc)}>{desc}</Typography>
-                    }
-
-                    {
-                        entity.links.length > 0 &&
-                        <Box>
                             {
-                                entity.links.map((item: LinkEntry, index: number) => {
-                                    return (
-                                        <Box key={index}>
-                                            <Button
-                                                component={Link}
-                                                to={item.target}
-                                                target='_blank'
-                                                disableRipple={true}
-                                            >
-                                                {item.label}
-                                            </Button>
-                                        </Box>
-                                    )
-                                })
+                                entity.tags.length > 0 &&
+                                <Box className={cx(classes.tagContainer)}>
+                                    {
+                                        entity.tags.map((item: string, index: number) => {
+                                            return <Box key={index} className={cx(classes.tag)}>{item}</Box>
+                                        })
+                                    }
+                                </Box>
                             }
-                        </Box>
-                    }
 
-                    <Tabs value={currentTab}>
-                        <Tab label='Discography' />
-                        <Tab label='Members' />
-                    </Tabs>
-                </>
+                            {
+                                <Box className={cx(classes.section)}>
+                                    <LifeSpan artist={entity} />
+                                </Box>
+                            }
+
+                            {
+                                entityDesc &&
+                                <Typography variant='body2' className={cx(classes.entityDesc)}>{entityDesc}</Typography>
+                            }
+
+                            {
+                                entity.links.length > 0 &&
+                                <Box>
+                                    {
+                                        entity.links.map((item: LinkEntry, index: number) => {
+                                            return (
+                                                <Box key={index}>
+                                                    <Button component={Link} to={item.target} className={cx(classes.button)} target='_blank' disableRipple={true}>
+                                                        {item.label}
+                                                    </Button>
+                                                </Box>
+                                            )
+                                        })
+                                    }
+                                </Box>
+                            }
+
+                            <Tabs value={currentTab}>
+                                <Tab label='Discography' className={cx(classes.button)} />
+                                <Tab label='Members' className={cx(classes.button)} />
+                            </Tabs>
+                        </>
             }
         </Box>
     )

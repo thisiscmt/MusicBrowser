@@ -1,36 +1,48 @@
 import { RefObject } from 'react';
-import {AlbumEntity, ArtistEntity, Member} from '../models/models.ts';
 
-// export const formatDateValue = (date: string) => {
-//     const dateParts = date.split('-');
-//     return `${Number(dateParts[1])}/${Number(dateParts[2])}/${dateParts[0]}`;
-// };
-//
-// export const formatEpochValue = (epochValue: number, format?: Intl.DateTimeFormatOptions) => {
-//     const parsedDate = DateTime.fromMillis(epochValue);
-//
-//     return parsedDate.toLocaleString(format ? format : DateTime.DATETIME_FULL);
-// };
-//
-// export const formatISODateValue = (date: Date | string | undefined, format?: Intl.DateTimeFormatOptions) => {
-//     let formattedDate = '';
-//
-//     if (date) {
-//         const parsedDate = DateTime.fromISO(date.toString());
-//         formattedDate = parsedDate.toLocaleString(format ? format : DateTime.DATETIME_FULL);
-//     }
-//
-//     return formattedDate;
-// }
+import { ArtistEntity } from '../models/models.ts';
+
+export const formatDateValue = (dateStr: string) => {
+    let formattedDate = dateStr;
+
+    try {
+        const dateParts = dateStr.split('-');
+        let date: Date;
+
+        if (dateParts.length === 3) {
+            date = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+
+            formattedDate = new Intl.DateTimeFormat('en-us', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(date);
+        } else if (dateParts.length === 2) {
+            date = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1);
+
+            formattedDate = new Intl.DateTimeFormat('en-us', {
+                year: 'numeric',
+                month: 'long'
+            }).format(date);
+        }
+    } catch (error) {
+        // Log this somewhere
+        console.log(error);
+    }
+
+    return formattedDate;
+};
 
 export const getEmptyArtist = (): ArtistEntity => {
     return {
         id: '',
         name: '',
+        artistType: '',
         description: '',
         lifeSpan: { begin: '', end: '', ended: false },
         area: { name: '' },
         beginArea: { name: '' },
+        endArea: { name: '' },
         tags: [],
         images: [],
         albums: [],

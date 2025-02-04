@@ -27,9 +27,11 @@ if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower(
 
 CORS(app, origins=[allowed_origin])
 
+
 @app.get('/')
 def home():
     return 'This is the Music Browser API'
+
 
 @app.get('/search/<string:entity_type>')
 @app.input(SearchParameters, location='query')
@@ -53,6 +55,7 @@ def search(entity_type, query_data):
     else:
         raise BadRequest(description='Unsupported entity type')
 
+
 @app.get('/lookup/artist/<string:entity_id>')
 @app.output(Artist)
 def lookup_artist(entity_id):
@@ -61,6 +64,7 @@ def lookup_artist(entity_id):
 
         return result
 
+
 @app.get('/lookup/album/<string:entity_id>')
 @app.output(Album)
 def lookup_album(entity_id):
@@ -68,6 +72,7 @@ def lookup_album(entity_id):
         result = db.run_lookup(EntityType.ALBUM, entity_id)
 
         return result
+
 
 # TODO
 # @app.get('/lookup/song/<string:entity_id>')
@@ -78,10 +83,12 @@ def lookup_album(entity_id):
 #
 #     return result
 
+
 @app.errorhandler(NotFound)
 def handle_not_found(error):
     # TODO: Log this somewhere
     return '', 404
+
 
 @app.errorhandler(BadRequest)
 def handle_bad_request_error(error):

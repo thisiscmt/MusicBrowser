@@ -1,5 +1,6 @@
 import os
 import datetime
+from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
 import fanart
 from fanart.core import Request
@@ -8,11 +9,31 @@ from src.models.models import ImageRequest
 from src.schema.schema import Image
 
 
+def get_all_images(artist_id: str):
+    artist_image_request = ImageRequest()
+    artist_image_request.image_type = 'artist'
+    artist_image_request.artist_id = artist_id
+
+    album_image_request = ImageRequest()
+    album_image_request.image_type = 'album'
+    album_image_request.artist_id = artist_id
+
+    begin_time = datetime.datetime.now()
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        images = list(executor.map(get_images, [artist_image_request, album_image_request]))
+
+    print(f'Fanart artist and album images time: {datetime.datetime.now() - begin_time}')
+
+    return images
+
+
 def get_images(image_request: ImageRequest):
     if image_request.image_type == 'artist':
         return get_images_for_artist(image_request.artist_id)
     else:
         return get_album_images_for_artist(image_request.artist_id)
+
 
 def get_images_for_artist(artist_id: str):
     images = []
@@ -44,6 +65,7 @@ def get_images_for_artist(artist_id: str):
         print(f'Error fetching artist images: {RuntimeError}')
 
     return images
+
 
 def get_album_images_for_artist(artist_id: str):
     images = []

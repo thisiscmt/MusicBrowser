@@ -17,11 +17,12 @@ import {SearchResults, SearchResultEntity, SearchParams} from '../../models/mode
 import { EntityType } from '../../enums/enums.ts';
 import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
+import SearchResult from '../../components/SearchResult/SearchResult.tsx';
+import SearchResultLoader from '../../components/SearchResultLoader/SearchResultLoader.tsx';
+import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants';
-import SearchResult from '../../components/SearchResult/SearchResult.tsx';
-import SearchResultLoader from '../../components/SearchResultLoader/SearchResultLoader.tsx';
 
 const useStyles = makeStyles()((theme) => ({
     mainContainer: {
@@ -157,6 +158,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ noResults, setNoResults ] = useState<boolean>(false);
     const [ searchParams, setSearchParams ] = useSearchParams();
+
+    useDocumentTitle('Home - Music Browser');
 
     const getSearchResults = useCallback(async (searchParamsArg: URLSearchParams) => {
         if (!searchParamsArg.get('searchText')) {
@@ -379,8 +382,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                                                 </Box>
 
                                                 <Box>
-                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount}
-                                                                className={cx(classes.pagination)} />
+                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount} className={cx(classes.pagination)} />
                                                 </Box>
                                             </>
                                         :

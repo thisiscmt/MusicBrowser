@@ -38,13 +38,13 @@ const ArtistLoader: FC = () => {
             </Box>
 
             <Skeleton variant='rectangular' height='50px' />
-            <Skeleton variant='rectangular' height='140px' />
+            <Skeleton variant='rectangular' height='120px' />
             <Skeleton variant='rectangular' height='20px' width='20%' />
             <Skeleton variant='rectangular' height='20px' width='20%' />
 
             <Box>
                 <Skeleton variant='rectangular' height='30px' width='80px' className={cx(classes.tabSelector)} />
-                <Skeleton variant='rectangular' height='140px' />
+                <Skeleton variant='rectangular' height='120px' />
             </Box>
         </Box>
     );

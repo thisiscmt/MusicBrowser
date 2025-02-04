@@ -8,6 +8,7 @@ def get_entity_description(wikidata_url: str):
 
     return desc
 
+
 def get_wikipedia_page_title(wikidata_url: str):
     page_title = ''
 
@@ -31,6 +32,7 @@ def get_wikipedia_page_title(wikidata_url: str):
         print(f'Error fetching entity description: {RuntimeError}')
 
     return page_title
+
 
 def get_wikipedia_page_intro(page_title: str):
     intro = ''

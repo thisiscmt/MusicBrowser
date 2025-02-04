@@ -57,10 +57,12 @@ export interface AlbumEntity {
 export interface ArtistEntity {
     id: string;
     name: string;
+    artistType: string;
     description: string;
     lifeSpan: LifeSpan;
     area: Area;
     beginArea: Area;
+    endArea: Area;
     tags: string[];
     images: Image[];
     albums: AlbumEntity[];

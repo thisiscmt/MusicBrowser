@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router';
 import { tss } from 'tss-react/mui';
+
+import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
 
 const useStyles = tss.create(({ theme }) => ({
     mainContainer: {
@@ -31,9 +33,7 @@ const ErrorPage = () => {
     const { classes, cx } = useStyles();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        document.title = 'Not Found - Music Browser';
-    });
+    useDocumentTitle('Error - Music Browser');
 
     const handleGoBack = (event: React.MouseEvent<HTMLElement>) => {
         event.preventDefault();

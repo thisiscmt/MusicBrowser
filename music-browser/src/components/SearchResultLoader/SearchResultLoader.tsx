@@ -23,7 +23,7 @@ const useStyles = tss.create(() => ({
     tagLoader: {
         display: 'flex',
         gap: '12px'
-    },
+    }
 }));
 
 interface SearchResultLoaderProps {
