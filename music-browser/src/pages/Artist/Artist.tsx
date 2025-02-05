@@ -133,14 +133,12 @@ const Artist: FC = () => {
         if (entity.description) {
             // We normalize the line breaks in the description so we get nice spacing between blocks of text
             const desc = entity.description.replace(/\n\n/g, '\n').trim();
-            const descParts = desc.split('\n');
             entityDesc.full = desc.replace(/\n/g, '\n\n');
+
+            const descParts = desc.split('\n');
 
             if (descParts.length > 1) {
                 entityDesc.short = descParts[0];
-//                entityDesc.full = desc;
-            } else {
-//                entityDesc.full = desc.replace(/\n/g, '\n\n');
             }
         }
 

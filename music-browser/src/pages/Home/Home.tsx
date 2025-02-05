@@ -159,6 +159,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     const [ noResults, setNoResults ] = useState<boolean>(false);
     const [ searchParams, setSearchParams ] = useSearchParams();
 
+    const defaultPageSize = 10;
+
     useDocumentTitle('Home - Music Browser');
 
     const getSearchResults = useCallback(async (searchParamsArg: URLSearchParams) => {
@@ -171,10 +173,10 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         const searchRequestParams: SearchParams = { query: searchParamsArg.get('searchText') || '' };
         const entityTypeArg = searchParamsArg.get('entityType') || EntityType.Artist;
         const page = searchParamsArg.get('page') || '1';
-        const pageSize = searchParamsArg.get('pageSize') || '10';
+        const pageSize = searchParamsArg.get('pageSize') || defaultPageSize.toString();
 
         searchRequestParams.page = page ? Number(page) : 1;
-        searchRequestParams.pageSize = pageSize ? Number(pageSize) : 10;
+        searchRequestParams.pageSize = pageSize ? Number(pageSize) : defaultPageSize;
 
         let results: SearchResults = {
             rows: [],
@@ -197,7 +199,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
             }
 
             setSearchResults(results.rows);
-            setPageCount(results.count);
+            setPageCount(Math.ceil(results.count / defaultPageSize));
+            setCurrentPage(searchRequestParams.page);
             setNoResults(results.rows.length === 0);
 
             SharedService.scrollToTop(topOfPageRef);
@@ -210,9 +213,9 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     }, [setBanner, topOfPageRef]);
 
     useEffect(() => {
-            const fetchData = async () => {
-                await getSearchResults(searchParams);
-            }
+        const fetchData = async () => {
+            await getSearchResults(searchParams);
+        }
 
         const queryStringChanged = currentQueryString !== searchParams.toString();
         let getData = true;
@@ -259,13 +262,13 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
 
         setCurrentPage(value);
         setSearchParams(searchParams);
-        getSearchResults(searchParams);
     }
 
     const handleSearch = () => {
         if (searchText === '') {
             setSearchTextInputError(true);
             setBanner('You must provide search text', 'error');
+
             return;
         } else {
             setSearchTextInputError(false);
@@ -286,7 +289,6 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
         }
 
         setSearchParams(searchParams);
-        getSearchResults(searchParams);
     };
 
     const handleEnterKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -382,7 +384,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                                                 </Box>
 
                                                 <Box>
-                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount} className={cx(classes.pagination)} />
+                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount}
+                                                                className={cx(classes.pagination)} />
                                                 </Box>
                                             </>
                                         :

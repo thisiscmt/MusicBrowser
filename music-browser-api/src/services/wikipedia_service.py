@@ -19,7 +19,7 @@ def get_wikipedia_page_title(wikidata_url: str):
         begin_time = datetime.datetime.now()
         response = requests.get(url)
 
-        print(f'Wikipedia page title time: {datetime.datetime.now() - begin_time}')
+        print(f'__Wikipedia page title: {datetime.datetime.now() - begin_time}')
 
         if response.status_code == 200:
             content = response.json()
@@ -44,7 +44,7 @@ def get_wikipedia_page_intro(page_title: str):
             begin_time = datetime.datetime.now()
             response = requests.get(url)
 
-            print(f'Wikipedia page intro time: {datetime.datetime.now() - begin_time}')
+            print(f'__Wikipedia page intro: {datetime.datetime.now() - begin_time}')
 
             if response.status_code == 200:
                 content = response.json()

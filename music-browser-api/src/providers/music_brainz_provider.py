@@ -21,19 +21,21 @@ class MusicBrainzProvider(BaseProvider):
 
         match entity_type:
             case EntityType.ARTIST:
-                data = musicbrainzngs.search_artists(artist=query, offset=page-1, limit=page_size)
-                print(f'MusicBrainz artist search time: {datetime.datetime.now() - begin_time}')
+                data = musicbrainzngs.search_artists(artist=query, limit=page_size, offset=(page - 1) * page_size)
+                print(f'__MusicBrainz artist search: {datetime.datetime.now() - begin_time}')
 
                 results = build_artist_search_results(data)
+
             case EntityType.ALBUM:
-                data = musicbrainzngs.search_release_groups(query=query, type='album', offset=page-1, limit=page_size)
-                print(f'MusicBrainz album search time: {datetime.datetime.now() - begin_time}')
+                data = musicbrainzngs.search_release_groups(query=query, limit=page_size, offset=(page - 1) * page_size, type='album')
+                print(f'__MusicBrainz album search: {datetime.datetime.now() - begin_time}')
 
                 results = build_album_search_results(data)
+
             case EntityType.SONG:
                 pass # TODO
 
-        print(f'Search total time: {datetime.datetime.now() - begin_time}')
+        print(f'Search total: {datetime.datetime.now() - begin_time}')
 
         return results
 
@@ -45,18 +47,20 @@ class MusicBrainzProvider(BaseProvider):
         match entity_type:
             case EntityType.ARTIST:
                 data = musicbrainzngs.get_artist_by_id(id=entity_id, includes=['tags', 'release-groups', 'artist-rels', 'url-rels', 'annotation'])
-                print(f'MusicBrainz artist lookup time: {datetime.datetime.now() - begin_time}')
+                print(f'__MusicBrainz artist lookup: {datetime.datetime.now() - begin_time}')
 
                 result = build_artist(data)
+
             case EntityType.ALBUM:
                 data = musicbrainzngs.get_release_group_by_id(id=entity_id, includes=['tags', 'artist-credits', 'url-rels', 'annotation'])
-                print(f'MusicBrainz album lookup time: {datetime.datetime.now() - begin_time}')
+                print(f'__MusicBrainz album lookup: {datetime.datetime.now() - begin_time}')
 
                 result = build_album(data)
+
             case EntityType.SONG:
                 pass # TODO
 
-        print(f'Lookup total time: {datetime.datetime.now() - begin_time}')
+        print(f'Lookup total: {datetime.datetime.now() - begin_time}')
 
         return result
 
@@ -76,9 +80,14 @@ def build_artist_search_results(data):
 
         results.append(result)
 
+    count = data['artist-count']
+
+    if count > 100:
+        count = 100
+
     return {
         'rows': results,
-        'count': data['artist-count']
+        'count': count
     }
 
 
@@ -102,9 +111,14 @@ def build_album_search_results(data):
 
         results.append(result)
 
+    count = data['release-group-count']
+
+    if count > 100:
+        count = 100
+
     return {
         'rows': results,
-        'count': data['release-group-count']
+        'count': count
     }
 
 
@@ -212,7 +226,7 @@ def build_album(data):
 
             begin_time = datetime.datetime.now()
             images = get_album_images_for_artist(record['artist-credit'][0]['artist']['id'])
-            print(f'Fanart album images time: {datetime.datetime.now() - begin_time}')
+            print(f'__Fanart album images: {datetime.datetime.now() - begin_time}')
 
             if len(images) > 0:
                 image = Image()

@@ -1,7 +1,8 @@
-import Axios, { AxiosRequestConfig } from 'axios';
+import Axios, {AxiosHeaders, AxiosRequestConfig} from 'axios';
 
 import { ArtistEntity, SearchParams, SearchResults } from '../models/models.ts';
 import { EntityType } from '../enums/enums.ts';
+import * as Constants from '../constants/constants.ts';
 
 const search = async (entityType: EntityType, searchParams: SearchParams): Promise<SearchResults> => {
     const config = getRequestConfig();
@@ -19,17 +20,21 @@ export const searchAlbums = async (searchParams: SearchParams): Promise<SearchRe
     return search(EntityType.Album, searchParams);
 };
 export const getArtist = async (id: string): Promise<ArtistEntity> => {
-    const response = await Axios.get<ArtistEntity>(`${import.meta.env.VITE_API_URL}/lookup/artist/${id}`, getRequestConfig());
+    const response = await Axios.get<ArtistEntity>(`${import.meta.env.VITE_API_URL}/lookup/artist/${id}`, getRequestConfig(Constants.ARTIST_LOOKUP_CACHE_MAX_AGE));
     return response.data;
 };
 
-
-const getRequestConfig = (): AxiosRequestConfig => {
+const getRequestConfig = (maxAge?: number): AxiosRequestConfig => {
     const config: AxiosRequestConfig = {};
-
-    config.headers = {
+    const headers = new AxiosHeaders({
         'Content-Type': 'application/json'
-    };
+    });
+
+    if (maxAge !== undefined) {
+        headers.set('Cache-Control', `max-age=${maxAge}`);
+    }
+
+    config.headers = headers;
 
     return config;
 };

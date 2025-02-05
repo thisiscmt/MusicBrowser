@@ -49,6 +49,8 @@ def search(entity_type, query_data):
             case 'song':
                 entity_type_param = EntityType.SONG
 
+        print(f'query_data: {query_data}')
+
         results = db.run_search(entity_type_param, query_data['query'], query_data['page'], query_data['pageSize'])
 
         return results
