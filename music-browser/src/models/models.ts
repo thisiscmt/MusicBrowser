@@ -60,6 +60,7 @@ export interface ArtistEntity {
     name: string;
     artistType: string;
     description: string;
+    comment: string;
     lifeSpan: LifeSpan;
     area: Area;
     beginArea: Area;

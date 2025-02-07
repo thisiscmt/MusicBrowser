@@ -48,6 +48,7 @@ export const getEmptyArtist = (): ArtistEntity => {
         name: '',
         artistType: '',
         description: '',
+        comment: '',
         lifeSpan: { begin: '', end: '', ended: false },
         area: { name: '' },
         beginArea: { name: '' },

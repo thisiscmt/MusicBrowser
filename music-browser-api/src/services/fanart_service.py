@@ -1,9 +1,10 @@
 import os
 import datetime
+import fanart
 from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
-import fanart
 from fanart.core import Request
+from fanart.errors import ResponseFanartError
 
 from src.models.models import ImageRequest
 from src.schema.schema import Image
@@ -60,9 +61,9 @@ def get_images_for_artist(artist_id: str):
         if 'hdmusiclogo' in artist and len(artist['hdmusiclogo']) > 0 and len(images) == 0:
             images = list(map(lambda x: Image().load({ 'url': x['url'] }), artist['hdmusiclogo']))
 
-    except RuntimeError:
+    except (RuntimeError, ResponseFanartError) as error:
         # TODO: Log this somewhere
-        print(f'Error fetching artist images: {RuntimeError}')
+        print(f'Error fetching artist images: {error}')
 
     return images
 
@@ -82,8 +83,8 @@ def get_album_images_for_artist(artist_id: str):
 
         artist = request.response()
         images = artist['albums']
-    except RuntimeError:
+    except (RuntimeError, ResponseFanartError) as error:
         # TODO: Log this somewhere
-        print(f'Error fetching album images for artist: {RuntimeError}')
+        print(f'Error fetching album images for artist: {error}')
 
     return images

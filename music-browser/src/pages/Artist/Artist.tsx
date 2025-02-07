@@ -11,7 +11,7 @@ import { Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
-import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
+import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import {EntityType} from '../../enums/enums.ts';
 
@@ -21,10 +21,6 @@ const useStyles = tss.create(() => ({
         display: 'flex',
         flexDirection: 'column',
         padding: '16px'
-    },
-
-    section: {
-        marginBottom: '12px'
     },
 
     imageContainer: {
@@ -50,6 +46,10 @@ const useStyles = tss.create(() => ({
         marginBottom: '6px'
     },
 
+    lifeSpanSection: {
+        marginBottom: '10px'
+    },
+
     tagContainer: {
         display: 'flex',
         flexWrap: 'wrap',
@@ -69,6 +69,16 @@ const useStyles = tss.create(() => ({
     entityDesc: {
         marginBottom: '12px',
         whiteSpace: 'pre-wrap'
+    },
+
+    linkContainer: {
+        '& div': {
+            marginBottom: '6px',
+
+            '&:last-child': {
+                marginBottom: 0,
+            }
+        }
     },
 
     button: {
@@ -168,10 +178,17 @@ const Artist: FC = () => {
                                 <ImageGallery items={images} showPlayButton={false} additionalClass={cx(classes.imageContainer)} showFullscreenButton={false} />
                             }
 
-                            <Typography variant='h5' className={cx(classes.entityName)}>{entity.name}</Typography>
+                            <Typography variant='h5' className={entity.comment ? undefined : cx(classes.entityName)}>{entity.name}</Typography>
 
                             {
-                                entity.tags.length > 0 &&
+                                entity.comment &&
+                                <Box>
+                                    <Typography variant='body2' className={cx(classes.entityName)}>{`(${entity.comment})`}</Typography>
+                                </Box>
+                            }
+
+                            {
+                                entity.tags && entity.tags.length > 0 &&
                                 <Box className={cx(classes.tagContainer)}>
                                     {
                                         entity.tags.map((item: string, index: number) => {
@@ -182,7 +199,7 @@ const Artist: FC = () => {
                             }
 
                             {
-                                <Box className={cx(classes.section)}>
+                                <Box className={cx(classes.lifeSpanSection)}>
                                     <LifeSpan artist={entity} />
                                 </Box>
                             }
@@ -200,8 +217,8 @@ const Artist: FC = () => {
                             }
 
                             {
-                                entity.links.length > 0 &&
-                                <Box>
+                                entity.links && entity.links.length > 0 &&
+                                <Box className={cx(classes.linkContainer)}>
                                     {
                                         entity.links.map((item: LinkEntry, index: number) => {
                                             return (

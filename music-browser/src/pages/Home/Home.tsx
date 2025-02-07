@@ -19,7 +19,7 @@ import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
 import SearchResult from '../../components/SearchResult/SearchResult.tsx';
 import SearchResultLoader from '../../components/SearchResultLoader/SearchResultLoader.tsx';
-import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
+import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants';
@@ -384,8 +384,8 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                                                 </Box>
 
                                                 <Box>
-                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount}
-                                                                className={cx(classes.pagination)} />
+                                                    <Pagination onChange={handleChangePage} page={currentPage} count={pageCount} showFirstButton={true}
+                                                                showLastButton={true} className={cx(classes.pagination)} />
                                                 </Box>
                                             </>
                                         :

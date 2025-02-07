@@ -4,7 +4,7 @@ import {Link, useLocation, useParams } from 'react-router';
 import { tss } from 'tss-react/mui';
 import ImageGallery, {ReactImageGalleryItem} from 'react-image-gallery';
 
-import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
+import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import { Colors, ImageContainerStyles } from '../../services/themeService.ts';
 
 const useStyles = tss.create(() => ({

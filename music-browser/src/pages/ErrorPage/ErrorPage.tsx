@@ -3,21 +3,23 @@ import { Box } from '@mui/material';
 import { useNavigate } from 'react-router';
 import { tss } from 'tss-react/mui';
 
-import useDocumentTitle from '../../components/hooks/useDocumentTitle.tsx';
+import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = tss.create(() => ({
     mainContainer: {
+        padding: '16px',
+
         '& p': {
             marginBottom: '16px',
             marginTop: '16px'
         },
 
-        [theme.breakpoints.down(600)]: {
-            '& p': {
-                paddingLeft: '16px',
-                paddingRight: '16px'
-            }
-        }
+        // [theme.breakpoints.down(600)]: {
+        //     '& p': {
+        //         paddingLeft: '16px',
+        //         paddingRight: '16px'
+        //     }
+        // }
     },
 
     header: {

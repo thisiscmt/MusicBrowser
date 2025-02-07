@@ -11,59 +11,53 @@ variables:
   webAppName: 'cmt-mb-api'
   environmentName: 'cmt-mb-api'
 
-stages:
-  - stage: Build
-    displayName: Build stage
-    jobs:
-      - job: Build_API
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Install Python'
-
-          - script: |
-              python -m venv antenv
-              source antenv/bin/activate
-              python -m pip install --upgrade pip
-              pip install setup
-              pip install -r requirements.txt
-            workingDirectory: $(projectRoot)/music-browser-api
-            displayName: 'Install API dependencies'
-
-          - task: ArchiveFiles@2
-            displayName: 'Create API artifact'
-            inputs:
-              rootFolderOrFile: '$(projectRoot)/music-browser-api'
-              includeRootFolder: false
-              archiveType: zip
-              archiveFile: $(Build.ArtifactStagingDirectory)/music-browser-api.zip
-              replaceExistingArchive: true
-
-          - upload: $(Build.ArtifactStagingDirectory)/music-browser-api.zip
-            artifact: music-browser-api
-            displayName: 'Upload API artifact'
-
-#  - stage: Deploy
-#    displayName: 'Deploy Web App'
-#    dependsOn: Build
-#    condition: succeeded()
-#    jobs:
-#      - deployment: DeploymentJob
-#        environment: $(environmentName)
-#        strategy:
-#          runOnce:
-#            deploy:
-#              steps:
-#
-#                - task: UsePythonVersion@0
-#                  inputs:
-#                    versionSpec: '$(pythonVersion)'
-#                  displayName: 'Use Python version'
-#
-#                - task: AzureWebApp@1
-#                  displayName: 'Deploy Azure Web App : $(webAppName)'
-#                  inputs:
-#                    azureSubscription: $(azureServiceConnectionId)
-#                    appName: $(webAppName)
-#                    package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+jobs:
+  - job: Build
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(pythonVersion)'
+        displayName: 'Install Python'
+      - script: |
+          python -m venv antenv
+          source antenv/bin/activate
+          python -m pip install --upgrade pip
+          pip install setup
+          pip install -r requirements.txt
+        workingDirectory: $(projectRoot)/music-browser-api
+        displayName: 'Install API dependencies'
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '20.x'
+        displayName: 'Install Node.js'
+      - script: |
+          npm install
+        workingDirectory: $(projectRoot)/music-browser
+        displayName: 'Install UI dependencies'
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: $(projectRoot)/music-browser-api
+          includeRootFolder: false
+          archiveType: zip
+          archiveFile: $(Build.ArtifactStagingDirectory)/music-browser-api.zip
+          replaceExistingArchive: true
+        displayName: 'Create API artifact'
+      - script: |
+          npm run build
+        workingDirectory: $(projectRoot)/music-browser
+        displayName: 'Build the UI'
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: $(projectRoot)/music-browser/dist
+          includeRootFolder: false
+          archiveType: zip
+          archiveFile: $(Build.ArtifactStagingDirectory)/music-browser-ui.zip
+        displayName: 'Create UI artifact'
+      - upload: $(Build.ArtifactStagingDirectory)/music-browser-api.zip
+        artifact: music-browser-api
+        displayName: 'Upload API artifact'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: $(Build.ArtifactStagingDirectory)/music-browser-ui.zip
+          ArtifactName: music-browser-ui
+        displayName: 'Publish UI artifact'

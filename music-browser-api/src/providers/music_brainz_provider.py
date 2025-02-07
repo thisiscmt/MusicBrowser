@@ -17,17 +17,18 @@ class MusicBrainzProvider(BaseProvider):
 
     def run_search(self, entity_type, query, page, page_size):
         results = None
+        offset = (page - 1) * page_size
         begin_time = datetime.datetime.now()
 
         match entity_type:
             case EntityType.ARTIST:
-                data = musicbrainzngs.search_artists(artist=query, limit=page_size, offset=(page - 1) * page_size)
+                data = musicbrainzngs.search_artists(artist=query, limit=page_size, offset=offset)
                 print(f'__MusicBrainz artist search: {datetime.datetime.now() - begin_time}')
 
                 results = build_artist_search_results(data)
 
             case EntityType.ALBUM:
-                data = musicbrainzngs.search_release_groups(query=query, limit=page_size, offset=(page - 1) * page_size, type='album')
+                data = musicbrainzngs.search_release_groups(query=query, limit=page_size, offset=offset, type='album')
                 print(f'__MusicBrainz album search: {datetime.datetime.now() - begin_time}')
 
                 results = build_album_search_results(data)
