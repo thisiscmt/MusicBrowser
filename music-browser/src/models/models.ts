@@ -52,7 +52,12 @@ export interface LinkEntry {
 export interface AlbumEntity {
     id: string;
     name: string;
+    description: string;
+    releaseDate: string;
+    artist: string;
     images: Image[];
+    tags: string[];
+    links: LinkEntry[];
 }
 
 export interface ArtistEntity {

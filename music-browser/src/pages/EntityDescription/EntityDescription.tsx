@@ -94,7 +94,7 @@ const EntityDescription = () => {
 
                             <Box className={cx(classes.buttonContainer)}>
                                 <Button component={Link} to={returnLink} disableRipple={true}>
-                                    Back to entity
+                                    Go Back
                                 </Button>
                             </Box>
                         </>

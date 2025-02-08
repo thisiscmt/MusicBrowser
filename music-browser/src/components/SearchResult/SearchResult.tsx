@@ -1,11 +1,11 @@
-import React, {FC} from 'react';
-import {Box, Card, CardContent, Typography} from '@mui/material';
-import {tss} from 'tss-react/mui';
+import React, { FC } from 'react';
+import { Box, Card, CardContent, Typography } from '@mui/material';
+import { tss } from 'tss-react/mui';
 
-import {SearchResultEntity} from '../../models/models.ts';
-import {Colors} from '../../services/themeService.ts';
-import {EntityType} from '../../enums/enums.ts';
-import {Link} from 'react-router';
+import { SearchResultEntity } from '../../models/models.ts';
+import { Colors } from '../../services/themeService.ts';
+import { EntityType } from '../../enums/enums.ts';
+import { Link } from 'react-router';
 
 const useStyles = tss.create(({ theme }) => ({
     card: {
@@ -116,8 +116,6 @@ const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
                         </Typography>
                     }
                 </Box>
-
-
             </CardContent>
         </Card>
     )

@@ -82,7 +82,9 @@ def get_album_images_for_artist(artist_id: str):
         )
 
         artist = request.response()
-        images = artist['albums']
+
+        if 'albums' in artist:
+            images = artist['albums']
     except (RuntimeError, ResponseFanartError) as error:
         # TODO: Log this somewhere
         print(f'Error fetching album images for artist: {error}')

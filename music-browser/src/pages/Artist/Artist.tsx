@@ -1,6 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { Box, Button, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Button, Tab, Typography } from '@mui/material';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
@@ -8,12 +9,13 @@ import 'react-image-gallery/styles/css/image-gallery.css';
 import { ArtistEntity, LinkEntry } from '../../models/models.ts';
 import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
+import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
+import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
+import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
+import Discography from '../../components/Discography/Discography.tsx';
+import { EntityType } from '../../enums/enums.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
-import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
-import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
-import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
-import {EntityType} from '../../enums/enums.ts';
 
 const useStyles = tss.create(() => ({
     mainContainer: {
@@ -83,6 +85,10 @@ const useStyles = tss.create(() => ({
 
     button: {
         textTransform: 'none'
+    },
+
+    tabPanel: {
+        padding: '12px 0 0 0'
     }
 }));
 
@@ -95,7 +101,7 @@ const Artist: FC = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<ArtistEntity>(SharedService.getEmptyArtist());
-    const [ currentTab, setCurrentTab] = useState<number>(0);
+    const [ currentTab, setCurrentTab] = useState<string>('1');
     const [ loading, setLoading ] = useState<boolean>(true);
     const { id: artistId } = useParams() as { id: string };
 
@@ -134,6 +140,10 @@ const Artist: FC = () => {
         }
     });
 
+    const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
+        setCurrentTab(newValue);
+    };
+
     const getEntityDescription = (): EntityDescription => {
         const entityDesc = {
             short: '',
@@ -141,8 +151,8 @@ const Artist: FC = () => {
         }
 
         if (entity.description) {
-            // We normalize the line breaks in the description so we get nice spacing between blocks of text
-            const desc = entity.description.replace(/\n\n/g, '\n').trim();
+            // We normalize line breaks and do general cleanup so we get a nice presentation of the description text
+            const desc = entity.description.replace(/(\[\[)\n(\]\])/g, '\n').trim().replace(/\n\n/g, '\n');
             entityDesc.full = desc.replace(/\n/g, '\n\n');
 
             const descParts = desc.split('\n');
@@ -199,6 +209,7 @@ const Artist: FC = () => {
                             }
 
                             {
+                                entity.lifeSpan &&
                                 <Box className={cx(classes.lifeSpanSection)}>
                                     <LifeSpan artist={entity} />
                                 </Box>
@@ -213,7 +224,12 @@ const Artist: FC = () => {
                                             <Link to={`/artist/${entity.id}/description`} state={entityDescState} className='app-link'>(see more)</Link>
                                         </Typography>
                                     :
-                                        <Typography variant='body2' className={cx(classes.entityDesc)}>{entityDesc.full}</Typography>
+                                        <>
+                                            {
+                                                entityDesc.full &&
+                                                <Typography variant='body2' className={cx(classes.entityDesc)}>{entityDesc.full}</Typography>
+                                            }
+                                        </>
                             }
 
                             {
@@ -233,10 +249,24 @@ const Artist: FC = () => {
                                 </Box>
                             }
 
-                            <Tabs value={currentTab}>
-                                <Tab label='Discography' className={cx(classes.button)} />
-                                <Tab label='Members' className={cx(classes.button)} />
-                            </Tabs>
+                            {
+                                (entity.albums || entity.members) &&
+                                <>
+                                    <TabContext value={currentTab}>
+                                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                            <TabList onChange={handleChangeTab} aria-label='Additional artist information'>
+                                                <Tab label='Discography' value='1' className={cx(classes.button)} />
+                                                {
+                                                    entity.members &&
+                                                    <Tab label='Members' value='2' className={cx(classes.button)} />
+                                                }
+                                            </TabList>
+                                        </Box>
+                                        <TabPanel className={cx(classes.tabPanel)} value='1'><Discography albums={entity.albums} /></TabPanel>
+                                        <TabPanel className={cx(classes.tabPanel)} value='2'>Item Two</TabPanel>
+                                    </TabContext>
+                                </>
+                            }
                         </>
             }
         </Box>

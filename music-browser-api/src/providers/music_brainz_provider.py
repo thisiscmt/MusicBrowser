@@ -161,6 +161,7 @@ def build_artist(data):
         for rel_group in record['release-group-list']:
             if 'type' in rel_group and str(rel_group['type']).lower() == 'album':
                 album = Album()
+                album.images = []
                 album.id = rel_group['id']
                 album.name = rel_group['title']
 
@@ -175,8 +176,9 @@ def build_artist(data):
 
     for album in albums:
         if album.id in album_images and len(album_images[album.id]['albumcover']) > 0:
-            album.image = Image()
-            album.image.url = album_images[album.id]['albumcover'][0]['url']
+            album_image = Image()
+            album_image.url = album_images[album.id]['albumcover'][0]['url']
+            album.images.append(album_image)
 
     artist.albums = albums
 
@@ -219,23 +221,24 @@ def build_album(data):
     if 'first-release-date' in record:
         album.releaseDate = record['first-release-date']
 
-    image = Image()
+    images = []
 
     if 'artist-credit' in record and len(record['artist-credit']) > 0:
         if 'artist' in record['artist-credit'][0]:
             album.artist = record['artist-credit'][0]['artist']['name']
 
             begin_time = datetime.datetime.now()
-            images = get_album_images_for_artist(record['artist-credit'][0]['artist']['id'])
+            album_images = get_album_images_for_artist(record['artist-credit'][0]['artist']['id'])
             print(f'__Fanart album images: {datetime.datetime.now() - begin_time}')
 
-            if len(images) > 0:
+            if len(album_images) > 0:
                 image = Image()
 
-                if record['id'] in images and 'albumcover' in images[record['id']] and len(images[record['id']]['albumcover']) > 0:
-                    image.url = images[record['id']]['albumcover'][0]['url']
+                if record['id'] in album_images and 'albumcover' in album_images[record['id']] and len(album_images[record['id']]['albumcover']) > 0:
+                    image.url = album_images[record['id']]['albumcover'][0]['url']
+                    images.append(image)
 
-    album.image = image
+    album.images = images
 
     if 'tag-list' in record:
         album.tags = build_tag_list(record['tag-list'])

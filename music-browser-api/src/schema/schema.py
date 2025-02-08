@@ -46,7 +46,7 @@ class Album(Schema):
     releaseDate = String()
     description = String()
     tags = List(String())
-    image = Nested(Image())
+    images = List(Nested(Image()))
     links = List(String())
 
 class Artist(Schema):

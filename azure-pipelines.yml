@@ -55,7 +55,7 @@ jobs:
         displayName: 'Create UI artifact'
       - upload: $(Build.ArtifactStagingDirectory)/music-browser-api.zip
         artifact: music-browser-api
-        displayName: 'Upload API artifact'
+        displayName: 'Publish API artifact'
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: $(Build.ArtifactStagingDirectory)/music-browser-ui.zip
