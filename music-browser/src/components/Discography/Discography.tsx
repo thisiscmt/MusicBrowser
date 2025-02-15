@@ -1,10 +1,10 @@
 import React, { FC, useState } from 'react';
-import  {Box, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-import ArtistDetail from '../ArtistDetail/ArtistDetail.tsx';
-import { AlbumEntity } from '../../models/models.ts';
-import { EntityType } from '../../enums/enums.ts';
+import EntityDetails from '../EntityDetails/EntityDetails.tsx';
+import { Album } from '../../models/models.ts';
+import { DiscographyType, EntityType } from '../../enums/enums.ts';
 
 const useStyles = tss.create(({ theme }) => ({
     typeSelectorContainer: {
@@ -43,17 +43,24 @@ const useStyles = tss.create(({ theme }) => ({
 }));
 
 interface DiscographyProps {
-    albums: AlbumEntity[];
+    entities: Album[];
+    onChangeDiscogType: (discogType: DiscographyType) => void;
+    onShowMoreDiscogEntities: (discogType: DiscographyType) => void;
 }
 
 const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const { classes, cx } = useStyles();
-    const [discogType, setDiscogType] = useState<string>('Albums')
+    const [ currentDiscogType, setCurrentDiscogType ] = useState<DiscographyType>(DiscographyType.Albums);
 
-    const handleTypeChange = (event: SelectChangeEvent<string>) => {
-        setDiscogType(event.target.value);
+    const handleChangeDiscogType = (event: SelectChangeEvent) => {
+        const discogType = event.target.value as DiscographyType;
 
-        // TODO: Show the proper items
+        setCurrentDiscogType(discogType);
+        props.onChangeDiscogType(discogType);
+    };
+
+    const onShowMoreItems = () => {
+        props.onShowMoreDiscogEntities(currentDiscogType);
     };
 
     return (
@@ -65,10 +72,10 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                     classes={{ label: classes.fieldLabel }}
                     control={
                         <Box>
-                            <Select value={discogType} size='small' className={cx(classes.discogTypeSelector)} onChange={handleTypeChange}>
-                                <MenuItem value='Albums'>Albums</MenuItem>
-                                <MenuItem value='SinglesEPs'>Singles & EPs</MenuItem>
-                                <MenuItem value='Compilations'>Compilations</MenuItem>
+                            <Select value={DiscographyType.Albums} size='small' className={cx(classes.discogTypeSelector)} onChange={handleChangeDiscogType}>
+                                <MenuItem value={DiscographyType.Albums}>Albums</MenuItem>
+                                <MenuItem value={DiscographyType.SinglesEPs}>Singles & EPs</MenuItem>
+                                <MenuItem value={DiscographyType.Compilations}>Compilations</MenuItem>
                             </Select>
                         </Box>
                     }
@@ -76,7 +83,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
             </Box>
 
             {
-                props.albums.length === 0
+                props.entities.length === 0
                 ?
                     <>
                         <Typography variant='body2'>No items of the selected type were found for this artist.</Typography>
@@ -84,17 +91,19 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                 :
                     <Box className={cx(classes.artistDetailContainer)}>
                         {
-                            props.albums.map((item: AlbumEntity) => {
+                            props.entities.map((item: Album) => {
                                 const albumImage = item.images && item.images.length > 0 ? item.images[0] : undefined;
 
                                 return (
                                     <Box key={item.id} className='artistDetail'>
-                                        <ArtistDetail id={item.id} name={item.name} entityType={EntityType.Album} dateValue={item.releaseDate}
-                                                      image={albumImage} />
+                                        <EntityDetails id={item.id} name={item.name} entityType={EntityType.Album} dateValue={item.releaseDate}
+                                                       image={albumImage} />
                                     </Box>
                                 );
                             })
                         }
+
+                        <Button onClick={onShowMoreItems}>Show more</Button>
                     </Box>
             }
         </>

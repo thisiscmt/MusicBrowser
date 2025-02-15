@@ -13,11 +13,11 @@ import {
 } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 
-import {SearchResults, SearchResultEntity, SearchParams} from '../../models/models.ts';
+import {SearchResults, SearchResult, SearchParams} from '../../models/models.ts';
 import { EntityType } from '../../enums/enums.ts';
 import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
-import SearchResult from '../../components/SearchResult/SearchResult.tsx';
+import SearchResultDetails from '../../components/SearchResultDetails/SearchResultDetails.tsx';
 import SearchResultLoader from '../../components/SearchResultLoader/SearchResultLoader.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import * as DataService from '../../services/dataService';
@@ -150,7 +150,7 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
     const { setBanner } = useContext(MainContext);
     const [ searchText, setSearchText ] = useState<string>('');
     const [ entityType, setEntityType ] = useState<string>(EntityType.Artist);
-    const [ searchResults, setSearchResults ] = useState<SearchResultEntity[] | undefined>(undefined);
+    const [ searchResults, setSearchResults ] = useState<SearchResult[] | undefined>(undefined);
     const [ currentPage, setCurrentPage ] = useState<number>(1);
     const [ pageCount, setPageCount ] = useState<number>(0);
     const [ currentQueryString, setCurrentQueryString ] = useState<string>('');
@@ -370,13 +370,13 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
                                             <>
                                                 <Box className={cx(classes.searchResultContainer)}>
                                                     {
-                                                        searchResultsToRender.map((item: SearchResultEntity) => {
+                                                        searchResultsToRender.map((item: SearchResult) => {
                                                             const searchResultImage = item.entityType === EntityType.Artist ? Constants.STOCK_ARTIST_IMAGE :
                                                                 (item.entityType === EntityType.Album ? Constants.STOCK_ALBUM_IMAGE : Constants.STOCK_SONG_IMAGE);
 
                                                             return (
                                                                 <Box key={item.id} className='searchResult'>
-                                                                    <SearchResult entity={item} image={searchResultImage} />
+                                                                    <SearchResultDetails entity={item} image={searchResultImage} />
                                                                 </Box>
                                                             );
                                                         })

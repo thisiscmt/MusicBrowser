@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { Box, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-import { ArtistEntity } from '../../models/models.ts';
+import { Artist } from '../../models/models.ts';
 
 const useStyles = tss.create(() => ({
     lifeSpanSection: {
@@ -11,7 +11,7 @@ const useStyles = tss.create(() => ({
 }));
 
 interface LifeSpanProps {
-    artist: ArtistEntity
+    artist: Artist
 }
 
 const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {

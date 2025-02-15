@@ -11,11 +11,11 @@ export interface SearchParams {
 }
 
 export interface SearchResults {
-    rows: SearchResultEntity[];
+    rows: SearchResult[];
     count: number;
 }
 
-export interface SearchResultEntity {
+export interface SearchResult {
     id: string;
     name: string;
     artist: string;
@@ -49,7 +49,7 @@ export interface LinkEntry {
     target: string;
 }
 
-export interface AlbumEntity {
+export interface Album {
     id: string;
     name: string;
     description: string;
@@ -60,7 +60,7 @@ export interface AlbumEntity {
     links: LinkEntry[];
 }
 
-export interface ArtistEntity {
+export interface Artist {
     id: string;
     name: string;
     artistType: string;
@@ -72,7 +72,7 @@ export interface ArtistEntity {
     endArea: Area;
     tags: string[];
     images: Image[];
-    albums: AlbumEntity[];
+    albums: Album[];
     members: Member[];
     links: LinkEntry[];
 }

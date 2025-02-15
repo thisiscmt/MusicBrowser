@@ -93,7 +93,7 @@ const EntityDescription = () => {
                             <Typography variant='body2' className={cx(classes.entityDesc)}>{desc}</Typography>
 
                             <Box className={cx(classes.buttonContainer)}>
-                                <Button component={Link} to={returnLink} disableRipple={true}>
+                                <Button component={Link} to={returnLink}>
                                     Go Back
                                 </Button>
                             </Box>

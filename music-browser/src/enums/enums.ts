@@ -3,3 +3,9 @@ export enum EntityType {
     Album = 'album',
     Song = 'song'
 }
+
+export enum DiscographyType {
+    Albums = 'albums',
+    SinglesEPs = 'singlesep',
+    Compilations = 'compilations'
+}

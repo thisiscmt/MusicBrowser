@@ -33,6 +33,11 @@ export const buildTheme = () => {
             }
         },
         components: {
+            MuiButtonBase: {
+                defaultProps: {
+                    disableRipple: true
+                }
+            },
             MuiOutlinedInput: {
                 styleOverrides: {
                     root: {

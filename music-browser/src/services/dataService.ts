@@ -1,8 +1,7 @@
-import Axios, {AxiosHeaders, AxiosRequestConfig} from 'axios';
+import Axios, { AxiosRequestConfig } from 'axios';
 
-import { ArtistEntity, SearchParams, SearchResults } from '../models/models.ts';
-import { EntityType } from '../enums/enums.ts';
-import * as Constants from '../constants/constants.ts';
+import {Album, Artist, SearchParams, SearchResults} from '../models/models.ts';
+import {DiscographyType, EntityType} from '../enums/enums.ts';
 
 const search = async (entityType: EntityType, searchParams: SearchParams): Promise<SearchResults> => {
     const config = getRequestConfig();
@@ -19,24 +18,29 @@ export const searchArtists = async (searchParams: SearchParams): Promise<SearchR
 export const searchAlbums = async (searchParams: SearchParams): Promise<SearchResults> => {
     return search(EntityType.Album, searchParams);
 };
-export const getArtist = async (id: string): Promise<ArtistEntity> => {
-    const response = await Axios.get<ArtistEntity>(`${import.meta.env.VITE_API_URL}/lookup/artist/${id}`, getRequestConfig(Constants.ARTIST_LOOKUP_CACHE_MAX_AGE));
+
+export const getArtist = async (id: string): Promise<Artist> => {
+    const response = await Axios.get<Artist>(`${import.meta.env.VITE_API_URL}/lookup/artist/${id}`, getRequestConfig());
     return response.data;
 };
 
-const getRequestConfig = (maxAge?: number): AxiosRequestConfig => {
-    const config: AxiosRequestConfig = {};
-    const headers = new AxiosHeaders({
-        'Content-Type': 'application/json'
-    });
+export const getArtistDiscography = async (id: string, discogType: DiscographyType, offset?: number): Promise<Album[]> => {
+    let url = `${import.meta.env.VITE_API_URL}/lookup/artist/${id}/discography?discogType=${discogType}`;
 
-    if (maxAge !== undefined) {
-        headers.set('Cache-Control', `max-age=${maxAge}`);
+    if (offset !== undefined) {
+        url += `&offset=${offset}`;
     }
 
-    config.headers = headers;
+    const response = await Axios.get<Album[]>(url, getRequestConfig());
+    return response.data;
+};
+
+const getRequestConfig = (): AxiosRequestConfig => {
+    const config: AxiosRequestConfig = {};
+
+    config.headers = {
+        'Content-Type': 'application/json'
+    };
 
     return config;
 };
-
-

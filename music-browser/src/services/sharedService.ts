@@ -1,7 +1,7 @@
 import { RefObject } from 'react';
 import { ReactImageGalleryItem } from 'react-image-gallery';
 
-import { AlbumEntity, ArtistEntity } from '../models/models.ts';
+import { Album, Artist } from '../models/models.ts';
 import { EntityType } from '../enums/enums.ts';
 import * as Constants from '../constants/constants.ts';
 
@@ -44,7 +44,7 @@ export const getStockImageUrl = (entityType: EntityType) => {
         (entityType === EntityType.Album ? Constants.STOCK_ALBUM_IMAGE : Constants.STOCK_SONG_IMAGE);
 };
 
-export const getEntityImageList = (entity: ArtistEntity | AlbumEntity): ReactImageGalleryItem[] => {
+export const getEntityImageList = (entity: Artist | Album): ReactImageGalleryItem[] => {
     return entity.images.slice(0, 10).map((item) => {
         return {
             original: item.url
@@ -52,7 +52,7 @@ export const getEntityImageList = (entity: ArtistEntity | AlbumEntity): ReactIma
     });
 };
 
-export const getEmptyArtist = (): ArtistEntity => {
+export const getEmptyArtist = (): Artist => {
     return {
         id: '',
         name: '',
