@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { Link } from 'react-router';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
@@ -58,7 +58,7 @@ const useStyles = tss.create(({ theme }) => ({
     }
 }));
 
-interface DiscographyEntryProps {
+interface EntityDetailsProps {
     id: string;
     name: string;
     entityType: EntityType;
@@ -66,7 +66,7 @@ interface DiscographyEntryProps {
     image?: Image;
 }
 
-const ArtistDetail: FC<DiscographyEntryProps> = (props: DiscographyEntryProps) => {
+const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
     const { classes, cx } = useStyles();
 
     return (
@@ -97,4 +97,4 @@ const ArtistDetail: FC<DiscographyEntryProps> = (props: DiscographyEntryProps) =
     );
 }
 
-export default ArtistDetail;
+export default EntityDetails;

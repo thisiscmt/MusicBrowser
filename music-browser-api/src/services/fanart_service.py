@@ -6,18 +6,18 @@ from itertools import chain
 from fanart.core import Request
 from fanart.errors import ResponseFanartError
 
-from src.models.models import ImageRequest
+from src.models.models import DataRequest
 from src.schema.schema import Image
 
 
 def get_all_images(artist_id: str):
-    artist_image_request = ImageRequest()
-    artist_image_request.image_type = 'artist'
-    artist_image_request.artist_id = artist_id
+    artist_image_request = DataRequest()
+    artist_image_request.data_type = 'artist'
+    artist_image_request.entity_id = artist_id
 
-    album_image_request = ImageRequest()
-    album_image_request.image_type = 'album'
-    album_image_request.artist_id = artist_id
+    album_image_request = DataRequest()
+    album_image_request.data_type = 'album'
+    album_image_request.entity_id = artist_id
 
     begin_time = datetime.datetime.now()
 
@@ -29,11 +29,11 @@ def get_all_images(artist_id: str):
     return images
 
 
-def get_images(image_request: ImageRequest):
-    if image_request.image_type == 'artist':
-        return get_images_for_artist(image_request.artist_id)
+def get_images(image_request: DataRequest):
+    if image_request.data_type == 'artist':
+        return get_images_for_artist(image_request.entity_id)
     else:
-        return get_album_images_for_artist(image_request.artist_id)
+        return get_album_images_for_artist(image_request.entity_id)
 
 
 def get_images_for_artist(artist_id: str):

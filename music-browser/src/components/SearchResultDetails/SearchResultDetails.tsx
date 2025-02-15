@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-import { SearchResultEntity } from '../../models/models.ts';
+import { SearchResult } from '../../models/models.ts';
 import { Colors } from '../../services/themeService.ts';
 import { EntityType } from '../../enums/enums.ts';
 import { Link } from 'react-router';
@@ -70,12 +70,12 @@ const useStyles = tss.create(({ theme }) => ({
      }
 }));
 
-interface SearchResultProps {
-    entity: SearchResultEntity;
+interface SearchResultDetailsProps {
+    entity: SearchResult;
     image: string;
 }
 
-const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
+const SearchResultDetails: FC<SearchResultDetailsProps> = ({ entity, image }) => {
     const { classes, cx } = useStyles();
 
     return (
@@ -121,4 +121,4 @@ const SearchResult: FC<SearchResultProps> = ({ entity, image }) => {
     )
 };
 
-export default SearchResult;
+export default SearchResultDetails;

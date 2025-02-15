@@ -2,6 +2,8 @@ from apiflask import Schema
 from apiflask.fields import String, Integer, List, Nested, Dict, Boolean
 from marshmallow.validate import OneOf
 
+from src.enums.enums import DiscographyType
+
 
 class SearchParameters(Schema):
     page = Integer(load_default=1)
@@ -45,9 +47,10 @@ class Album(Schema):
     artist = String()
     releaseDate = String()
     description = String()
+    type = String()
     tags = List(String())
     images = List(Nested(Image()))
-    links = List(String())
+    links = List(Nested(Link()))
 
 class Artist(Schema):
     id = String()
@@ -66,3 +69,12 @@ class Artist(Schema):
     members = List(Nested(Member()))
     links = List(Nested(Link()))
 
+class DiscographyParameters(Schema):
+    page = Integer(load_default=1)
+    pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
+    discogType = String(load_default=DiscographyType.ALBUM.value, validate=OneOf([DiscographyType.ALBUM.value, DiscographyType.SINGLE_EP.value, DiscographyType.COMPILATION.value]),
+                        metadata={'description': 'The type of discography item to retrieve.'})
+
+class Discography(Schema):
+    rows = List(Nested(Album()))
+    count = Integer()

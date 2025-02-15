@@ -17,14 +17,15 @@ class SpotifyProvider(BaseProvider):
         auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
         sp = spotipy.Spotify(auth_manager=auth_manager)
         results = None
+        offset = (page - 1) * page_size
 
         match entity_type:
             case EntityType.ARTIST:
-                data = sp.search(q=query, offset=page-1, limit=page_size, type='artist')
-                results = build_artist_search_results(data)
+                data = sp.search(q=query, offset=offset, limit=page_size, type='artist')
+                results = self.build_artist_search_results(data)
             case EntityType.ALBUM:
-                data = sp.search(q=query, offset=page-1, limit=page_size, type='album')
-                results = build_album_search_results(data)
+                data = sp.search(q=query, offset=offset, limit=page_size, type='album')
+                results = self.build_album_search_results(data)
             case EntityType.SONG:
                 pass # TODO
 
@@ -47,51 +48,55 @@ class SpotifyProvider(BaseProvider):
         return result
 
 
-def build_artist_search_results(data):
-    results = []
-
-    if 'items' in data['artists']:
-        for rec in data['artists']['items']:
-            result = SearchResult()
-            result.id = rec['id']
-            result.name = rec['name']
-
-            if 'genres' in rec:
-                result.tags = rec['genres']
-
-            if 'images' in rec:
-                result.images = rec['images']
-
-            results.append(result)
-
-    return {
-        'rows': results,
-        'count': data['artists']['total']
-    }
+    def run_discography_lookup(self, entity_type, query, page, page_size):
+        pass # TODO
 
 
-def build_album_search_results(data):
-    results = []
+    def build_artist_search_results(self, data):
+        results = []
 
-    if 'items' in data['albums']:
-        for rec in data['albums']['items']:
-            result = SearchResult()
-            result.id = rec['id']
-            result.name = rec['name']
+        if 'items' in data['artists']:
+            for rec in data['artists']['items']:
+                result = SearchResult()
+                result.id = rec['id']
+                result.name = rec['name']
 
-            if 'artists' in rec and len(rec['artists']) > 0:
-                result.artist = rec['artists'][0]['name']
+                if 'genres' in rec:
+                    result.tags = rec['genres']
 
-            if 'images' in rec:
-                result.images = rec['images']
+                if 'images' in rec:
+                    result.images = rec['images']
 
-            results.append(result)
+                results.append(result)
 
-    return {
-        'rows': results,
-        'count': data['albums']['total']
-    }
+        return {
+            'rows': results,
+            'count': data['artists']['total']
+        }
 
 
-def build_artist(data):
-    pass # TODO
+    def build_album_search_results(self, data):
+        results = []
+
+        if 'items' in data['albums']:
+            for rec in data['albums']['items']:
+                result = SearchResult()
+                result.id = rec['id']
+                result.name = rec['name']
+
+                if 'artists' in rec and len(rec['artists']) > 0:
+                    result.artist = rec['artists'][0]['name']
+
+                if 'images' in rec:
+                    result.images = rec['images']
+
+                results.append(result)
+
+        return {
+            'rows': results,
+            'count': data['albums']['total']
+        }
+
+
+    def build_artist(self, data):
+        pass # TODO

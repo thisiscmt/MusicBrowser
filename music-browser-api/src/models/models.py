@@ -1,9 +1,11 @@
 from src.schema.schema import Link
 
 
-class ImageRequest:
-    image_type: str
-    artist_id: str
+class DataRequest:
+    data_type: str
+    entity_id: str
+    limit: int
+    offset: int
 
 
 class Links:
