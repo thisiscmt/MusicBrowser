@@ -37,7 +37,6 @@ const SearchResultLoader: FC<SearchResultLoaderProps> = (props: SearchResultLoad
         <Box className={cx(classes.mainContainer)}>
             <Skeleton variant='rectangular' height='100px' width='100px' />
 
-
             <Box className={cx(classes.infoLoader)}>
                 <Skeleton variant='rectangular' height='20px' width='50%' />
 

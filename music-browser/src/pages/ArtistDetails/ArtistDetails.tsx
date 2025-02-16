@@ -1,19 +1,19 @@
-import React, {FC, useContext, useEffect, useState} from 'react';
-import {Link, useParams} from 'react-router';
-import {Box, Button, Tab, Typography} from '@mui/material';
-import {TabContext, TabList, TabPanel} from '@mui/lab';
-import {tss} from 'tss-react/mui';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router';
+import { Box, Button, Tab, Typography } from '@mui/material';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { tss } from 'tss-react/mui';
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 
-import {MainContext} from '../../contexts/MainContext.tsx';
+import { MainContext } from '../../contexts/MainContext.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
-import {Album, Artist, LinkEntry} from '../../models/models.ts';
-import {DiscographyType, EntityType} from '../../enums/enums.ts';
-import {Colors} from '../../services/themeService.ts';
+import { Album, Artist, LinkEntry } from '../../models/models.ts';
+import { EntityType } from '../../enums/enums.ts';
+import { Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 
@@ -83,10 +83,6 @@ const useStyles = tss.create(() => ({
         }
     },
 
-    button: {
-        textTransform: 'none'
-    },
-
     tabPanel: {
         padding: '12px 0 0 0'
     }
@@ -102,8 +98,7 @@ const ArtistDetails: FC = () => {
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Artist>(SharedService.getEmptyArtist());
     const [ discogEntities, setDiscogEntities] = useState<Album[]>([]);
-    const [ currentTab, setCurrentTab] = useState<string>('albums');
-    const [ currentDiscogOffset, setCurrentDiscogOffset] = useState<number>(25);
+    const [ currentTab, setCurrentTab] = useState<string>('discography');
     const [ loading, setLoading ] = useState<boolean>(true);
     const { id: artistId } = useParams() as { id: string };
 
@@ -145,33 +140,6 @@ const ArtistDetails: FC = () => {
 
     const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);
-    };
-
-    const handleGetDiscogEntities = async (discogType: DiscographyType) => {
-        try {
-            const discogEntities = await DataService.getArtistDiscography(entity.id, discogType);
-            setDiscogEntities(discogEntities);
-        } catch (error) {
-            setBanner((error as Error).message, 'error');
-        }
-    };
-
-    const handleShowMoreDiscogEntities = async (discogType: DiscographyType) => {
-        try {
-            let offset: number | undefined = undefined;
-
-            if (discogType === DiscographyType.Albums) {
-                offset = currentDiscogOffset;
-            }
-
-            const discogEntities = await DataService.getArtistDiscography(entity.id, discogType, offset);
-
-            // TODO
-
-            setDiscogEntities(discogEntities);
-        } catch (error) {
-            setBanner((error as Error).message, 'error');
-        }
     };
 
     const getEntityDescription = (): EntityDescription => {
@@ -269,7 +237,7 @@ const ArtistDetails: FC = () => {
                                         entity.links.map((item: LinkEntry, index: number) => {
                                             return (
                                                 <Box key={index}>
-                                                    <Button component={Link} to={item.target} className={cx(classes.button)} target='_blank'>
+                                                    <Button component={Link} to={item.target} target='_blank'>
                                                         {item.label}
                                                     </Button>
                                                 </Box>
@@ -285,16 +253,16 @@ const ArtistDetails: FC = () => {
                                     <TabContext value={currentTab}>
                                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                             <TabList onChange={handleChangeTab} aria-label='Additional artist information'>
-                                                <Tab label='Discography' value='discography' className={cx(classes.button)} />
+                                                <Tab label='Discography' value='discography' />
                                                 {
                                                     entity.members &&
-                                                    <Tab label='Members' value='members' className={cx(classes.button)} />
+                                                    <Tab label='Members' value='members' />
                                                 }
                                             </TabList>
                                         </Box>
+
                                         <TabPanel className={cx(classes.tabPanel)} value='discography'>
-                                            <Discography entities={discogEntities} onChangeDiscogType={handleGetDiscogEntities}
-                                                         onShowMoreDiscogEntities={handleShowMoreDiscogEntities} />
+                                            <Discography entityId={entity.id} entities={discogEntities} />
                                         </TabPanel>
                                         <TabPanel className={cx(classes.tabPanel)} value='members'>
                                             Item Two

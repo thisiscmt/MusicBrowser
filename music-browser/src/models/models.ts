@@ -76,3 +76,8 @@ export interface Artist {
     members: Member[];
     links: LinkEntry[];
 }
+
+export interface DiscographyResults {
+    rows: Album[];
+    count: number;
+}

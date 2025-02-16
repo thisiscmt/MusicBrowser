@@ -33,7 +33,12 @@ export const buildTheme = () => {
             }
         },
         components: {
-            MuiButtonBase: {
+            MuiButton: {
+                styleOverrides: {
+                    root: {
+                        textTransform: 'none'
+                    }
+                },
                 defaultProps: {
                     disableRipple: true
                 }
@@ -58,6 +63,13 @@ export const buildTheme = () => {
                         '&:last-child': {
                             paddingBottom: '16px'
                         }
+                    }
+                }
+            },
+            MuiTab: {
+                styleOverrides: {
+                    root: {
+                        textTransform: 'none'
                     }
                 }
             }

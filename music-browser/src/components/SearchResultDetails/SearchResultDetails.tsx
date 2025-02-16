@@ -111,9 +111,7 @@ const SearchResultDetails: FC<SearchResultDetailsProps> = ({ entity, image }) =>
 
                     {
                         entity.score !== undefined &&
-                        <Typography variant='body2'>
-                            Score: {entity.score}
-                        </Typography>
+                        <Typography variant='body2'>Score: {entity.score}</Typography>
                     }
                 </Box>
             </CardContent>

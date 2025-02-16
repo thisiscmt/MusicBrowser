@@ -9,7 +9,7 @@ class DiscographyType(Enum):
     ALBUM = 'album'
     SINGLE_EP = 'single_ep'
     COMPILATION = 'compilation'
-    LIVE = 'live'
+    LIVE = 'live_compilation'
     DEMO = 'demo'
 
 class DataProvider(Enum):

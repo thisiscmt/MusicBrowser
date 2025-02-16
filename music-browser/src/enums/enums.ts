@@ -5,7 +5,9 @@ export enum EntityType {
 }
 
 export enum DiscographyType {
-    Albums = 'albums',
-    SinglesEPs = 'singlesep',
-    Compilations = 'compilations'
+    Album = 'album',
+    SingleEP = 'single_ep',
+    Compilation = 'compilation',
+    LiveCompilation = 'live_compilation',
+    Demo = 'demo'
 }

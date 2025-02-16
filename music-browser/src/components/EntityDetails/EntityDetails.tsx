@@ -87,9 +87,7 @@ const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
 
                     {
                         props.dateValue &&
-                        <Typography variant='body2' className={cx(classes.dateValue)}>
-                            {SharedService.formatDateValue(props.dateValue)}
-                        </Typography>
+                        <Typography variant='body2' className={cx(classes.dateValue)}>{SharedService.formatDateValue(props.dateValue)}</Typography>
                     }
                 </Box>
             </CardContent>

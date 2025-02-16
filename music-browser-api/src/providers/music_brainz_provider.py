@@ -51,18 +51,23 @@ class MusicBrainzProvider(BaseProvider):
             case EntityType.ARTIST.value:
                 artist_request = DataRequest()
 
-                # Since we must call so many endpoints to get an accurate data set for an artist, all of them are made simultaneously
                 artist_request.data_type = 'artist'
                 artist_request.entity_id = entity_id
+
                 artist_albums_request = copy.copy(artist_request)
                 artist_albums_request.data_type = 'artist_albums'
+                artist_albums_request.limit = 10
+                artist_albums_request.offset = 0
+
                 artist_images_request = copy.copy(artist_request)
-                artist_images_request.data_type = 'atist_images'
+                artist_images_request.data_type = 'artist_images'
+
                 artist_album_images_request = copy.copy(artist_request)
                 artist_album_images_request.data_type = 'artist_album_images'
 
                 data_requests = [artist_request, artist_albums_request, artist_images_request, artist_album_images_request]
 
+                # Since we must call so many endpoints to get an accurate data set for an artist, all of them are made simultaneously
                 with ThreadPoolExecutor(max_workers=4) as executor:
                     data = list(executor.map(self.get_artist_data, data_requests))
 
@@ -123,7 +128,8 @@ class MusicBrainzProvider(BaseProvider):
             result = musicbrainzngs.get_artist_by_id(id=data_request.entity_id, includes=['tags', 'artist-rels', 'url-rels', 'annotation'])
 
         if data_request.data_type == 'artist_albums':
-            result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], limit=25, offset=0, release_group_status='website-default')
+            result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], limit=data_request.limit,
+                                                          offset=data_request.offset, release_group_status='website-default')
 
         if data_request.data_type == 'artist_images':
             result = get_images_for_artist(data_request.entity_id)

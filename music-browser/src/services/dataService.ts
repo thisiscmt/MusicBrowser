@@ -1,6 +1,6 @@
 import Axios, { AxiosRequestConfig } from 'axios';
 
-import {Album, Artist, SearchParams, SearchResults} from '../models/models.ts';
+import {Album, Artist, DiscographyResults, SearchParams, SearchResults} from '../models/models.ts';
 import {DiscographyType, EntityType} from '../enums/enums.ts';
 
 const search = async (entityType: EntityType, searchParams: SearchParams): Promise<SearchResults> => {
@@ -24,14 +24,14 @@ export const getArtist = async (id: string): Promise<Artist> => {
     return response.data;
 };
 
-export const getArtistDiscography = async (id: string, discogType: DiscographyType, offset?: number): Promise<Album[]> => {
+export const getArtistDiscography = async (id: string, discogType: DiscographyType, page?: number, pageSize?: number): Promise<DiscographyResults> => {
     let url = `${import.meta.env.VITE_API_URL}/lookup/artist/${id}/discography?discogType=${discogType}`;
+    const pageParam = page ? page : 1;
+    const pageSizeParam = pageSize ? pageSize : 10;
 
-    if (offset !== undefined) {
-        url += `&offset=${offset}`;
-    }
+    url += `&page=${pageParam}&pageSize=${pageSizeParam}`;
 
-    const response = await Axios.get<Album[]>(url, getRequestConfig());
+    const response = await Axios.get<DiscographyResults>(url, getRequestConfig());
     return response.data;
 };
 

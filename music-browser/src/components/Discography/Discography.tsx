@@ -1,10 +1,13 @@
-import React, { FC, useState } from 'react';
-import { Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
-import { tss } from 'tss-react/mui';
+import React, {FC, useContext, useEffect, useState} from 'react';
+import {Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography} from '@mui/material';
+import {tss} from 'tss-react/mui';
 
 import EntityDetails from '../EntityDetails/EntityDetails.tsx';
-import { Album } from '../../models/models.ts';
-import { DiscographyType, EntityType } from '../../enums/enums.ts';
+import EntityDetailsLoader from '../EntityDetailsLoader/EntityDetailsLoader.tsx';
+import {Album} from '../../models/models.ts';
+import {DiscographyType, EntityType} from '../../enums/enums.ts';
+import {MainContext} from '../../contexts/MainContext.tsx';
+import * as DataService from '../../services/dataService.ts';
 
 const useStyles = tss.create(({ theme }) => ({
     typeSelectorContainer: {
@@ -39,73 +42,162 @@ const useStyles = tss.create(({ theme }) => ({
                 marginBottom: 0,
             }
         },
+    },
+
+    loader: {
+        marginBottom: '12px',
+
+        '&:last-child': {
+            marginBottom: 0,
+        }
+    },
+
+    showMoreButton: {
+        marginTop: '10px',
+        textAlign: 'center'
     }
 }));
 
 interface DiscographyProps {
+    entityId: string;
     entities: Album[];
-    onChangeDiscogType: (discogType: DiscographyType) => void;
-    onShowMoreDiscogEntities: (discogType: DiscographyType) => void;
 }
 
 const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const { classes, cx } = useStyles();
-    const [ currentDiscogType, setCurrentDiscogType ] = useState<DiscographyType>(DiscographyType.Albums);
+    const { setBanner } = useContext(MainContext);
+    const [ currentDiscogType, setCurrentDiscogType ] = useState<DiscographyType>(DiscographyType.Album);
+    const [ discogPage, setCurrentDiscogOffset] = useState<number>(1);
+    const [ entities, setEntities ] = useState<Album[] | undefined>(undefined);
+    const [ albums, setAlbums ] = useState<Album[] | undefined>(undefined);
+    const [ singlesEPs, setSinglesEPs ] = useState<Album[] | undefined>(undefined);
+    const [ compilations, setCompilations ] = useState<Album[] | undefined>(undefined);
+    const [ liveCompilations, setLiveCompilations ] = useState<Album[] | undefined>(undefined);
+    const [ demos, setDemos ] = useState<Album[]>([]);
+    const [ loading, setLoading ] = useState<boolean>(false);
 
-    const handleChangeDiscogType = (event: SelectChangeEvent) => {
-        const discogType = event.target.value as DiscographyType;
+    const discogPageSize = 10;
 
-        setCurrentDiscogType(discogType);
-        props.onChangeDiscogType(discogType);
+    useEffect(() => {
+        setEntities(props.entities)
+        setAlbums(props.entities)
+    }, [props.entities]);
+
+    const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void) => {
+        if (stateVariable !== undefined) {
+            setEntities(stateVariable);
+            return
+        }
+
+        const newEntities = await DataService.getArtistDiscography(props.entityId, discogType, discogPage, discogPageSize);
+
+        stateUpdateFunction(newEntities.rows);
+        setEntities(newEntities.rows);
     };
 
-    const onShowMoreItems = () => {
-        props.onShowMoreDiscogEntities(currentDiscogType);
+    const handleChangeDiscogType = async (event: SelectChangeEvent) => {
+        const discogType = event.target.value as DiscographyType;
+        setLoading(true);
+        setCurrentDiscogType(discogType);
+
+        try {
+            switch (discogType)
+            {
+                case DiscographyType.Album:
+                    await getDiscogEntities(DiscographyType.Album, albums, setAlbums);
+                    break;
+                case DiscographyType.SingleEP:
+                    await getDiscogEntities(DiscographyType.SingleEP, singlesEPs, setSinglesEPs);
+                    break;
+                case DiscographyType.Compilation:
+                    await getDiscogEntities(DiscographyType.Compilation, compilations, setCompilations);
+                    break;
+                case DiscographyType.LiveCompilation:
+                    await getDiscogEntities(DiscographyType.LiveCompilation, liveCompilations, setLiveCompilations);
+                    break;
+                case DiscographyType.Demo:
+                    await getDiscogEntities(DiscographyType.Demo, demos, setDemos);
+                    break;
+            }
+        } catch (error) {
+            setBanner((error as Error).message, 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleShowMoreItems = async () => {
+        try {
+
+        } catch (error) {
+            setBanner((error as Error).message, 'error');
+        }
     };
 
     return (
         <>
-            <Box className={cx(classes.typeSelectorContainer)}>
-                <FormControlLabel
-                    labelPlacement='start'
-                    label='Type:'
-                    classes={{ label: classes.fieldLabel }}
-                    control={
-                        <Box>
-                            <Select value={DiscographyType.Albums} size='small' className={cx(classes.discogTypeSelector)} onChange={handleChangeDiscogType}>
-                                <MenuItem value={DiscographyType.Albums}>Albums</MenuItem>
-                                <MenuItem value={DiscographyType.SinglesEPs}>Singles & EPs</MenuItem>
-                                <MenuItem value={DiscographyType.Compilations}>Compilations</MenuItem>
-                            </Select>
-                        </Box>
-                    }
-                />
-            </Box>
-
             {
-                props.entities.length === 0
-                ?
-                    <>
-                        <Typography variant='body2'>No items of the selected type were found for this artist.</Typography>
-                    </>
-                :
-                    <Box className={cx(classes.artistDetailContainer)}>
-                        {
-                            props.entities.map((item: Album) => {
-                                const albumImage = item.images && item.images.length > 0 ? item.images[0] : undefined;
+                loading
+                    ?
+                        <>
+                            {
+                                [1, 2, 3, 4, 5].map((item: number) => {
+                                    return (
+                                        <Box key={item} className={cx(classes.loader)}><EntityDetailsLoader smallImage={true} /></Box>
+                                    );
+                                })
+                            }
+                        </>
+                    :
+                        <>
+                            <Box className={cx(classes.typeSelectorContainer)}>
+                                <FormControlLabel
+                                    labelPlacement='start'
+                                    label='Type:'
+                                    classes={{ label: classes.fieldLabel }}
+                                    control={
+                                        <Box>
+                                            <Select value={currentDiscogType} size='small' className={cx(classes.discogTypeSelector)}
+                                                    onChange={handleChangeDiscogType}>
+                                                <MenuItem value={DiscographyType.Album}>Albums</MenuItem>
+                                                <MenuItem value={DiscographyType.SingleEP}>Singles & EPs</MenuItem>
+                                                <MenuItem value={DiscographyType.Compilation}>Compilations</MenuItem>
+                                                <MenuItem value={DiscographyType.LiveCompilation}>Live Compilations</MenuItem>
+                                                <MenuItem value={DiscographyType.Demo}>Demos</MenuItem>
+                                            </Select>
+                                        </Box>
+                                    }
+                                />
+                            </Box>
 
-                                return (
-                                    <Box key={item.id} className='artistDetail'>
-                                        <EntityDetails id={item.id} name={item.name} entityType={EntityType.Album} dateValue={item.releaseDate}
-                                                       image={albumImage} />
-                                    </Box>
-                                );
-                            })
-                        }
+                            {
+                                entities && entities.length === 0
+                                    ?
+                                        <Typography variant='body2'>No items of the selected type were found for this artist.</Typography>
+                                    :
+                                        <Box className={cx(classes.artistDetailContainer)}>
+                                            {
+                                                entities?.map((item: Album) => {
+                                                    const albumImage = item.images && item.images.length > 0 ? item.images[0] : undefined;
 
-                        <Button onClick={onShowMoreItems}>Show more</Button>
-                    </Box>
+                                                    return (
+                                                        <Box key={item.id} className='artistDetail'>
+                                                            <EntityDetails id={item.id} name={item.name} entityType={EntityType.Album} dateValue={item.releaseDate}
+                                                                           image={albumImage} />
+                                                        </Box>
+                                                    );
+                                                })
+                                            }
+
+                                            <Box className={cx(classes.showMoreButton)}>
+                                                <Button onClick={handleShowMoreItems}>Show more</Button>
+                                            </Box>
+                                        </Box>
+                            }
+                        </>
             }
+
+
         </>
     );
 }
