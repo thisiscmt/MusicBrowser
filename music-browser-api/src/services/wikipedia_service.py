@@ -17,7 +17,7 @@ def get_wikipedia_page_title(wikidata_url: str):
         url = f'https://www.wikidata.org/w/api.php?action=wbgetentities&props=sitelinks&ids={wikidata_id}&sitefilter=enwiki&format=json'
 
         begin_time = datetime.datetime.now()
-        response = requests.get(url)
+        response = requests.get(url=url, timeout=30)
 
         print(f'__Wikipedia page title: {datetime.datetime.now() - begin_time}')
 
@@ -42,7 +42,7 @@ def get_wikipedia_page_intro(page_title: str):
             url = f'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exlimit=1&exintro=true&titles={page_title}&explaintext=1&format=json'
 
             begin_time = datetime.datetime.now()
-            response = requests.get(url)
+            response = requests.get(url=url, timeout=30)
 
             print(f'__Wikipedia page intro: {datetime.datetime.now() - begin_time}')
 

@@ -7,7 +7,7 @@ from src.enums.enums import EntityType, DiscographyType
 from src.models.models import Links, DataRequest
 from src.providers.base_provider import BaseProvider
 from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput
-from src.services.fanart_service import get_all_images, get_album_images_for_artist
+from src.services.fanart_service import get_album_images_for_artist, get_images_for_artist
 from src.services.wikipedia_service import get_entity_description
 
 
@@ -49,8 +49,23 @@ class MusicBrainzProvider(BaseProvider):
 
         match entity_type:
             case EntityType.ARTIST.value:
-                data = musicbrainzngs.get_artist_by_id(id=entity_id, release_type=['album'],
-                                                       includes=['tags', 'release-groups', 'artist-rels', 'url-rels', 'annotation'])
+                artist_request = DataRequest()
+
+                # Since we must call so many endpoints to get an accurate data set for an artist, all of them are made simultaneously
+                artist_request.data_type = 'artist'
+                artist_request.entity_id = entity_id
+                artist_albums_request = copy.copy(artist_request)
+                artist_albums_request.data_type = 'artist_albums'
+                artist_images_request = copy.copy(artist_request)
+                artist_images_request.data_type = 'atist_images'
+                artist_album_images_request = copy.copy(artist_request)
+                artist_album_images_request.data_type = 'artist_album_images'
+
+                data_requests = [artist_request, artist_albums_request, artist_images_request, artist_album_images_request]
+
+                with ThreadPoolExecutor(max_workers=4) as executor:
+                    data = list(executor.map(self.get_artist_data, data_requests))
+
                 print(f'__MusicBrainz artist lookup: {datetime.datetime.now() - begin_time}')
 
                 result = self.build_artist(data)
@@ -70,33 +85,51 @@ class MusicBrainzProvider(BaseProvider):
 
 
     def run_discography_lookup(self, discog_type, entity_id, page, page_size):
-        result = Discography()
         offset = (page - 1) * page_size
+        release_type = None
+        album_only = False
         begin_time = datetime.datetime.now()
 
         match discog_type:
             case DiscographyType.ALBUM.value:
-                data = musicbrainzngs.browse_release_groups(artist=entity_id, release_type=['album'], limit=page_size, offset=offset, release_group_status='website-default')
-                print(f'__MusicBrainz discography lookup ({discog_type}): {datetime.datetime.now() - begin_time}')
-
-                result = self.build_discography_list(data)
+                release_type = ['album']
+                album_only = True
 
             case DiscographyType.SINGLE_EP.value:
-                data = musicbrainzngs.browse_release_groups(artist=entity_id, release_type=['single', 'ep'], limit=page_size, offset=offset)
-                print(f'__MusicBrainz discography lookup ({discog_type}): {datetime.datetime.now() - begin_time}')
+                release_type = ['single', 'ep']
 
-                result = self.build_discography_list(data)
             case DiscographyType.COMPILATION.value:
-                compilation_result = self.get_compilations(entity_id, page_size, offset)
-                print(f'__MusicBrainz discography lookup ({discog_type}): {datetime.datetime.now() - begin_time}')
+                release_type = ['compilation']
 
-                if len(compilation_result) == 2:
-                    compilation_release_group_data = self.build_discography_list(compilation_result[0])
-                    live_release_group_data = self.build_discography_list(compilation_result[1])
-                    result.rows = compilation_release_group_data.rows + live_release_group_data.rows
-                    result.count = compilation_release_group_data.count + live_release_group_data.count
+            case DiscographyType.LIVE.value:
+                release_type = ['live']
 
+            case DiscographyType.DEMO.value:
+                release_type = ['demo']
+
+        data = musicbrainzngs.browse_release_groups(artist=entity_id, release_type=release_type, limit=page_size, offset=offset, release_group_status='website-default')
+        print(f'__MusicBrainz discography lookup ({discog_type}): {datetime.datetime.now() - begin_time}')
+
+        result = self.build_discography_list(data, album_only)
         print(f'Discography lookup total: {datetime.datetime.now() - begin_time}')
+
+        return result
+
+
+    def get_artist_data(self, data_request: DataRequest):
+        result = None
+
+        if data_request.data_type == 'artist':
+            result = musicbrainzngs.get_artist_by_id(id=data_request.entity_id, includes=['tags', 'artist-rels', 'url-rels', 'annotation'])
+
+        if data_request.data_type == 'artist_albums':
+            result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], limit=25, offset=0, release_group_status='website-default')
+
+        if data_request.data_type == 'artist_images':
+            result = get_images_for_artist(data_request.entity_id)
+
+        if data_request.data_type == 'artist_album_images':
+            result = get_album_images_for_artist(data_request.entity_id)
 
         return result
 
@@ -116,10 +149,7 @@ class MusicBrainzProvider(BaseProvider):
 
             rows.append(result)
 
-        count = data['artist-count']
-
-        if count > 100:
-            count = 100
+        count = min(int(data['artist-count']), 100)
 
         results = SearchOutput()
         results.rows = rows
@@ -148,10 +178,7 @@ class MusicBrainzProvider(BaseProvider):
 
             rows.append(result)
 
-        count = data['release-group-count']
-
-        if count > 100:
-            count = 100
+        count = min(int(data['release-group-count']), 100)
 
         results = SearchOutput()
         results.rows = rows
@@ -161,7 +188,8 @@ class MusicBrainzProvider(BaseProvider):
 
 
     def build_artist(self, data):
-        record = data['artist']
+        record = data[0]['artist']
+        albums_record = data[1]
 
         artist = Artist()
         artist.id = record['id']
@@ -189,13 +217,12 @@ class MusicBrainzProvider(BaseProvider):
         if 'tag-list' in record:
             artist.tags = self.build_tag_list(record['tag-list'])
 
-        images = get_all_images(record['id'])
-        artist.images = images[0]
-        album_images = images[1]
+        artist.images = data[2]
+        album_images = data[3]
         albums = []
 
-        if 'release-group-list' in record:
-            for rel_group in record['release-group-list']:
+        if 'release-group-list' in albums_record:
+            for rel_group in albums_record['release-group-list']:
                 if 'type' in rel_group and str(rel_group['type']).lower() == 'album':
                     album = Album()
                     album.images = []
@@ -288,41 +315,27 @@ class MusicBrainzProvider(BaseProvider):
         return album
 
 
-    def get_compilations(self, entity_id: str, limit: int, offset: int):
-        compilation_release_groups_request = DataRequest()
-
-        compilation_release_groups_request.data_type = 'compilation'
-        compilation_release_groups_request.entity_id = entity_id
-        compilation_release_groups_request.limit = limit
-        compilation_release_groups_request.offset = offset
-
-        live_release_groups_request = copy.copy(compilation_release_groups_request)
-        live_release_groups_request.data_type = 'live'
-
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            data = list(executor.map(self.get_release_groups, [compilation_release_groups_request, live_release_groups_request]))
-
-        return data
-
-
-    def get_release_groups(self, data_request: DataRequest):
-        return musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=[data_request.data_type], limit=data_request.limit,
-                                                    offset=data_request.offset, release_group_status='website-default')
-
-    def build_discography_list(self, data):
+    def build_discography_list(self, data, album_only=False):
         result = Discography()
         rows = []
         count = 0
 
         if 'release-group-list' in data:
-            for record in data['release-group-list']:
-                album = Album()
-                album.id = record['id']
-                album.name = record['title']
-                album.type = record['type']
-                album.releaseDate = record['first-release-date']
+            add_record = True
 
-                rows.append(album)
+            for record in data['release-group-list']:
+                if album_only:
+                    if str(record['type']).lower() != 'album':
+                        add_record = False
+
+                if add_record:
+                    album = Album()
+                    album.id = record['id']
+                    album.name = record['title']
+                    album.type = record['type']
+                    album.releaseDate = record['first-release-date']
+
+                    rows.append(album)
 
             count = data['release-group-count']
 

@@ -1,3 +1,5 @@
+"""Primary entry point for the service"""
+
 import flask
 from apiflask import APIFlask
 from flask_cors import CORS
@@ -11,6 +13,8 @@ from src.enums.enums import EntityType, DiscographyType
 
 
 def create_app(test_config=None):
+    """Builds the main APIFlask object"""
+
     flask_app = APIFlask(__name__, instance_relative_config=True)
 
     if test_config is None:
@@ -25,12 +29,14 @@ app = create_app()
 allowed_origin = '*'
 
 if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower() == 'true':
-    allowedOrigin = app.config['ALLOWED_ORIGIN']
+    allowed_origin = app.config['ALLOWED_ORIGIN']
 
 CORS(app, origins=[allowed_origin])
 
 
 def set_lookup_cache_headers(response):
+    """Sets caching headers in the response"""
+
     if isinstance(response, flask.wrappers.Response):
         max_age = 300  # 5 minutes
 
@@ -44,6 +50,8 @@ def set_lookup_cache_headers(response):
 
 @app.get('/')
 def home():
+    """Returns a basic response for requests to the root of the service"""
+
     return 'This is the Music Browser API'
 
 
@@ -51,19 +59,23 @@ def home():
 @app.input(SearchParameters, location='query')
 @app.output(SearchOutput)
 def search(entity_type, query_data):
-    if supported_entity_type(entity_type):
-        db = get_data_provider(app.config)
-        results = db.run_search(entity_type, query_data['query'], query_data['page'], query_data['pageSize'])
+    """Performs a search of a particular collection"""
 
-        return results
-    else:
+    if not supported_entity_type(entity_type):
         raise BadRequest(description='Unsupported entity type')
+
+    db = get_data_provider(app.config)
+    results = db.run_search(entity_type, query_data['query'], query_data['page'], query_data['pageSize'])
+
+    return results
 
 
 @app.get('/lookup/artist/<string:entity_id>')
 @app.output(Artist)
 @app.after_request(set_lookup_cache_headers)
 def lookup_artist(entity_id):
+    """Performs a lookup of a specific artist"""
+
     db = get_data_provider(app.config)
     result = db.run_lookup(EntityType.ARTIST.value, entity_id)
 
@@ -75,6 +87,8 @@ def lookup_artist(entity_id):
 @app.output(Discography)
 @app.after_request(set_lookup_cache_headers)
 def lookup_artist_discography(entity_id, query_data):
+    """Performs a lookup of a specific artist's discography"""
+
     db = get_data_provider(app.config)
     result = db.run_discography_lookup(query_data['discogType'], entity_id, query_data['page'], query_data['pageSize'])
 
@@ -85,6 +99,8 @@ def lookup_artist_discography(entity_id, query_data):
 @app.output(Album)
 @app.after_request(set_lookup_cache_headers)
 def lookup_album(entity_id):
+    """Performs a lookup of a specific album"""
+
     db = get_data_provider(app.config)
     result = db.run_lookup(EntityType.ALBUM.value, entity_id)
 
@@ -95,19 +111,24 @@ def lookup_album(entity_id):
 # @app.get('/lookup/song/<string:entity_id>')
 # @app.output(Song)
 # def lookup_song(entity_id):
+#     """Performs a lookup of a specific song"""
 #     db = get_data_provider(app.config)
 #     result = db.run_lookup(EntityType.SONG.value, entity_id)
 #
 #     return result
 
 
-@app.errorhandler(NotFound)
-def handle_not_found(error):
-    # TODO: Log this somewhere
-    return '', 404
-
-
 @app.errorhandler(BadRequest)
 def handle_bad_request_error(error):
+    """Handler for 400 errors"""
+
     # TODO: Log this somewhere
     return error.description, 400
+
+
+@app.errorhandler(NotFound)
+def handle_not_found():
+    """Handler for 404 errors"""
+
+    # TODO: Log this somewhere
+    return '', 404

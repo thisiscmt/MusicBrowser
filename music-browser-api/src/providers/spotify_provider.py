@@ -33,8 +33,8 @@ class SpotifyProvider(BaseProvider):
 
 
     def run_lookup(self, entity_type, entity_id):
-        auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
-        sp = spotipy.Spotify(auth_manager=auth_manager)
+        # auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
+        # sp = spotipy.Spotify(auth_manager=auth_manager)
         result = None
 
         match entity_type:
@@ -48,7 +48,7 @@ class SpotifyProvider(BaseProvider):
         return result
 
 
-    def run_discography_lookup(self, entity_type, query, page, page_size):
+    def run_discography_lookup(self, discog_type, entity_id, page, page_size):
         pass # TODO
 
 

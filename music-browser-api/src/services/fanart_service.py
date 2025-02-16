@@ -1,39 +1,10 @@
 import os
-import datetime
-import fanart
-from concurrent.futures import ThreadPoolExecutor
 from itertools import chain
+import fanart
 from fanart.core import Request
 from fanart.errors import ResponseFanartError
 
-from src.models.models import DataRequest
 from src.schema.schema import Image
-
-
-def get_all_images(artist_id: str):
-    artist_image_request = DataRequest()
-    artist_image_request.data_type = 'artist'
-    artist_image_request.entity_id = artist_id
-
-    album_image_request = DataRequest()
-    album_image_request.data_type = 'album'
-    album_image_request.entity_id = artist_id
-
-    begin_time = datetime.datetime.now()
-
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        images = list(executor.map(get_images, [artist_image_request, album_image_request]))
-
-    print(f'Fanart artist and album images time: {datetime.datetime.now() - begin_time}')
-
-    return images
-
-
-def get_images(image_request: DataRequest):
-    if image_request.data_type == 'artist':
-        return get_images_for_artist(image_request.entity_id)
-    else:
-        return get_album_images_for_artist(image_request.entity_id)
 
 
 def get_images_for_artist(artist_id: str):

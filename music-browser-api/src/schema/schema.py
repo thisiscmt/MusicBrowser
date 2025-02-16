@@ -72,7 +72,9 @@ class Artist(Schema):
 class DiscographyParameters(Schema):
     page = Integer(load_default=1)
     pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
-    discogType = String(load_default=DiscographyType.ALBUM.value, validate=OneOf([DiscographyType.ALBUM.value, DiscographyType.SINGLE_EP.value, DiscographyType.COMPILATION.value]),
+    discogType = String(load_default=DiscographyType.ALBUM.value, validate=OneOf([DiscographyType.ALBUM.value, DiscographyType.SINGLE_EP.value,
+                                                                                  DiscographyType.COMPILATION.value, DiscographyType.LIVE.value,
+                                                                                  DiscographyType.DEMO.value]),
                         metadata={'description': 'The type of discography item to retrieve.'})
 
 class Discography(Schema):

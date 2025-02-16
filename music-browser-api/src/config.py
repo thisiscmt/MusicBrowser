@@ -1,7 +1,8 @@
+import dataclasses
 import os
 
-
-class Config(object):
+@dataclasses.dataclass
+class Config():
     PRODUCTION = os.environ.get('PRODUCTION')
     ALLOWED_ORIGIN = os.environ.get('ALLOWED_ORIGIN')
     LOOKUP_CACHE_AGE = os.environ.get('LOOKUP_CACHE_AGE')
