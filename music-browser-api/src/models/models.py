@@ -6,6 +6,7 @@ class DataRequest:
     entity_id: str
     limit: int
     offset: int
+    use_cache: bool
 
 
 class Links:

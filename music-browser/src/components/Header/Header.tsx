@@ -1,6 +1,6 @@
-import React, { FC, useContext, useState } from 'react';
-import { Link } from 'react-router';
-import {Alert, Fade, IconButton, SwipeableDrawer, Typography} from '@mui/material';
+import React, { FC, useContext, useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router';
+import { Alert, Fade, IconButton, SwipeableDrawer, Typography } from '@mui/material';
 import { MenuOutlined, SettingsOutlined } from '@mui/icons-material';
 import { tss } from 'tss-react/mui';
 
@@ -51,7 +51,13 @@ const useStyles = tss.create(({ theme }) => ({
 const Header: FC = () => {
     const { classes, cx } = useStyles();
     const [ mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-    const { bannerMessage, bannerSeverity } = useContext(MainContext);
+    const { bannerMessage, bannerSeverity, setBanner } = useContext(MainContext);
+    const location = useLocation();
+
+    useEffect(() => {
+        setBanner('');
+        // eslint-disable-next-line
+    }, [location]);
 
     const handleMobileMenuClick = (value: boolean) => {
         setMobileMenuOpen(value);

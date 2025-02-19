@@ -44,10 +44,10 @@ class Link(Schema):
 class Album(Schema):
     id = String()
     name = String()
+    albumType = String()
     artist = String()
     releaseDate = String()
     description = String()
-    type = String()
     tags = List(String())
     images = List(Nested(Image()))
     links = List(Nested(Link()))

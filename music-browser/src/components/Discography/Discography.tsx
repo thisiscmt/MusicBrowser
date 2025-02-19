@@ -1,12 +1,12 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
-import { Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
-import { tss } from 'tss-react/mui';
+import React, {FC, useContext, useEffect, useState} from 'react';
+import {Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography} from '@mui/material';
+import {tss} from 'tss-react/mui';
 
 import EntityDetails from '../EntityDetails/EntityDetails.tsx';
 import EntityDetailsLoader from '../EntityDetailsLoader/EntityDetailsLoader.tsx';
-import { Album } from '../../models/models.ts';
-import { DiscographyType, EntityType } from '../../enums/enums.ts';
-import { MainContext } from '../../contexts/MainContext.tsx';
+import {Album} from '../../models/models.ts';
+import {DiscographyType, EntityType} from '../../enums/enums.ts';
+import {MainContext} from '../../contexts/MainContext.tsx';
 import * as DataService from '../../services/dataService.ts';
 import * as SharedService from '../../services/sharedService.ts';
 
@@ -32,7 +32,7 @@ const useStyles = tss.create(({ theme }) => ({
     },
 
     discogTypeSelector: {
-        width: '160px'
+        width: '180px'
     },
 
     artistDetailContainer: {
@@ -74,16 +74,20 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const [ singlesEPs, setSinglesEPs ] = useState<Album[] | undefined>(undefined);
     const [ compilations, setCompilations ] = useState<Album[] | undefined>(undefined);
     const [ liveCompilations, setLiveCompilations ] = useState<Album[] | undefined>(undefined);
-    const [ demos, setDemos ] = useState<Album[]>([]);
+    const [ demos, setDemos ] = useState<Album[] | undefined>(undefined);
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ disableShowMore, setDisableShowMore ] = useState<boolean>(false);
 
     const defaultPageSize = SharedService.getDefaultPageSize();
 
     useEffect(() => {
-        setEntities(props.entities)
-        setAlbums(props.entities)
-    }, [props.entities]);
+        setEntities(props.entities);
+        setAlbums(props.entities);
+
+        if (props.entities.length < defaultPageSize) {
+            setDisableShowMore(true);
+        }
+    }, [props.entities, defaultPageSize]);
 
     const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void,
                                      page: number, pageSize: number, append?: boolean) => {
@@ -97,7 +101,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
 
         if (stateVariable !== undefined && append) {
             newRows = [...stateVariable, ...newRows];
-
         }
 
         // If we fetched less than the page size we know there aren't any more rows, so we hide the 'Show more' button
@@ -214,11 +217,16 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                                             {
                                                 entities?.map((item: Album) => {
                                                     const albumImage = item.images && item.images.length > 0 ? item.images[0] : undefined;
+                                                    let discogType: string | undefined;
+
+                                                    if (currentDiscogType === DiscographyType.SingleEP && (item.albumType === 'Single' || item.albumType === 'EP')) {
+                                                        discogType = item.albumType;
+                                                    }
 
                                                     return (
                                                         <Box key={item.id} className='artistDetail'>
-                                                            <EntityDetails id={item.id} name={item.name} entityType={EntityType.Album} dateValue={item.releaseDate}
-                                                                           image={albumImage} />
+                                                            <EntityDetails id={item.id} name={item.name} entityType={EntityType.Album}
+                                                                           discogType={discogType} dateValue={item.releaseDate} image={albumImage} />
                                                         </Box>
                                                     );
                                                 })

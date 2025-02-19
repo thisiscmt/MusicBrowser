@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
 import { Image } from '../../models/models.ts';
-import { EntityType } from '../../enums/enums.ts';
+import {DiscographyType, EntityType} from '../../enums/enums.ts';
 import { Colors } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService';
 
@@ -53,8 +53,9 @@ const useStyles = tss.create(({ theme }) => ({
         }
     },
 
-    dateValue: {
-        marginTop: '4px'
+    secondaryDataValue: {
+        lineHeight: 1,
+        marginTop: '3px'
     }
 }));
 
@@ -62,6 +63,7 @@ interface EntityDetailsProps {
     id: string;
     name: string;
     entityType: EntityType;
+    discogType?: string;
     dateValue?: string;
     image?: Image;
 }
@@ -86,8 +88,13 @@ const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
                     </Typography>
 
                     {
+                        props.discogType &&
+                        <Typography variant='body2' className={cx(classes.secondaryDataValue)}>{props.discogType}</Typography>
+                    }
+
+                    {
                         props.dateValue &&
-                        <Typography variant='body2' className={cx(classes.dateValue)}>{SharedService.formatDateValue(props.dateValue)}</Typography>
+                        <Typography variant='body2' className={cx(classes.secondaryDataValue)}>{SharedService.formatDateValue(props.dateValue)}</Typography>
                     }
                 </Box>
             </CardContent>

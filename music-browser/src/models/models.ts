@@ -52,6 +52,7 @@ export interface LinkEntry {
 export interface Album {
     id: string;
     name: string;
+    albumType: string;
     description: string;
     releaseDate: string;
     artist: string;

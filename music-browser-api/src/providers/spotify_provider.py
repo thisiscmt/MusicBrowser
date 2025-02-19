@@ -7,6 +7,8 @@ from src.schema.schema import SearchResult
 
 
 class SpotifyProvider(BaseProvider):
+    """This is an incomplete provider implementation for the Spotify API"""
+
     def __init__(self, client_id, client_secret):
         super().__init__()
         self.client_id = client_id
@@ -32,7 +34,7 @@ class SpotifyProvider(BaseProvider):
         return results
 
 
-    def run_lookup(self, entity_type, entity_id):
+    def run_lookup(self, entity_type, entity_id, cache):
         # auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
         # sp = spotipy.Spotify(auth_manager=auth_manager)
         result = None
@@ -48,7 +50,7 @@ class SpotifyProvider(BaseProvider):
         return result
 
 
-    def run_discography_lookup(self, discog_type, entity_id, page, page_size):
+    def run_discography_lookup(self, discog_type, entity_id, page, page_size, cache):
         pass # TODO
 
 

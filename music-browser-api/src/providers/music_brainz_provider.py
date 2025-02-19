@@ -2,6 +2,7 @@ import copy
 from concurrent.futures import ThreadPoolExecutor
 import datetime
 import musicbrainzngs
+from flask_caching import Cache
 
 from src.enums.enums import EntityType, DiscographyType
 from src.models.models import Links, DataRequest
@@ -43,7 +44,7 @@ class MusicBrainzProvider(BaseProvider):
         return results
 
 
-    def run_lookup(self, entity_type, entity_id):
+    def run_lookup(self, entity_type, entity_id, cache: Cache):
         result = None
         begin_time = datetime.datetime.now()
 
@@ -64,6 +65,12 @@ class MusicBrainzProvider(BaseProvider):
 
                 artist_album_images_request = copy.copy(artist_request)
                 artist_album_images_request.data_type = 'artist_album_images'
+                artist_album_images_request.use_cache = False
+
+                cached_album_images = cache.get(entity_id)
+
+                if cached_album_images:
+                    artist_album_images_request.use_cache = True
 
                 data_requests = [artist_request, artist_albums_request, artist_images_request, artist_album_images_request]
 
@@ -72,6 +79,11 @@ class MusicBrainzProvider(BaseProvider):
                     data = list(executor.map(self.get_artist_data, data_requests))
 
                 print(f'__MusicBrainz artist lookup: {datetime.datetime.now() - begin_time}')
+
+                if cached_album_images:
+                    data[3] = cached_album_images
+                else:
+                    cache.set(entity_id, data[3])
 
                 result = self.build_artist(data)
 
@@ -89,7 +101,7 @@ class MusicBrainzProvider(BaseProvider):
         return result
 
 
-    def run_discography_lookup(self, discog_type, entity_id, page, page_size):
+    def run_discography_lookup(self, discog_type, entity_id, page, page_size, cache: Cache):
         offset = (page - 1) * page_size
         release_type = None
         album_only = False
@@ -115,7 +127,7 @@ class MusicBrainzProvider(BaseProvider):
         data = musicbrainzngs.browse_release_groups(artist=entity_id, release_type=release_type, limit=page_size, offset=offset, release_group_status='website-default')
         print(f'__MusicBrainz discography lookup ({discog_type}): {datetime.datetime.now() - begin_time}')
 
-        result = self.build_discography_list(data, album_only)
+        result = self.build_discography_list(data, entity_id, cache, album_only)
         print(f'Discography lookup total: {datetime.datetime.now() - begin_time}')
 
         return result
@@ -130,12 +142,12 @@ class MusicBrainzProvider(BaseProvider):
         if data_request.data_type == 'artist_albums':
             result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], limit=data_request.limit,
                                                           offset=data_request.offset, release_group_status='website-default')
-
         if data_request.data_type == 'artist_images':
             result = get_images_for_artist(data_request.entity_id)
 
         if data_request.data_type == 'artist_album_images':
-            result = get_album_images_for_artist(data_request.entity_id)
+            if not data_request.use_cache:
+                result = get_album_images_for_artist(data_request.entity_id)
 
         return result
 
@@ -287,7 +299,7 @@ class MusicBrainzProvider(BaseProvider):
         album = Album()
         album.id = record['id']
         album.name = record['title']
-        album.type = record['type']
+        album.albumType = record['type']
 
         if 'first-release-date' in record:
             album.releaseDate = record['first-release-date']
@@ -321,13 +333,17 @@ class MusicBrainzProvider(BaseProvider):
         return album
 
 
-    def build_discography_list(self, data, album_only=False):
+    def build_discography_list(self, data, artist_id, cache, album_only=False):
         result = Discography()
         rows = []
         count = 0
 
         if 'release-group-list' in data:
             add_record = True
+            cached_album_images = cache.get(artist_id)
+
+            if cached_album_images is None:
+                cached_album_images = dict()
 
             for record in data['release-group-list']:
                 if album_only:
@@ -338,8 +354,13 @@ class MusicBrainzProvider(BaseProvider):
                     album = Album()
                     album.id = record['id']
                     album.name = record['title']
-                    album.type = record['type']
+                    album.albumType = record['type']
                     album.releaseDate = record['first-release-date']
+
+                    if album.id in cached_album_images and len(cached_album_images[album.id]['albumcover']) > 0:
+                        album_image = Image()
+                        album_image.url = cached_album_images[album.id]['albumcover'][0]['url']
+                        album.images = [album_image]
 
                     rows.append(album)
 
@@ -378,6 +399,9 @@ class MusicBrainzProvider(BaseProvider):
                             link_entry.label = 'Discogs'
                         else:
                             link_entry.label = link['type']
+
+                        if 'source-credit' in link:
+                            link_entry.label += f' ({link['source-credit']})'
 
                         link_entry.target = link['target']
                         links.items.append(link_entry)

@@ -4,6 +4,7 @@ import flask
 from apiflask import APIFlask
 from flask_cors import CORS
 from werkzeug.exceptions import NotFound, BadRequest
+from flask_caching import Cache
 
 from src.config import Config
 from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, DiscographyParameters
@@ -26,6 +27,22 @@ def create_app(test_config=None):
 
 
 app = create_app()
+
+# Set caching defaults if the environment variables aren't set
+if app.config['CACHE_TYPE'] is None:
+    app.config['CACHE_TYPE'] = 'FileSystemCache'
+
+if app.config['CACHE_DIR'] is None:
+    app.config['CACHE_DIR'] = 'mb-cache'
+
+if app.config['CACHE_DEFAULT_TIMEOUT'] is None:
+    app.config['CACHE_DEFAULT_TIMEOUT'] = 86400  # 1 day
+
+# if app.config['CACHE_TYPE'] == 'FileSystemCache':
+#     app.config['CACHE_OPTIONS'] = { 'mode': 777 }
+
+cache = Cache(app)
+
 allowed_origin = '*'
 
 if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower() == 'true':
@@ -40,8 +57,8 @@ def set_lookup_cache_headers(response):
     if isinstance(response, flask.wrappers.Response):
         max_age = 300  # 5 minutes
 
-        if app.config['LOOKUP_CACHE_AGE'] is not None:
-            max_age = int(app.config['LOOKUP_CACHE_AGE'])
+        if app.config['LOOKUP_RESPONSE_CACHE_AGE'] is not None:
+            max_age = int(app.config['LOOKUP_RESPONSE_CACHE_AGE'])
 
         response.cache_control.max_age = max_age
 
@@ -77,7 +94,7 @@ def lookup_artist(entity_id):
     """Performs a lookup of a specific artist"""
 
     db = get_data_provider(app.config)
-    result = db.run_lookup(EntityType.ARTIST.value, entity_id)
+    result = db.run_lookup(EntityType.ARTIST.value, entity_id, cache)
 
     return result
 
@@ -90,7 +107,7 @@ def lookup_artist_discography(entity_id, query_data):
     """Performs a lookup of a specific artist's discography"""
 
     db = get_data_provider(app.config)
-    result = db.run_discography_lookup(query_data['discogType'], entity_id, query_data['page'], query_data['pageSize'])
+    result = db.run_discography_lookup(query_data['discogType'], entity_id, query_data['page'], query_data['pageSize'], cache)
 
     return result
 
