@@ -1,13 +1,14 @@
-import React, {FC, useContext, useEffect, useState} from 'react';
-import {Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography} from '@mui/material';
-import {tss} from 'tss-react/mui';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { tss } from 'tss-react/mui';
 
 import EntityDetails from '../EntityDetails/EntityDetails.tsx';
 import EntityDetailsLoader from '../EntityDetailsLoader/EntityDetailsLoader.tsx';
-import {Album} from '../../models/models.ts';
-import {DiscographyType, EntityType} from '../../enums/enums.ts';
-import {MainContext} from '../../contexts/MainContext.tsx';
+import { Album } from '../../models/models.ts';
+import { DiscographyType, EntityType } from '../../enums/enums.ts';
+import { MainContext } from '../../contexts/MainContext.tsx';
 import * as DataService from '../../services/dataService.ts';
+import * as SharedService from '../../services/sharedService.ts';
 
 const useStyles = tss.create(({ theme }) => ({
     typeSelectorContainer: {
@@ -67,7 +68,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ currentDiscogType, setCurrentDiscogType ] = useState<DiscographyType>(DiscographyType.Album);
-    const [ discogPage, setCurrentDiscogOffset] = useState<number>(1);
+    const [ discogPage, setDiscogPage] = useState<number>(1);
     const [ entities, setEntities ] = useState<Album[] | undefined>(undefined);
     const [ albums, setAlbums ] = useState<Album[] | undefined>(undefined);
     const [ singlesEPs, setSinglesEPs ] = useState<Album[] | undefined>(undefined);
@@ -75,48 +76,59 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const [ liveCompilations, setLiveCompilations ] = useState<Album[] | undefined>(undefined);
     const [ demos, setDemos ] = useState<Album[]>([]);
     const [ loading, setLoading ] = useState<boolean>(false);
+    const [ disableShowMore, setDisableShowMore ] = useState<boolean>(false);
 
-    const discogPageSize = 10;
+    const defaultPageSize = SharedService.getDefaultPageSize();
 
     useEffect(() => {
         setEntities(props.entities)
         setAlbums(props.entities)
     }, [props.entities]);
 
-    const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void) => {
-        if (stateVariable !== undefined) {
+    const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void,
+                                     page: number, pageSize: number, append?: boolean) => {
+        if (stateVariable !== undefined && !append) {
             setEntities(stateVariable);
-            return
+            return;
         }
 
-        const newEntities = await DataService.getArtistDiscography(props.entityId, discogType, discogPage, discogPageSize);
+        const newEntities = await DataService.getArtistDiscography(props.entityId, discogType, page, pageSize);
+        let newRows = newEntities.rows;
 
-        stateUpdateFunction(newEntities.rows);
-        setEntities(newEntities.rows);
+        if (stateVariable !== undefined && append) {
+            newRows = [...stateVariable, ...newRows];
+
+        }
+
+        // If we fetched less than the page size we know there aren't any more rows, so we hide the 'Show more' button
+        setDisableShowMore(newEntities.rows.length < pageSize)
+
+        stateUpdateFunction(newRows);
+        setEntities(newRows);
     };
 
     const handleChangeDiscogType = async (event: SelectChangeEvent) => {
         const discogType = event.target.value as DiscographyType;
-        setLoading(true);
+
         setCurrentDiscogType(discogType);
+        setLoading(true);
 
         try {
-            switch (discogType)
-            {
+            switch (discogType) {
                 case DiscographyType.Album:
-                    await getDiscogEntities(DiscographyType.Album, albums, setAlbums);
+                    await getDiscogEntities(DiscographyType.Album, albums, setAlbums, 1, defaultPageSize);
                     break;
                 case DiscographyType.SingleEP:
-                    await getDiscogEntities(DiscographyType.SingleEP, singlesEPs, setSinglesEPs);
+                    await getDiscogEntities(DiscographyType.SingleEP, singlesEPs, setSinglesEPs, 1, defaultPageSize);
                     break;
                 case DiscographyType.Compilation:
-                    await getDiscogEntities(DiscographyType.Compilation, compilations, setCompilations);
+                    await getDiscogEntities(DiscographyType.Compilation, compilations, setCompilations, 1, defaultPageSize);
                     break;
                 case DiscographyType.LiveCompilation:
-                    await getDiscogEntities(DiscographyType.LiveCompilation, liveCompilations, setLiveCompilations);
+                    await getDiscogEntities(DiscographyType.LiveCompilation, liveCompilations, setLiveCompilations, 1, defaultPageSize);
                     break;
                 case DiscographyType.Demo:
-                    await getDiscogEntities(DiscographyType.Demo, demos, setDemos);
+                    await getDiscogEntities(DiscographyType.Demo, demos, setDemos, 1, defaultPageSize);
                     break;
             }
         } catch (error) {
@@ -128,9 +140,32 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
 
     const handleShowMoreItems = async () => {
         try {
+            const newPage = discogPage + 1;
+            setLoading(true);
 
+            switch (currentDiscogType) {
+                case DiscographyType.Album:
+                    await getDiscogEntities(DiscographyType.Album, albums, setAlbums, newPage, defaultPageSize, true);
+                    break;
+                case DiscographyType.SingleEP:
+                    await getDiscogEntities(DiscographyType.SingleEP, singlesEPs, setSinglesEPs, newPage, defaultPageSize, true);
+                    break;
+                case DiscographyType.Compilation:
+                    await getDiscogEntities(DiscographyType.Compilation, compilations, setCompilations, newPage, defaultPageSize, true);
+                    break;
+                case DiscographyType.LiveCompilation:
+                    await getDiscogEntities(DiscographyType.LiveCompilation, liveCompilations, setLiveCompilations, newPage, defaultPageSize, true);
+                    break;
+                case DiscographyType.Demo:
+                    await getDiscogEntities(DiscographyType.Demo, demos, setDemos, newPage, defaultPageSize, true);
+                    break;
+            }
+
+            setDiscogPage(newPage);
         } catch (error) {
             setBanner((error as Error).message, 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -189,9 +224,12 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                                                 })
                                             }
 
-                                            <Box className={cx(classes.showMoreButton)}>
-                                                <Button onClick={handleShowMoreItems}>Show more</Button>
-                                            </Box>
+                                            {
+                                                !disableShowMore &&
+                                                <Box className={cx(classes.showMoreButton)}>
+                                                    <Button onClick={handleShowMoreItems}>Show more</Button>
+                                                </Box>
+                                            }
                                         </Box>
                             }
                         </>

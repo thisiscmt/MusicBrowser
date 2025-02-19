@@ -39,6 +39,22 @@ export const formatDateValue = (dateStr: string) => {
     return formattedDate;
 };
 
+export const getDefaultPageSize = () => {
+    const pageSizeStr = localStorage.getItem(Constants.STORAGE_DEFAULT_PAGE_SIZE);
+    const defaultPageSize = 10;
+    let pageSize = defaultPageSize;
+
+    if (pageSizeStr) {
+        pageSize = Number(pageSizeStr);
+
+        if (isNaN(pageSize)) {
+            pageSize = defaultPageSize;
+        }
+    }
+
+    return pageSize;
+};
+
 export const getStockImageUrl = (entityType: EntityType) => {
     return entityType === EntityType.Artist ? Constants.STOCK_ARTIST_IMAGE :
         (entityType === EntityType.Album ? Constants.STOCK_ALBUM_IMAGE : Constants.STOCK_SONG_IMAGE);
