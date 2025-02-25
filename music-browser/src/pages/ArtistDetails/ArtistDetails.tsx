@@ -1,6 +1,6 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router';
-import { Box, Button, Tab, Typography } from '@mui/material';
+import { Link as RouteLink, useParams } from 'react-router';
+import { Box, Button, Tab, Typography, Link } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
 import ImageGallery from 'react-image-gallery';
@@ -12,10 +12,11 @@ import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
 import { Album, Artist, LinkEntry } from '../../models/models.ts';
-import { EntityType } from '../../enums/enums.ts';
+//import { EntityType } from '../../enums/enums.ts';
 import { Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
+import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 
 const useStyles = tss.create(() => ({
     mainContainer: {
@@ -89,6 +90,7 @@ const useStyles = tss.create(() => ({
 }));
 
 interface EntityDescription {
+    hasFullDesc: boolean,
     short: string;
     full: string;
 }
@@ -97,7 +99,8 @@ const ArtistDetails: FC = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Artist>(SharedService.getEmptyArtist());
-    const [ discogEntities, setDiscogEntities] = useState<Album[]>([]);
+    const [ showFullDesc, setShowFullDesc ] = useState<boolean>(false);
+    const [ albums, setAlbums] = useState<Album[]>([]);
     const [ currentTab, setCurrentTab] = useState<string>('discography');
     const [ loading, setLoading ] = useState<boolean>(true);
     const { id: artistId } = useParams() as { id: string };
@@ -125,7 +128,7 @@ const ArtistDetails: FC = () => {
                 }
 
                 setEntity(artist);
-                setDiscogEntities(artist.albums);
+                setAlbums(artist.albums);
             } catch (error) {
                 setBanner((error as Error).message, 'error');
             } finally {
@@ -138,12 +141,19 @@ const ArtistDetails: FC = () => {
         }
     });
 
+    const handleShowFullDesc = (event: React.MouseEvent<HTMLAnchorElement>) => {
+        event.preventDefault();
+
+        setShowFullDesc(!showFullDesc);
+    };
+
     const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);
     };
 
     const getEntityDescription = (): EntityDescription => {
-        const entityDesc = {
+        const entityDesc: EntityDescription = {
+            hasFullDesc: false,
             short: '',
             full: ''
         }
@@ -151,12 +161,16 @@ const ArtistDetails: FC = () => {
         if (entity.description) {
             // We normalize line breaks and do general cleanup so we get a nice presentation of the description text
             const desc = entity.description.replace(/(\[\[)\n(\]\])/g, '\n').trim().replace(/\n\n/g, '\n');
-            entityDesc.full = desc.replace(/\n/g, '\n\n');
 
             const descParts = desc.split('\n');
 
-            if (descParts.length > 1) {
+            if (descParts.length > 0) {
                 entityDesc.short = descParts[0];
+
+                if (descParts.length > 1) {
+                    entityDesc.hasFullDesc = true;
+                    entityDesc.full = desc.replace(/\n/g, '\n\n');
+                }
             }
         }
 
@@ -165,13 +179,7 @@ const ArtistDetails: FC = () => {
 
     const images = SharedService.getEntityImageList(entity);
     const entityDesc = getEntityDescription();
-
-    const entityDescState = {
-        images,
-        desc: entityDesc.full,
-        entityName: entity.name,
-        entityType: EntityType.Artist
-    };
+    const showTabs = (entity.albums && entity.albums.length > 0) || (entity.members && entity.members.length > 0);
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -214,20 +222,27 @@ const ArtistDetails: FC = () => {
                             }
 
                             {
-                                entityDesc.short
-                                    ?
-                                        <Typography variant='body2' className={cx(classes.entityDesc)}>
-                                            {entityDesc.short}
-                                            &nbsp;
-                                            <Link to={`/artist/${entity.id}/description`} state={entityDescState} className='app-link'>(see more)</Link>
-                                        </Typography>
-                                    :
+                                entityDesc.short && !showFullDesc &&
+                                <Typography variant='body2' className={cx(classes.entityDesc)}>
+                                    {entityDesc.short}
+
+                                    {
+                                        entityDesc.hasFullDesc &&
                                         <>
-                                            {
-                                                entityDesc.full &&
-                                                <Typography variant='body2' className={cx(classes.entityDesc)}>{entityDesc.full}</Typography>
-                                            }
+                                            &nbsp;
+                                            <Link href='#' onClick={handleShowFullDesc} className='app-link'>(show more)</Link>
                                         </>
+                                    }
+                                </Typography>
+                            }
+
+                            {
+                                showFullDesc &&
+                                <Typography variant='body2' className={cx(classes.entityDesc)}>
+                                    {entityDesc.full}
+                                    &nbsp;
+                                    <Link href='#' onClick={handleShowFullDesc} className='app-link'>(show less)</Link>
+                                </Typography>
                             }
 
                             {
@@ -237,7 +252,7 @@ const ArtistDetails: FC = () => {
                                         entity.links.map((item: LinkEntry, index: number) => {
                                             return (
                                                 <Box key={index}>
-                                                    <Button component={Link} to={item.target} target='_blank'>
+                                                    <Button component={RouteLink} to={item.target} target='_blank'>
                                                         {item.label}
                                                     </Button>
                                                 </Box>
@@ -248,7 +263,7 @@ const ArtistDetails: FC = () => {
                             }
 
                             {
-                                (entity.albums || entity.members) &&
+                                showTabs &&
                                 <>
                                     <TabContext value={currentTab}>
                                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -262,10 +277,10 @@ const ArtistDetails: FC = () => {
                                         </Box>
 
                                         <TabPanel className={cx(classes.tabPanel)} value='discography'>
-                                            <Discography entityId={entity.id} entities={discogEntities} />
+                                            <Discography entityId={entity.id} entities={albums} totalEntities={entity.totalAlbums} />
                                         </TabPanel>
                                         <TabPanel className={cx(classes.tabPanel)} value='members'>
-                                            Item Two
+                                            <GroupMembers entities={entity.members} />
                                         </TabPanel>
                                     </TabContext>
                                 </>

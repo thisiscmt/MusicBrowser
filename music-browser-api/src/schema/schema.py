@@ -34,6 +34,7 @@ class LifeSpan(Schema):
     ended = Boolean()
 
 class Member(Schema):
+    id = String()
     name = String()
     lifeSpan = Nested(LifeSpan())
 
@@ -66,6 +67,7 @@ class Artist(Schema):
     tags = List(String())
     images = List(Nested(Image()))
     albums = List(Nested(Album()))
+    totalAlbums = Integer()
     members = List(Nested(Member()))
     links = List(Nested(Link()))
 

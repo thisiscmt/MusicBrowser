@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
 import { Image } from '../../models/models.ts';
-import {DiscographyType, EntityType} from '../../enums/enums.ts';
+import { EntityType } from '../../enums/enums.ts';
 import { Colors } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService';
 

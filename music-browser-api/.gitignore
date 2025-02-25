@@ -106,3 +106,4 @@ venv.bak/
 app.db
 
 .idea/
+/mb-cache

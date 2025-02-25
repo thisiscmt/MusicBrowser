@@ -9,7 +9,6 @@ import Preferences from './pages/Preferences/Preferences.tsx';
 import ErrorPage from './pages/ErrorPage/ErrorPage.tsx';
 import ArtistDetails from './pages/ArtistDetails/ArtistDetails.tsx';
 import { Colors } from './services/themeService.ts';
-import EntityDescription from './pages/EntityDescription/EntityDescription.tsx';
 
 const useStyles = tss.create(({ theme }) => ({
     siteContainer: {
@@ -41,12 +40,7 @@ function App() {
                 <Routes>
                     <Route path='/' element={<Home topOfPageRef={topOfPageRef} />} />
                     <Route path='/artist/:id' element={<ArtistDetails />} />
-                    <Route path='/artist/:id/description' element={<EntityDescription />} />
-                    {/*<Route path='/hike/:hikeId' element={<ViewHike topOfPageRef={topOfPageRef} />} />*/}
-                    {/*<Route path='/hike/:hikeId/edit' element={<EditHike topOfPageRef={topOfPageRef} />} />*/}
-                    {/*<Route path='/admin/session' element={<Sessions />} />*/}
-                    {/*<Route path='/admin/user' element={<Users />} />*/}
-                    {/*<Route path='/admin/user/:userId' element={<EditUser topOfPageRef={topOfPageRef} />} />*/}
+                    {/*<Route path='/album/:id' element={<AlbumDetails />} />*/}
                     <Route path='/preferences' element={<Preferences />} />
                     <Route path='*' element={<ErrorPage />} />
                 </Routes>

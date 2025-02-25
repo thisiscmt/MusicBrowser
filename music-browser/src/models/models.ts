@@ -32,6 +32,7 @@ export interface LifeSpan {
 }
 
 export interface Member {
+    id: string;
     name: string;
     lifeSpan: LifeSpan;
 }
@@ -74,6 +75,7 @@ export interface Artist {
     tags: string[];
     images: Image[];
     albums: Album[];
+    totalAlbums: number;
     members: Member[];
     links: LinkEntry[];
 }

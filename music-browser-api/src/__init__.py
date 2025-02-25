@@ -38,11 +38,7 @@ if app.config['CACHE_DIR'] is None:
 if app.config['CACHE_DEFAULT_TIMEOUT'] is None:
     app.config['CACHE_DEFAULT_TIMEOUT'] = 86400  # 1 day
 
-# if app.config['CACHE_TYPE'] == 'FileSystemCache':
-#     app.config['CACHE_OPTIONS'] = { 'mode': 777 }
-
 cache = Cache(app)
-
 allowed_origin = '*'
 
 if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower() == 'true':

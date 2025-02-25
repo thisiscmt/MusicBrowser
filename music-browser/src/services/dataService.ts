@@ -1,7 +1,7 @@
 import Axios, { AxiosRequestConfig } from 'axios';
 
-import {Album, Artist, DiscographyResults, SearchParams, SearchResults} from '../models/models.ts';
-import {DiscographyType, EntityType} from '../enums/enums.ts';
+import { Artist, DiscographyResults, SearchParams, SearchResults } from '../models/models.ts';
+import { DiscographyType, EntityType } from '../enums/enums.ts';
 
 const search = async (entityType: EntityType, searchParams: SearchParams): Promise<SearchResults> => {
     const config = getRequestConfig();

@@ -15,7 +15,7 @@ const useStyles = tss.create(({ theme }) => ({
         marginBottom: '12px',
 
         '& .MuiFormControlLabel-root': {
-            marginLeft: 0,
+            marginLeft: 0
         }
     },
 
@@ -35,21 +35,21 @@ const useStyles = tss.create(({ theme }) => ({
         width: '180px'
     },
 
-    artistDetailContainer: {
-        '& .artistDetail': {
+    entityContainer: {
+        '& .entityDetail': {
             marginBottom: '6px',
 
             '&:last-child': {
-                marginBottom: 0,
+                marginBottom: 0
             }
-        },
+        }
     },
 
     loader: {
         marginBottom: '12px',
 
         '&:last-child': {
-            marginBottom: 0,
+            marginBottom: 0
         }
     },
 
@@ -59,9 +59,14 @@ const useStyles = tss.create(({ theme }) => ({
     }
 }));
 
+interface EntityCount {
+    [discogType: string]: number
+}
+
 interface DiscographyProps {
     entityId: string;
     entities: Album[];
+    totalEntities: number;
 }
 
 const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
@@ -75,6 +80,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const [ compilations, setCompilations ] = useState<Album[] | undefined>(undefined);
     const [ liveCompilations, setLiveCompilations ] = useState<Album[] | undefined>(undefined);
     const [ demos, setDemos ] = useState<Album[] | undefined>(undefined);
+    const [ entityCounts, setEntityCounts ] = useState<EntityCount>({});
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ disableShowMore, setDisableShowMore ] = useState<boolean>(false);
 
@@ -83,16 +89,22 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     useEffect(() => {
         setEntities(props.entities);
         setAlbums(props.entities);
+        setEntityCounts({ [DiscographyType.Album.toString()]: props.totalEntities });
 
         if (props.entities.length < defaultPageSize) {
             setDisableShowMore(true);
         }
-    }, [props.entities, defaultPageSize]);
+    }, [props.entities, props.totalEntities, defaultPageSize]);
 
     const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void,
                                      page: number, pageSize: number, append?: boolean) => {
         if (stateVariable !== undefined && !append) {
             setEntities(stateVariable);
+
+            if (entityCounts[discogType] !== undefined) {
+                setDisableShowMore(entityCounts[discogType] === stateVariable.length);
+            }
+
             return;
         }
 
@@ -103,37 +115,71 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
             newRows = [...stateVariable, ...newRows];
         }
 
-        // If we fetched less than the page size we know there aren't any more rows, so we hide the 'Show more' button
-        setDisableShowMore(newEntities.rows.length < pageSize)
-
         stateUpdateFunction(newRows);
         setEntities(newRows);
+
+        if (entityCounts[discogType] !== undefined) {
+            if (discogType === DiscographyType.Album) {
+                // We can't use the regular entity count for albums to know whether there are more albums to fetch because it will be too large, since
+                // it includes subtypes that we don't show on the Album tab (e.g. compilations, demos, etc). So we look at what was returned by the
+                // latest request and if it's not a full page worth, we know we are at the end of the actual album list. In that case we update the
+                // entity count for albums since we know the true number now, so if the user switches the discog type and then switches it back to Album,
+                // the visibility of the Show More button will be correct.
+                const newEntityCounts = {...entityCounts};
+                newEntityCounts[DiscographyType.Album] = newRows.length;
+
+                setDisableShowMore(newEntities.rows.length < pageSize);
+                setEntityCounts(newEntityCounts);
+            } else {
+                setDisableShowMore(entityCounts[discogType] === newRows.length);
+            }
+        } else {
+            const newEntityCounts = {...entityCounts};
+
+            newEntityCounts[discogType] = newEntities.count;
+            setEntityCounts(newEntityCounts);
+            setDisableShowMore(newEntities.rows.length < defaultPageSize);
+        }
     };
 
     const handleChangeDiscogType = async (event: SelectChangeEvent) => {
         const discogType = event.target.value as DiscographyType;
+        let stateVariable: Album[] | undefined;
+        let stateUpdateFunction: (value: Album[]) => void;
 
-        setCurrentDiscogType(discogType);
         setLoading(true);
 
         try {
             switch (discogType) {
                 case DiscographyType.Album:
-                    await getDiscogEntities(DiscographyType.Album, albums, setAlbums, 1, defaultPageSize);
+                    stateVariable = albums;
+                    stateUpdateFunction = setAlbums;
+
                     break;
                 case DiscographyType.SingleEP:
-                    await getDiscogEntities(DiscographyType.SingleEP, singlesEPs, setSinglesEPs, 1, defaultPageSize);
+                    stateVariable = singlesEPs;
+                    stateUpdateFunction = setSinglesEPs;
+
                     break;
                 case DiscographyType.Compilation:
-                    await getDiscogEntities(DiscographyType.Compilation, compilations, setCompilations, 1, defaultPageSize);
+                    stateVariable = compilations;
+                    stateUpdateFunction = setCompilations;
+
                     break;
                 case DiscographyType.LiveCompilation:
-                    await getDiscogEntities(DiscographyType.LiveCompilation, liveCompilations, setLiveCompilations, 1, defaultPageSize);
+                    stateVariable = liveCompilations;
+                    stateUpdateFunction = setLiveCompilations;
+
                     break;
                 case DiscographyType.Demo:
-                    await getDiscogEntities(DiscographyType.Demo, demos, setDemos, 1, defaultPageSize);
+                    stateVariable = demos;
+                    stateUpdateFunction = setDemos;
+
                     break;
             }
+
+            await getDiscogEntities(discogType, stateVariable, stateUpdateFunction, 1, defaultPageSize);
+            setCurrentDiscogType(discogType);
         } catch (error) {
             setBanner((error as Error).message, 'error');
         } finally {
@@ -142,28 +188,42 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     };
 
     const handleShowMoreItems = async () => {
+        let stateVariable: Album[] | undefined;
+        let stateUpdateFunction: (value: Album[]) => void;
+
         try {
             const newPage = discogPage + 1;
             setLoading(true);
 
             switch (currentDiscogType) {
                 case DiscographyType.Album:
-                    await getDiscogEntities(DiscographyType.Album, albums, setAlbums, newPage, defaultPageSize, true);
+                    stateVariable = albums;
+                    stateUpdateFunction = setAlbums;
+
                     break;
                 case DiscographyType.SingleEP:
-                    await getDiscogEntities(DiscographyType.SingleEP, singlesEPs, setSinglesEPs, newPage, defaultPageSize, true);
+                    stateVariable = singlesEPs;
+                    stateUpdateFunction = setSinglesEPs;
+
                     break;
                 case DiscographyType.Compilation:
-                    await getDiscogEntities(DiscographyType.Compilation, compilations, setCompilations, newPage, defaultPageSize, true);
+                    stateVariable = compilations;
+                    stateUpdateFunction = setCompilations;
+
                     break;
                 case DiscographyType.LiveCompilation:
-                    await getDiscogEntities(DiscographyType.LiveCompilation, liveCompilations, setLiveCompilations, newPage, defaultPageSize, true);
+                    stateVariable = liveCompilations;
+                    stateUpdateFunction = setLiveCompilations;
+
                     break;
                 case DiscographyType.Demo:
-                    await getDiscogEntities(DiscographyType.Demo, demos, setDemos, newPage, defaultPageSize, true);
+                    stateVariable = demos;
+                    stateUpdateFunction = setDemos;
+
                     break;
             }
 
+            await getDiscogEntities(currentDiscogType, stateVariable, stateUpdateFunction, newPage, defaultPageSize, true);
             setDiscogPage(newPage);
         } catch (error) {
             setBanner((error as Error).message, 'error');
@@ -179,7 +239,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                     ?
                         <>
                             {
-                                [1, 2, 3, 4, 5].map((item: number) => {
+                                [1, 2, 3, 4, 5, 6].map((item: number) => {
                                     return (
                                         <Box key={item} className={cx(classes.loader)}><EntityDetailsLoader smallImage={true} /></Box>
                                     );
@@ -211,9 +271,9 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                             {
                                 entities && entities.length === 0
                                     ?
-                                        <Typography variant='body2'>No items of the selected type were found for this artist.</Typography>
+                                        <Typography variant='body2'>No items of the current discography type were found for this artist.</Typography>
                                     :
-                                        <Box className={cx(classes.artistDetailContainer)}>
+                                        <Box className={cx(classes.entityContainer)}>
                                             {
                                                 entities?.map((item: Album) => {
                                                     const albumImage = item.images && item.images.length > 0 ? item.images[0] : undefined;
@@ -224,7 +284,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                                                     }
 
                                                     return (
-                                                        <Box key={item.id} className='artistDetail'>
+                                                        <Box key={item.id} className='entityDetail'>
                                                             <EntityDetails id={item.id} name={item.name} entityType={EntityType.Album}
                                                                            discogType={discogType} dateValue={item.releaseDate} image={albumImage} />
                                                         </Box>
