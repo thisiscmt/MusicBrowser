@@ -82,6 +82,7 @@ export const getEmptyArtist = (): Artist => {
         tags: [],
         images: [],
         albums: [],
+        totalAlbums: 0,
         members: [],
         links: []
     }

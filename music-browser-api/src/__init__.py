@@ -115,7 +115,7 @@ def lookup_album(entity_id):
     """Performs a lookup of a specific album"""
 
     db = get_data_provider(app.config)
-    result = db.run_lookup(EntityType.ALBUM.value, entity_id)
+    result = db.run_lookup(EntityType.ALBUM.value, entity_id, cache)
 
     return result
 
