@@ -3,6 +3,7 @@ import { Link as RouteLink, useParams } from 'react-router';
 import { Box, Button, Tab, Typography, Link } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
+import DOMPurify from 'dompurify';
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 
@@ -11,12 +12,11 @@ import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
+import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 import { Album, Artist, LinkEntry } from '../../models/models.ts';
-//import { EntityType } from '../../enums/enums.ts';
-import { Colors } from '../../services/themeService.ts';
+import { ChildAnchorBlueStyles, Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
-import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 
 const useStyles = tss.create(() => ({
     mainContainer: {
@@ -49,8 +49,18 @@ const useStyles = tss.create(() => ({
         marginBottom: '6px'
     },
 
+    comment: {
+        marginBottom: '6px'
+    },
+
     lifeSpanSection: {
         marginBottom: '10px'
+    },
+
+    annotation: {
+        fontSize: '14px',
+        marginBottom: '10px',
+        ...ChildAnchorBlueStyles
     },
 
     tagContainer: {
@@ -199,7 +209,7 @@ const ArtistDetails: FC = () => {
                             {
                                 entity.comment &&
                                 <Box>
-                                    <Typography variant='body2' className={cx(classes.entityName)}>{`(${entity.comment})`}</Typography>
+                                    <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>
                                 </Box>
                             }
 
@@ -267,11 +277,17 @@ const ArtistDetails: FC = () => {
                                 <>
                                     <TabContext value={currentTab}>
                                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                            <TabList onChange={handleChangeTab} aria-label='Additional artist information'>
+                                            <TabList onChange={handleChangeTab}>
                                                 <Tab label='Discography' value='discography' />
+
                                                 {
-                                                    entity.members &&
+                                                    entity.members && entity.members.length > 0 &&
                                                     <Tab label='Members' value='members' />
+                                                }
+
+                                                {
+                                                    entity.annotation &&
+                                                    <Tab label='Annotation' value='annotation' />
                                                 }
                                             </TabList>
                                         </Box>
@@ -279,9 +295,24 @@ const ArtistDetails: FC = () => {
                                         <TabPanel className={cx(classes.tabPanel)} value='discography'>
                                             <Discography entityId={entity.id} entities={albums} totalEntities={entity.totalAlbums} />
                                         </TabPanel>
-                                        <TabPanel className={cx(classes.tabPanel)} value='members'>
-                                            <GroupMembers entities={entity.members} />
-                                        </TabPanel>
+
+                                        {
+                                            entity.members && entity.members.length > 0 &&
+                                            <TabPanel className={cx(classes.tabPanel)} value='members'>
+                                                <GroupMembers entities={entity.members} />
+                                            </TabPanel>
+                                        }
+
+                                        {
+                                            entity.annotation &&
+                                            <TabPanel className={cx(classes.tabPanel)} value='annotation'>
+                                                <Typography
+                                                    variant='body2'
+                                                    className={cx(classes.annotation)}
+                                                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
+                                                />
+                                            </TabPanel>
+                                        }
                                     </TabContext>
                                 </>
                             }

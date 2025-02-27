@@ -66,7 +66,7 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
 
                                 {
                                     lifeSpanEndArea &&
-                                    <Typography variant='body2'>{lifeSpanBeginArea}</Typography>
+                                    <Typography variant='body2'>{lifeSpanEndArea}</Typography>
                                 }
                             </Box>
                         }

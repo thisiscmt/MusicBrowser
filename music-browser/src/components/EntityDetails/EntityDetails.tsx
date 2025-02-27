@@ -5,10 +5,10 @@ import { tss } from 'tss-react/mui';
 
 import { Image } from '../../models/models.ts';
 import { EntityType } from '../../enums/enums.ts';
-import { Colors } from '../../services/themeService.ts';
+import { ChildAnchorGrayStyles } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = tss.create(() => ({
     card: {
         marginBottom: '2px',
 
@@ -42,15 +42,7 @@ const useStyles = tss.create(({ theme }) => ({
 
     link: {
         lineHeight: 1,
-
-        '& a': {
-            color: theme.palette.text.primary,
-            textDecoration: 'none',
-
-            '&:hover': {
-                color: Colors.secondaryTextColor
-            }
-        }
+        ...ChildAnchorGrayStyles
     },
 
     secondaryDataValue: {
@@ -84,7 +76,7 @@ const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
 
                 <Box className={cx(classes.content)}>
                     <Typography variant='body1' className={cx(classes.mainTitle, classes.link)}>
-                        <Link to={`${window.location.origin}/${props.entityType.toString()}/${props.id}`} reloadDocument={true}>{props.name}</Link>
+                        <Link to={`/${props.entityType.toString()}/${props.id}`} reloadDocument={props.entityType === EntityType.Artist}>{props.name}</Link>
                     </Typography>
 
                     {

@@ -50,7 +50,7 @@
  * - Support for coloured links (AJAX)
  */
 
-// Namesapace translations are imported from a separate data file to avoid having to use CommonJS-specific syntax in this script
+// Namespace translations are imported from a separate data file to avoid having to use CommonJS-specific syntax in this script
 import * as namespace_langs from './namespace_langs.json';
 
 var InstaView = {}
@@ -611,7 +611,6 @@ InstaView.convert = function(wiki)
 	return o
 }
 
-
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
  * Digest Algorithm, as defined in RFC 1321.
@@ -980,5 +979,5 @@ function bit_rol(num, cnt)
   return (num << cnt) | (num >>> (32 - cnt));
 }
 
-// The 'InstaView' object is the main entry point to the conversion functionality, it can be imported using regular ESM syntax
+// The 'InstaView' object is the main entry point to the conversion functionality. It can be imported using regular ESM syntax.
 export { InstaView };

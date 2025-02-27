@@ -7,20 +7,31 @@ export const Colors = {
     secondaryTextColor: grey[600],
     backgroundGray: '#F3F3F3',
     chipBackgroundColor: '#4678B2',
+    primaryLinkColor: '#1976d2',
+    secondaryLinkColor: 'rgba(25, 118, 210, 0.60)',
     white: '#FFFFFF',
     black: '#000000'
 };
 
-export const ImageContainerStyles = {
-    marginBottom: '12px',
+export const ChildAnchorGrayStyles = {
+    '& a': {
+        color: Colors.primaryTextColor,
+        textDecoration: 'none',
 
-    '& .image-gallery-left-nav .image-gallery-svg, .image-gallery-right-nav .image-gallery-svg': {
-        height: '40px',
-            width: '20px'
-    },
+        '&:hover': {
+            color: Colors.secondaryTextColor
+        }
+    }
+};
 
-    '& .image-gallery-slide .image-gallery-image': {
-        width: '400px'
+export const ChildAnchorBlueStyles = {
+    '& a': {
+        color: Colors.primaryLinkColor,
+        textDecoration: 'none',
+
+        '&:hover': {
+            color: Colors.secondaryLinkColor
+        }
     }
 };
 

@@ -68,6 +68,7 @@ export interface Artist {
     artistType: string;
     description: string;
     comment: string;
+    annotation: string;
     lifeSpan: LifeSpan;
     area: Area;
     beginArea: Area;

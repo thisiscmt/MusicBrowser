@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
 import { SearchResult } from '../../models/models.ts';
-import { Colors } from '../../services/themeService.ts';
+import {ChildAnchorGrayStyles, Colors} from '../../services/themeService.ts';
 import { EntityType } from '../../enums/enums.ts';
 import { Link } from 'react-router';
 
@@ -38,15 +38,7 @@ const useStyles = tss.create(({ theme }) => ({
     link: {
         lineHeight: 1,
         marginBottom: '8px',
-
-        '& a': {
-            color: theme.palette.text.primary,
-            textDecoration: 'none',
-
-            '&:hover': {
-                color: Colors.secondaryTextColor
-            }
-        }
+        ...ChildAnchorGrayStyles
     },
 
     secondaryLink: {
