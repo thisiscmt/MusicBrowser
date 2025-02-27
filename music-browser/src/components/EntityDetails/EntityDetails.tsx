@@ -84,7 +84,7 @@ const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
 
                 <Box className={cx(classes.content)}>
                     <Typography variant='body1' className={cx(classes.mainTitle, classes.link)}>
-                        <Link to={`/${props.entityType.toString()}/${props.id}`}>{props.name}</Link>
+                        <Link to={`${window.location.origin}/${props.entityType.toString()}/${props.id}`} reloadDocument={true}>{props.name}</Link>
                     </Typography>
 
                     {

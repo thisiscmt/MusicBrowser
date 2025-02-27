@@ -1,5 +1,6 @@
 import { RefObject } from 'react';
 import { ReactImageGalleryItem } from 'react-image-gallery';
+import { InstaView } from '../lib/InstaView/instaview';
 
 import { Album, Artist } from '../models/models.ts';
 import { EntityType } from '../enums/enums.ts';
@@ -66,6 +67,21 @@ export const getEntityImageList = (entity: Artist | Album): ReactImageGalleryIte
             original: item.url
         };
     });
+};
+
+export const convertWikiTextToHTML = (text: string) =>{
+    let result = '';
+
+    if (text) {
+        try {
+            result = InstaView.convert(text);
+        } catch (error) {
+            // TODO: Log this somewhere
+            console.log(error);
+        }
+    }
+
+    return result;
 };
 
 export const getEmptyArtist = (): Artist => {
