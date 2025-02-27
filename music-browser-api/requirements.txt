@@ -5,6 +5,6 @@ marshmallow~=3.23.1
 requests==2.32.3
 flask-cors==5.0.0
 flask-caching==2.3.0
-musicbrainzngs==0.7.1
+musicbrainzngs @ git+https://github.com/thisiscmt/python-musicbrainzngs.git
 spotipy==2.24.0
 python3-fanart @ git+https://github.com/opacam/python3-fanart
