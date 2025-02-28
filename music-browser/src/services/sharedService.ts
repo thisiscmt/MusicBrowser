@@ -1,6 +1,6 @@
 import { RefObject } from 'react';
 import { ReactImageGalleryItem } from 'react-image-gallery';
-import { InstaView } from '../lib/InstaView/instaview';
+import InstaView from '../lib/InstaView/instaview';
 
 import { Album, Artist } from '../models/models.ts';
 import { EntityType } from '../enums/enums.ts';
@@ -91,6 +91,7 @@ export const getEmptyArtist = (): Artist => {
         artistType: '',
         description: '',
         comment: '',
+        annotation: '',
         lifeSpan: { begin: '', end: '', ended: false },
         area: { name: '' },
         beginArea: { name: '' },

@@ -5,7 +5,10 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-    { ignores: ['dist'] },
+    {
+        // We ignore for now the InstaView file since it was written using very old language features and needs to be updated
+        ignores: ['dist', 'src/lib/InstaView/instaview.js']
+    },
     {
         extends: [js.configs.recommended, ...tseslint.configs.recommended],
         files: ['**/*.{ts,tsx}'],
