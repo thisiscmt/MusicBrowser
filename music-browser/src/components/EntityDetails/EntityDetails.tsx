@@ -13,7 +13,7 @@ const useStyles = tss.create(() => ({
         marginBottom: '2px',
 
         '&:last-child': {
-            marginBottom: 0,
+            marginBottom: 0
         }
     },
 
@@ -23,7 +23,7 @@ const useStyles = tss.create(() => ({
         padding: '10px',
 
         '&:last-child': {
-            paddingBottom: '10px',
+            paddingBottom: '10px'
         }
     },
 

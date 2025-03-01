@@ -28,12 +28,7 @@ const useStyles = makeStyles()((theme) => ({
     mainContainer: {
         backgroundColor: Colors.white,
         paddingLeft: '16px',
-        paddingRight: '16px',
-
-        // [theme.breakpoints.down(600)]: {
-        //     marginLeft: '12px',
-        //     marginRight: '12px'
-        // }
+        paddingRight: '16px'
     },
 
     searchTextRow: {
@@ -79,7 +74,7 @@ const useStyles = makeStyles()((theme) => ({
         },
 
         '& .MuiFormControlLabel-root': {
-            marginRight: 0,
+            marginRight: 0
         }
     },
 
@@ -118,7 +113,7 @@ const useStyles = makeStyles()((theme) => ({
             marginBottom: '8px',
 
             '&:last-child': {
-                marginBottom: 0,
+                marginBottom: 0
             }
         },
     },
@@ -127,7 +122,7 @@ const useStyles = makeStyles()((theme) => ({
         marginBottom: '12px',
 
         '&:last-child': {
-            marginBottom: 0,
+            marginBottom: 0
         }
     },
 

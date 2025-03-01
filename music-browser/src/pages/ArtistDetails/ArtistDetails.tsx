@@ -74,7 +74,7 @@ const useStyles = tss.create(() => ({
     tagContainer: {
         display: 'flex',
         flexWrap: 'wrap',
-        marginBottom: '12px',
+        marginBottom: '12px'
     },
 
     tag: {
@@ -97,7 +97,7 @@ const useStyles = tss.create(() => ({
             marginBottom: '6px',
 
             '&:last-child': {
-                marginBottom: 0,
+                marginBottom: 0
             }
         }
     },

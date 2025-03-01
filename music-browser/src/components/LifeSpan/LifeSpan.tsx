@@ -20,7 +20,7 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
     const artistBeginLabel = props.artist.artistType === 'Group' ? 'Formed:' : 'Born:';
     const artistEndLabel = props.artist.artistType === 'Group' ? 'Dissolved:' : 'Died:';
     let lifeSpanBeginArea = (props.artist.beginArea && props.artist.beginArea.name) ? `, ${props.artist.beginArea.name}` : '';
-    let lifeSpanEndArea = (props.artist.endArea && props.artist.endArea.name) ? `, ${props.artist.endArea.name}` : '';
+    const lifeSpanEndArea = (props.artist.endArea && props.artist.endArea.name) ? `, ${props.artist.endArea.name}` : '';
 
     if (props.artist.area && props.artist.area.name) {
         if (lifeSpanBeginArea) {
@@ -29,9 +29,9 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
             lifeSpanBeginArea = `, ${props.artist.area.name}`;
         }
 
-        if (lifeSpanEndArea) {
-            lifeSpanEndArea = `${lifeSpanEndArea}, ${props.artist.area.name}`;
-        }
+        // if (lifeSpanEndArea) {
+        //     lifeSpanEndArea = `${lifeSpanEndArea}, ${props.artist.area.name}`;
+        // }
     }
 
     return (
@@ -39,20 +39,22 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
             {
                 props.artist.lifeSpan &&
                     <>
-                        <Box className={cx(classes.lifeSpanSection)}>
-                            <Typography variant='subtitle2'>{artistBeginLabel}</Typography>
-                            <Typography variant='body2'>&nbsp;&nbsp;</Typography>
+                        {
+                            props.artist.lifeSpan.begin &&
+                            <Box className={cx(classes.lifeSpanSection)}>
+                                <Typography variant='subtitle2'>{artistBeginLabel}</Typography>
 
-                            {
-                               props.artist.lifeSpan.begin &&
-                                <Typography variant='body2'>{props.artist.lifeSpan.begin}</Typography>
-                            }
-
-                            {
-                                lifeSpanBeginArea &&
-                                <Typography variant='body2'>{lifeSpanBeginArea}</Typography>
-                            }
-                        </Box>
+                                <Typography variant='body2'>
+                                    &nbsp;&nbsp;{props.artist.lifeSpan.begin}
+                                    {
+                                        lifeSpanBeginArea &&
+                                        <>
+                                            {lifeSpanBeginArea}
+                                        </>
+                                    }
+                                </Typography>
+                            </Box>
+                        }
 
                         {
                             props.artist.lifeSpan.ended &&
@@ -61,12 +63,15 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
 
                                 {
                                     props.artist.lifeSpan.end &&
-                                    <Typography variant='body2'>&nbsp;&nbsp;{props.artist.lifeSpan.end}</Typography>
-                                }
-
-                                {
-                                    lifeSpanEndArea &&
-                                    <Typography variant='body2'>{lifeSpanEndArea}</Typography>
+                                    <Typography variant='body2'>
+                                        &nbsp;&nbsp;{props.artist.lifeSpan.end}
+                                        {
+                                            lifeSpanEndArea &&
+                                            <>
+                                                {lifeSpanEndArea}
+                                            </>
+                                        }
+                                    </Typography>
                                 }
                             </Box>
                         }

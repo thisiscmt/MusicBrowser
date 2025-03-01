@@ -12,14 +12,7 @@ const useStyles = tss.create(() => ({
         '& p': {
             marginBottom: '16px',
             marginTop: '16px'
-        },
-
-        // [theme.breakpoints.down(600)]: {
-        //     '& p': {
-        //         paddingLeft: '16px',
-        //         paddingRight: '16px'
-        //     }
-        // }
+        }
     },
 
     header: {

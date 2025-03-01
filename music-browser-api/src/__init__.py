@@ -23,21 +23,20 @@ def create_app(test_config=None):
     else:
         flask_app.config.from_mapping(test_config)
 
+    # Set caching defaults if the environment variables aren't set
+    if flask_app.config['CACHE_TYPE'] is None:
+        flask_app.config['CACHE_TYPE'] = 'FileSystemCache'
+
+    if flask_app.config['CACHE_DIR'] is None:
+        flask_app.config['CACHE_DIR'] = 'mb-cache'
+
+    if flask_app.config['CACHE_DEFAULT_TIMEOUT'] is None:
+        flask_app.config['CACHE_DEFAULT_TIMEOUT'] = 86400  # 1 day
+
     return flask_app
 
 
 app = create_app()
-
-# Set caching defaults if the environment variables aren't set
-if app.config['CACHE_TYPE'] is None:
-    app.config['CACHE_TYPE'] = 'FileSystemCache'
-
-if app.config['CACHE_DIR'] is None:
-    app.config['CACHE_DIR'] = 'mb-cache'
-
-if app.config['CACHE_DEFAULT_TIMEOUT'] is None:
-    app.config['CACHE_DEFAULT_TIMEOUT'] = 86400  # 1 day
-
 cache = Cache(app)
 allowed_origin = '*'
 
@@ -145,3 +144,11 @@ def handle_not_found():
 
     # TODO: Log this somewhere
     return '', 404
+
+
+# @app.errorhandler(InternalServerError)
+# def handle_server_error(error):
+#     """Handler for 500 errors"""
+#
+#     # TODO: Log this somewhere
+#     return error.description, 500

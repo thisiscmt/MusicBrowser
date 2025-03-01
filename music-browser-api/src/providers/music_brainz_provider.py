@@ -290,13 +290,18 @@ class MusicBrainzProvider(BaseProvider):
                 artist.totalAlbums = int(albums_record['release-group-count'])
 
         for album in albums:
-            if album.id in album_images and len(album_images[album.id]['albumcover']) > 0:
+            if album.id in album_images:
                 album_image = Image()
-                album_image.url = album_images[album.id]['albumcover'][0]['url']
-                album.images = [album_image]
+
+                if 'albumcover' in album_images[album.id] and len(album_images[album.id]['albumcover']) > 0:
+                    album_image.url = album_images[album.id]['albumcover'][0]['url']
+                elif 'cdart' in album_images[album.id] and len(album_images[album.id]['cdart']) > 0:
+                    album_image.url = album_images[album.id]['cdart'][0]['url']
+
+                if album_image.url:
+                    album.images = [album_image]
 
         artist.albums = albums
-
         members = []
 
         if 'artist-relation-list' in record:
@@ -400,6 +405,7 @@ class MusicBrainzProvider(BaseProvider):
 
                         if album_image.url:
                             album.images = [album_image]
+
                     rows.append(album)
 
             count = record['release-group-count']
