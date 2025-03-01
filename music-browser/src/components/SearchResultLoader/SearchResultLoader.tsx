@@ -4,7 +4,7 @@ import { tss } from 'tss-react/mui';
 
 import { EntityType } from '../../enums/enums.ts';
 
-const useStyles = tss.create(() => ({
+const useStyles = tss.create(({ theme }) => ({
     mainContainer: {
         border: '1px solid #E0E0E0',
         borderRadius: '6px',
@@ -22,7 +22,15 @@ const useStyles = tss.create(() => ({
 
     tagLoader: {
         display: 'flex',
-        gap: '12px'
+        gap: '10px'
+    },
+
+    nameLoader: {
+        width: '60%',
+
+        [theme.breakpoints.down(600)]: {
+            width: '100%'
+        }
     }
 }));
 
@@ -38,16 +46,16 @@ const SearchResultLoader: FC<SearchResultLoaderProps> = (props: SearchResultLoad
             <Skeleton variant='rectangular' height='100px' width='100px' />
 
             <Box className={cx(classes.infoLoader)}>
-                <Skeleton variant='rectangular' height='20px' width='50%' />
+                <Skeleton variant='rectangular' height='20px' className={cx(classes.nameLoader)} />
 
                 {
                     props.entityType === EntityType.Album &&
-                    <Skeleton variant='rectangular' height='16px' width='50%' />
+                    <Skeleton variant='rectangular' height='16px' width='150px' />
                 }
 
                 <Box className={cx(classes.tagLoader)}>
                     {
-                        [1, 2, 3, 4].map((item: number) => {
+                        [1, 2, 3].map((item: number) => {
                             return (
                                 <Skeleton key={item} variant='rectangular' height='24px' width='60px' />
                             )
@@ -55,7 +63,7 @@ const SearchResultLoader: FC<SearchResultLoaderProps> = (props: SearchResultLoad
                     }
                 </Box>
 
-                <Skeleton variant='rectangular' height='16px' width='20%' />
+                <Skeleton variant='rectangular' height='16px' width='100px' />
             </Box>
         </Box>
     );

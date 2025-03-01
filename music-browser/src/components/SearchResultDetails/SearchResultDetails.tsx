@@ -7,7 +7,7 @@ import {ChildAnchorGrayStyles, Colors} from '../../services/themeService.ts';
 import { EntityType } from '../../enums/enums.ts';
 import { Link } from 'react-router';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = tss.create(() => ({
     card: {
         marginBottom: '2px',
 
@@ -37,18 +37,16 @@ const useStyles = tss.create(({ theme }) => ({
 
     link: {
         lineHeight: 1,
-        marginBottom: '8px',
+        marginBottom: '9px',
         ...ChildAnchorGrayStyles
     },
 
-    secondaryLink: {
-        marginBottom: '5px'
-    },
-
     tagContainer: {
+        columnGap: '8px',
         display: 'flex',
         flexWrap: 'wrap',
-        marginBottom: '9px'
+        marginBottom: '9px',
+        rowGap: '6px'
     },
 
     tag: {
@@ -56,10 +54,12 @@ const useStyles = tss.create(({ theme }) => ({
         borderRadius: '4px',
         color: Colors.white,
         fontSize: '14px',
-        marginRight: '8px',
-        marginTop: '6px',
         padding: '3px 5px'
-     }
+     },
+
+    score: {
+        lineHeight: 1
+    }
 }));
 
 interface SearchResultDetailsProps {
@@ -82,7 +82,7 @@ const SearchResultDetails: FC<SearchResultDetailsProps> = ({ entity, image }) =>
 
                     {
                         entity.entityType !== EntityType.Artist &&
-                        <Typography variant='body2' className={cx(classes.link, classes.secondaryLink)}>
+                        <Typography variant='body2' className={cx(classes.link)}>
                             <Link to={`/artist/${entity.artistId}`}>{entity.artist}</Link>
                         </Typography>
                     }
@@ -103,7 +103,7 @@ const SearchResultDetails: FC<SearchResultDetailsProps> = ({ entity, image }) =>
 
                     {
                         entity.score !== undefined &&
-                        <Typography variant='body2'>Score: {entity.score}</Typography>
+                        <Typography variant='body2' className={cx(classes.score)}>Score: {entity.score}</Typography>
                     }
                 </Box>
             </CardContent>

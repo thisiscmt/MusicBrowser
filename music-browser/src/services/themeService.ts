@@ -77,6 +77,13 @@ export const buildTheme = () => {
                     }
                 }
             },
+            MuiSkeleton: {
+                styleOverrides: {
+                    root: {
+                        borderRadius: '3px'
+                    }
+                }
+            },
             MuiTab: {
                 styleOverrides: {
                     root: {

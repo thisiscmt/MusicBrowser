@@ -1,16 +1,16 @@
-import React, {FC, useContext, useEffect, useState} from 'react';
-import {Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography} from '@mui/material';
-import {tss} from 'tss-react/mui';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { tss } from 'tss-react/mui';
 
 import EntityDetails from '../EntityDetails/EntityDetails.tsx';
 import EntityDetailsLoader from '../EntityDetailsLoader/EntityDetailsLoader.tsx';
-import {Album} from '../../models/models.ts';
-import {DiscographyType, EntityType} from '../../enums/enums.ts';
-import {MainContext} from '../../contexts/MainContext.tsx';
+import { Album } from '../../models/models.ts';
+import { DiscographyType, EntityType } from '../../enums/enums.ts';
+import { MainContext } from '../../contexts/MainContext.tsx';
 import * as DataService from '../../services/dataService.ts';
 import * as SharedService from '../../services/sharedService.ts';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = tss.create(() => ({
     typeSelectorContainer: {
         marginBottom: '12px',
 
@@ -21,14 +21,7 @@ const useStyles = tss.create(({ theme }) => ({
 
     fieldLabel: {
         fontSize: '14px',
-        paddingRight: '16px',
-
-        [theme.breakpoints.down(470)]: {
-            marginBottom: '4px',
-            paddingRight: 0,
-            textAlign: 'left',
-            width: '100%'
-        }
+        paddingRight: '16px'
     },
 
     discogTypeSelector: {
@@ -142,41 +135,46 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         }
     };
 
-    const handleChangeDiscogType = async (event: SelectChangeEvent) => {
-        const discogType = event.target.value as DiscographyType;
+    const getStateObjects = (discogType: DiscographyType) => {
         let stateVariable: Album[] | undefined;
         let stateUpdateFunction: (value: Album[]) => void;
 
-        setLoading(true);
+        switch (discogType) {
+            case DiscographyType.Album:
+                stateVariable = albums;
+                stateUpdateFunction = setAlbums;
 
+                break;
+            case DiscographyType.SingleEP:
+                stateVariable = singlesEPs;
+                stateUpdateFunction = setSinglesEPs;
+
+                break;
+            case DiscographyType.Compilation:
+                stateVariable = compilations;
+                stateUpdateFunction = setCompilations;
+
+                break;
+            case DiscographyType.LiveCompilation:
+                stateVariable = liveCompilations;
+                stateUpdateFunction = setLiveCompilations;
+
+                break;
+            case DiscographyType.Demo:
+                stateVariable = demos;
+                stateUpdateFunction = setDemos;
+
+                break;
+        }
+
+        return { stateVariable, stateUpdateFunction };
+    };
+
+    const handleChangeDiscogType = async (event: SelectChangeEvent) => {
         try {
-            switch (discogType) {
-                case DiscographyType.Album:
-                    stateVariable = albums;
-                    stateUpdateFunction = setAlbums;
-
-                    break;
-                case DiscographyType.SingleEP:
-                    stateVariable = singlesEPs;
-                    stateUpdateFunction = setSinglesEPs;
-
-                    break;
-                case DiscographyType.Compilation:
-                    stateVariable = compilations;
-                    stateUpdateFunction = setCompilations;
-
-                    break;
-                case DiscographyType.LiveCompilation:
-                    stateVariable = liveCompilations;
-                    stateUpdateFunction = setLiveCompilations;
-
-                    break;
-                case DiscographyType.Demo:
-                    stateVariable = demos;
-                    stateUpdateFunction = setDemos;
-
-                    break;
-            }
+            setLoading(true);
+            const discogType = event.target.value as DiscographyType;
+            const { stateVariable, stateUpdateFunction } = getStateObjects(discogType);
 
             await getDiscogEntities(discogType, stateVariable, stateUpdateFunction, 1, defaultPageSize);
             setCurrentDiscogType(discogType);
@@ -188,40 +186,10 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     };
 
     const handleShowMoreItems = async () => {
-        let stateVariable: Album[] | undefined;
-        let stateUpdateFunction: (value: Album[]) => void;
-
         try {
-            const newPage = discogPage + 1;
             setLoading(true);
-
-            switch (currentDiscogType) {
-                case DiscographyType.Album:
-                    stateVariable = albums;
-                    stateUpdateFunction = setAlbums;
-
-                    break;
-                case DiscographyType.SingleEP:
-                    stateVariable = singlesEPs;
-                    stateUpdateFunction = setSinglesEPs;
-
-                    break;
-                case DiscographyType.Compilation:
-                    stateVariable = compilations;
-                    stateUpdateFunction = setCompilations;
-
-                    break;
-                case DiscographyType.LiveCompilation:
-                    stateVariable = liveCompilations;
-                    stateUpdateFunction = setLiveCompilations;
-
-                    break;
-                case DiscographyType.Demo:
-                    stateVariable = demos;
-                    stateUpdateFunction = setDemos;
-
-                    break;
-            }
+            const newPage = discogPage + 1;
+            const { stateVariable, stateUpdateFunction } = getStateObjects(currentDiscogType);
 
             await getDiscogEntities(currentDiscogType, stateVariable, stateUpdateFunction, newPage, defaultPageSize, true);
             setDiscogPage(newPage);

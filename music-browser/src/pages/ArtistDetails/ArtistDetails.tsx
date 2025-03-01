@@ -29,13 +29,21 @@ const useStyles = tss.create(() => ({
     imageContainer: {
         marginBottom: '12px',
 
+        '& .image-gallery-left-nav': {
+            paddingLeft: 0
+        },
+
+        '& .image-gallery-right-nav': {
+            paddingRight: 0
+        },
+
         '& .image-gallery-left-nav .image-gallery-svg, .image-gallery-right-nav .image-gallery-svg': {
             height: '40px',
             width: '20px'
         },
 
         '& .image-gallery-slide .image-gallery-image': {
-            width: '400px'
+            maxWidth: '400px'
         }
     },
 

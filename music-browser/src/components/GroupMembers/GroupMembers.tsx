@@ -30,19 +30,19 @@ const GroupMembers: FC<GroupMembersProps> = (props: GroupMembersProps) => {
             {
                 props.entities && props.entities.length === 0
                     ?
-                    <Typography variant='body2'>No group members were found.</Typography>
+                        <Typography variant='body2'>No group members were found.</Typography>
                     :
-                    <Box className={cx(classes.entityContainer)}>
-                        {
-                            props.entities?.map((item: Member) => {
-                                return (
-                                    <Box key={item.id} className='entityDetail'>
-                                        <EntityDetails id={item.id} name={item.name} entityType={EntityType.Artist} />
-                                    </Box>
-                                );
-                            })
-                        }
-                    </Box>
+                        <Box className={cx(classes.entityContainer)}>
+                            {
+                                props.entities?.map((item: Member) => {
+                                    return (
+                                        <Box key={item.id} className='entityDetail'>
+                                            <EntityDetails id={item.id} name={item.name} entityType={EntityType.Artist} />
+                                        </Box>
+                                    );
+                                })
+                            }
+                        </Box>
             }
        </>
     );

@@ -1,8 +1,8 @@
 import copy
 from concurrent.futures import ThreadPoolExecutor
 import datetime
-import musicbrainzngs
 from flask_caching import Cache
+import musicbrainzngs
 
 from src.enums.enums import EntityType, DiscographyType
 from src.models.models import Links, DataRequest
@@ -118,10 +118,10 @@ class MusicBrainzProvider(BaseProvider):
 
         discog_request = DataRequest()
         discog_request.data_type = 'discography'
+        discog_request.entity_id = entity_id
+        discog_request.release_types = release_types
         discog_request.offset = offset
         discog_request.limit = page_size
-        discog_request.release_types = release_types
-        discog_request.entity_id = entity_id
 
         album_images_request = copy.copy(discog_request)
         album_images_request.data_type = 'artist_album_images'
@@ -377,12 +377,11 @@ class MusicBrainzProvider(BaseProvider):
         count = 0
 
         if 'release-group-list' in record:
-            add_record = True
-
             for item in record['release-group-list']:
-                if album_only:
-                    if str(item['type']).lower() != 'album':
-                        add_record = False
+                if album_only and str(item['type']).lower() != 'album':
+                    add_record = False
+                else:
+                    add_record = True
 
                 if add_record:
                     album = Album()

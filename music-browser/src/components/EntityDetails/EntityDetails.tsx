@@ -28,8 +28,8 @@ const useStyles = tss.create(() => ({
     },
 
     thumbnail: {
-        height: '50px',
-        width: '50px'
+        height: '52px',
+        width: '52px'
     },
 
     mainTitle: {
@@ -47,7 +47,7 @@ const useStyles = tss.create(() => ({
 
     secondaryDataValue: {
         lineHeight: 1,
-        marginTop: '3px'
+        marginTop: '4px'
     }
 }));
 
