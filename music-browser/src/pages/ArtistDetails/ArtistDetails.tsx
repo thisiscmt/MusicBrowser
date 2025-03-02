@@ -68,7 +68,11 @@ const useStyles = tss.create(() => ({
     annotation: {
         fontSize: '14px',
         marginBottom: '10px',
-        ...ChildAnchorBlueStyles
+        ...ChildAnchorBlueStyles,
+
+        '& pre': {
+            whiteSpace: 'pre-line'
+        }
     },
 
     tagContainer: {

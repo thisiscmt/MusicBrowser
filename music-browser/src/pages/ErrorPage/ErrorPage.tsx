@@ -11,7 +11,7 @@ const useStyles = tss.create(() => ({
 
         '& p': {
             marginBottom: '16px',
-            marginTop: '16px'
+            marginTop: 0
         }
     },
 

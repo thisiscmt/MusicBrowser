@@ -8,6 +8,7 @@ import Home from './pages/Home/Home.tsx';
 import Preferences from './pages/Preferences/Preferences.tsx';
 import ErrorPage from './pages/ErrorPage/ErrorPage.tsx';
 import ArtistDetails from './pages/ArtistDetails/ArtistDetails.tsx';
+import AlbumDetails from './pages/AlbumDetails/AlbumDetails.tsx';
 import { Colors } from './services/themeService.ts';
 
 const useStyles = tss.create(({ theme }) => ({
@@ -40,7 +41,7 @@ function App() {
                 <Routes>
                     <Route path='/' element={<Home topOfPageRef={topOfPageRef} />} />
                     <Route path='/artist/:id' element={<ArtistDetails />} />
-                    {/*<Route path='/album/:id' element={<AlbumDetails />} />*/}
+                    <Route path='/album/:id' element={<AlbumDetails />} />
                     <Route path='/preferences' element={<Preferences />} />
                     <Route path='*' element={<ErrorPage />} />
                 </Routes>

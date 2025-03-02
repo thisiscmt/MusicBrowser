@@ -105,6 +105,20 @@ export const getEmptyArtist = (): Artist => {
     }
 }
 
+export const getEmptyAlbum = (): Album => {
+    return {
+        id: '',
+        name: '',
+        albumType: '',
+        description: '',
+        releaseDate: '',
+        artist: '',
+        images: [],
+        tags: [],
+        links: []
+    }
+}
+
 export const scrollToTop = (ref: RefObject<HTMLElement>) => {
     if (ref && ref.current) {
         ref.current.scrollIntoView();
