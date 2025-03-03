@@ -13,7 +13,7 @@ class BaseProvider:
 
 
     @abstractmethod
-    def run_lookup(self, entity_type: str, entity_id: str, cache: Cache):
+    def run_lookup(self, entity_type: str, entity_id: str, secondary_id: str, cache: Cache):
         pass
 
 

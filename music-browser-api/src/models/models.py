@@ -5,6 +5,7 @@ class DataRequest:
     data_type: str
     release_types: list[str]
     entity_id: str
+    secondary_id: str
     limit: int
     offset: int
     use_cache: bool

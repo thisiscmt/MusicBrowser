@@ -34,7 +34,7 @@ class SpotifyProvider(BaseProvider):
         return results
 
 
-    def run_lookup(self, entity_type, entity_id, cache):
+    def run_lookup(self, entity_type, entity_id, secondary_id, cache):
         # auth_manager = SpotifyClientCredentials(self.client_id, self.client_secret)
         # sp = spotipy.Spotify(auth_manager=auth_manager)
         result = None

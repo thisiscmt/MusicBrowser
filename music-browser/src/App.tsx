@@ -40,7 +40,7 @@ function App() {
 
                 <Routes>
                     <Route path='/' element={<Home topOfPageRef={topOfPageRef} />} />
-                    <Route path='/artist/:id' element={<ArtistDetails />} />
+                    <Route path='/artist/:id' element={<ArtistDetails topOfPageRef={topOfPageRef} />} />
                     <Route path='/album/:id' element={<AlbumDetails />} />
                     <Route path='/preferences' element={<Preferences />} />
                     <Route path='*' element={<ErrorPage />} />

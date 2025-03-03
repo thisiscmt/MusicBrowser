@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, {FC, RefObject, useContext, useEffect, useState} from 'react';
 import { Link as RouteLink, useParams } from 'react-router';
 import { Box, Button, Tab, Typography, Link } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
@@ -13,6 +13,7 @@ import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
 import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
+import TagCollection from '../../components/TagCollection/TagCollection.tsx';
 import { Album, Artist, LinkEntry } from '../../models/models.ts';
 import { ChildAnchorBlueStyles, Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
@@ -54,11 +55,11 @@ const useStyles = tss.create(() => ({
     },
 
     entityName: {
-        marginBottom: '6px'
+        marginBottom: '8px'
     },
 
     comment: {
-        marginBottom: '6px'
+        marginBottom: '10px'
     },
 
     lifeSpanSection: {
@@ -73,22 +74,6 @@ const useStyles = tss.create(() => ({
         '& pre': {
             whiteSpace: 'pre-line'
         }
-    },
-
-    tagContainer: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        marginBottom: '12px'
-    },
-
-    tag: {
-        backgroundColor: Colors.chipBackgroundColor,
-        borderRadius: '4px',
-        color: Colors.white,
-        fontSize: '14px',
-        marginRight: '8px',
-        marginTop: '6px',
-        padding: '3px 5px'
     },
 
     entityDesc: {
@@ -117,7 +102,11 @@ interface EntityDescription {
     full: string;
 }
 
-const ArtistDetails: FC = () => {
+interface ArtistDetailsProps {
+    topOfPageRef: RefObject<HTMLElement>;
+}
+
+const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Artist>(SharedService.getEmptyArtist());
@@ -160,6 +149,7 @@ const ArtistDetails: FC = () => {
 
         if (entity.name === '') {
             fetchData();
+            SharedService.scrollToTop(props.topOfPageRef);
         }
     });
 
@@ -225,16 +215,7 @@ const ArtistDetails: FC = () => {
                                 </Box>
                             }
 
-                            {
-                                entity.tags && entity.tags.length > 0 &&
-                                <Box className={cx(classes.tagContainer)}>
-                                    {
-                                        entity.tags.map((item: string, index: number) => {
-                                            return <Box key={index} className={cx(classes.tag)}>{item}</Box>
-                                        })
-                                    }
-                                </Box>
-                            }
+                            <TagCollection items={(entity.tags || []).slice(0, 10)} />
 
                             {
                                 entity.lifeSpan &&

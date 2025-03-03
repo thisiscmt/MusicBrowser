@@ -7,8 +7,8 @@ import musicbrainzngs
 from src.enums.enums import EntityType, DiscographyType
 from src.models.models import Links, DataRequest
 from src.providers.base_provider import BaseProvider
-from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput
-from src.services.fanart_service import get_album_images_for_artist, get_images_for_artist
+from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag
+from src.services.fanart_service import get_artist_images, get_album_images
 from src.services.wikipedia_service import get_entity_description
 
 
@@ -42,14 +42,13 @@ class MusicBrainzProvider(BaseProvider):
         return results
 
 
-    def run_lookup(self, entity_type, entity_id, cache: Cache):
+    def run_lookup(self, entity_type, entity_id, secondary_id, cache: Cache):
         result = None
         begin_time = datetime.datetime.now()
 
         match entity_type:
             case EntityType.ARTIST.value:
                 artist_request = DataRequest()
-
                 artist_request.data_type = 'artist'
                 artist_request.entity_id = entity_id
 
@@ -62,7 +61,7 @@ class MusicBrainzProvider(BaseProvider):
                 artist_images_request.data_type = 'artist_images'
 
                 album_images_request = copy.copy(artist_request)
-                album_images_request.data_type = 'artist_album_images'
+                album_images_request.data_type = 'album_images'
                 album_images_request.use_cache = False
 
                 cached_album_images = cache.get(entity_id)
@@ -70,11 +69,8 @@ class MusicBrainzProvider(BaseProvider):
                 if cached_album_images:
                     album_images_request.use_cache = True
 
-                data_requests = [artist_request, artist_albums_request, artist_images_request, album_images_request]
-
-                # Since we must call so many endpoints to get an accurate data set for an artist, all of them are made simultaneously
                 with ThreadPoolExecutor(max_workers=4) as executor:
-                    data = list(executor.map(self.get_artist_data, data_requests))
+                    data = list(executor.map(self.get_artist_data, [artist_request, artist_albums_request, artist_images_request, album_images_request]))
 
                 print(f'__MusicBrainz artist lookup: {datetime.datetime.now() - begin_time}')
 
@@ -85,8 +81,34 @@ class MusicBrainzProvider(BaseProvider):
 
                 result = self.build_artist(data)
             case EntityType.ALBUM.value:
-                data = musicbrainzngs.get_release_group_by_id(id=entity_id, includes=['tags', 'artist-credits', 'url-rels', 'annotation'])
+                album_request = DataRequest()
+                album_request.data_type = 'album'
+                album_request.entity_id = entity_id
+
+                album_images_request = copy.copy(album_request)
+                album_images_request.data_type = 'album_images'
+                album_images_request.entity_id = entity_id
+                album_images_request.secondary_id = secondary_id
+                album_images_request.use_cache = False
+
+                cached_album_images = cache.get(secondary_id)
+
+                if cached_album_images:
+                    album_images_request.use_cache = True
+
+                data_requests = [album_request, album_images_request]
+
+                with ThreadPoolExecutor(max_workers=4) as executor:
+                    data = list(executor.map(self.get_album_data, data_requests))
+
                 print(f'__MusicBrainz album lookup: {datetime.datetime.now() - begin_time}')
+
+                if cached_album_images:
+                    data[1] = cached_album_images
+                else:
+                    # We only cache fetched images if we have an artist ID they can be stored under
+                    if secondary_id:
+                        cache.set(secondary_id, data[1])
 
                 result = self.build_album(data)
             case EntityType.SONG.value:
@@ -124,7 +146,7 @@ class MusicBrainzProvider(BaseProvider):
         discog_request.limit = page_size
 
         album_images_request = copy.copy(discog_request)
-        album_images_request.data_type = 'artist_album_images'
+        album_images_request.data_type = 'album_images'
         album_images_request.use_cache = False
 
         cached_album_images = cache.get(entity_id)
@@ -154,17 +176,17 @@ class MusicBrainzProvider(BaseProvider):
         result = None
 
         if data_request.data_type == 'artist':
-            result = musicbrainzngs.get_artist_by_id(id=data_request.entity_id, includes=['tags', 'artist-rels', 'url-rels', 'annotation'])
+            result = musicbrainzngs.get_artist_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'artist-rels', 'url-rels', 'annotation'])
 
         if data_request.data_type == 'artist_albums':
             result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], limit=data_request.limit,
                                                           offset=data_request.offset, release_group_status='website-default')
         if data_request.data_type == 'artist_images':
-            result = get_images_for_artist(data_request.entity_id)
+            result = get_artist_images(data_request.entity_id)
 
-        if data_request.data_type == 'artist_album_images':
+        if data_request.data_type == 'album_images':
             if not data_request.use_cache:
-                result = get_album_images_for_artist(data_request.entity_id)
+                result = get_album_images(data_request.entity_id)
 
         return result
 
@@ -176,9 +198,27 @@ class MusicBrainzProvider(BaseProvider):
             result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=data_request.release_types, limit=data_request.limit,
                                                           offset=data_request.offset, release_group_status='website-default')
 
-        if data_request.data_type == 'artist_album_images':
+        if data_request.data_type == 'album_images':
             if not data_request.use_cache:
-                result = get_album_images_for_artist(data_request.entity_id)
+                result = get_album_images(data_request.entity_id)
+
+        return result
+
+
+    def get_album_data(self, data_request: DataRequest):
+        result = None
+
+        if data_request.data_type == 'album':
+            result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'artist-credits', 'url-rels', 'annotation'])
+
+        if data_request.data_type == 'album_images':
+            if not data_request.use_cache:
+                if data_request.secondary_id:
+                    entity_id = data_request.secondary_id
+                else:
+                    entity_id = data_request.entity_id
+
+                result = get_album_images(entity_id)
 
         return result
 
@@ -266,6 +306,9 @@ class MusicBrainzProvider(BaseProvider):
         if 'tag-list' in record:
             artist.tags = self.build_tag_list(record['tag-list'])
 
+        if 'genre-list' in record:
+            artist.genres = self.build_tag_list(record['genre-list'])
+
         artist.images = data[2]
         album_images = data[3]
         albums = []
@@ -282,24 +325,17 @@ class MusicBrainzProvider(BaseProvider):
                     else:
                         album.releaseDate = ''
 
+                    if album.id in album_images and len(album_images[album.id]) > 0 and 'url' in album_images[album.id][0]:
+                        album_image = Image()
+                        album_image.url = album_images[album.id][0]['url']
+                        album.images = [album_image]
+
                     albums.append(album)
 
             albums = sorted(albums, key=lambda x: x.releaseDate)
 
             if 'release-group-count' in albums_record:
                 artist.totalAlbums = int(albums_record['release-group-count'])
-
-        for album in albums:
-            if album.id in album_images:
-                album_image = Image()
-
-                if 'albumcover' in album_images[album.id] and len(album_images[album.id]['albumcover']) > 0:
-                    album_image.url = album_images[album.id]['albumcover'][0]['url']
-                elif 'cdart' in album_images[album.id] and len(album_images[album.id]['cdart']) > 0:
-                    album_image.url = album_images[album.id]['cdart'][0]['url']
-
-                if album_image.url:
-                    album.images = [album_image]
 
         artist.albums = albums
         members = []
@@ -334,46 +370,6 @@ class MusicBrainzProvider(BaseProvider):
         return artist
 
 
-    def build_album(self, data):
-        record = data['release-group']
-
-        album = Album()
-        album.id = record['id']
-        album.name = record['title']
-        album.albumType = record['type']
-
-        if 'first-release-date' in record:
-            album.releaseDate = record['first-release-date']
-
-        images = []
-
-        if 'artist-credit' in record and len(record['artist-credit']) > 0:
-            if 'artist' in record['artist-credit'][0]:
-                album.artist = record['artist-credit'][0]['artist']['name']
-
-                begin_time = datetime.datetime.now()
-                album_images = get_album_images_for_artist(record['artist-credit'][0]['artist']['id'])
-                print(f'__Fanart album images: {datetime.datetime.now() - begin_time}')
-
-                if len(album_images) > 0:
-                    image = Image()
-
-                    if record['id'] in album_images and 'albumcover' in album_images[record['id']] and len(album_images[record['id']]['albumcover']) > 0:
-                        image.url = album_images[record['id']]['albumcover'][0]['url']
-                        images.append(image)
-
-        album.images = images
-
-        if 'tag-list' in record:
-            album.tags = self.build_tag_list(record['tag-list'])
-
-        links = self.build_link_list(record)
-        album.links = links.items
-        album.description = links.entity_description
-
-        return album
-
-
     def build_discography_list(self, data, album_only=False):
         record = data[0]
         album_images = data[1]
@@ -395,16 +391,10 @@ class MusicBrainzProvider(BaseProvider):
                     album.albumType = item['type']
                     album.releaseDate = item['first-release-date']
 
-                    if album.id in album_images:
+                    if album.id in album_images and len(album_images[album.id]) > 0 and 'url' in album_images[album.id][0]:
                         album_image = Image()
-
-                        if 'albumcover' in album_images[album.id] and len(album_images[album.id]['albumcover']) > 0:
-                            album_image.url = album_images[album.id]['albumcover'][0]['url']
-                        elif 'cdart' in album_images[album.id] and len(album_images[album.id]['cdart']) > 0:
-                            album_image.url = album_images[album.id]['cdart'][0]['url']
-
-                        if album_image.url:
-                            album.images = [album_image]
+                        album_image.url = album_images[album.id][0]['url']
+                        album.images = [album_image]
 
                     rows.append(album)
 
@@ -416,14 +406,58 @@ class MusicBrainzProvider(BaseProvider):
         return result
 
 
+    def build_album(self, data):
+        record = data[0]['release-group']
+        album_images = data[1]
+
+        album = Album()
+        album.id = record['id']
+        album.name = record['title']
+        album.albumType = record['type']
+
+        if 'first-release-date' in record:
+            album.releaseDate = record['first-release-date']
+
+        if 'tag-list' in record:
+            album.tags = self.build_tag_list(record['tag-list'])
+
+        if 'genre-list' in record:
+            album.genres = self.build_tag_list(record['genre-list'])
+
+        images = []
+
+        if 'artist-credit' in record and len(record['artist-credit']) > 0:
+            if 'artist' in record['artist-credit'][0]:
+                album.artist = record['artist-credit'][0]['artist']['name']
+
+        if album.id in album_images and len(album_images[album.id]) > 0 and 'url' in album_images[album.id][0]:
+            album_image = Image()
+            album_image.url = album_images[album.id][0]['url']
+            images.append(album_image)
+
+        album.images = images
+
+        links = self.build_link_list(record)
+        album.links = links.items
+        album.description = links.entity_description
+
+        return album
+
+
     def build_tag_list(self, data: list):
-        sorted_tags = sorted(data, key=lambda x: int(x['count']), reverse=True)
-        tags = []
+        sorted_items = sorted(data, key=lambda x: int(x['count']), reverse=True)
+        items = []
 
-        for tag in sorted_tags:
-            tags.append(tag['name'])
+        for item in sorted_items:
+            tag = Tag()
+            tag.name = item['name']
 
-        return tags
+            if 'id' in item:
+                tag.id = item['id']
+
+            items.append(tag)
+
+        return items
 
 
     def build_link_list(self, data: dict):

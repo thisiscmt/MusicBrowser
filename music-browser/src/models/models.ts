@@ -21,7 +21,7 @@ export interface SearchResult {
     artist: string;
     artistId: string;
     score: number;
-    tags: string[];
+    tags: Tag[];
     entityType: EntityType;
 }
 
@@ -45,6 +45,11 @@ export interface Area {
     name: string;
 }
 
+export interface Tag {
+    id: string;
+    name: string;
+}
+
 export interface LinkEntry {
     label: string;
     target: string;
@@ -57,8 +62,9 @@ export interface Album {
     description: string;
     releaseDate: string;
     artist: string;
+    tags: Tag[];
+    genres: Tag[];
     images: Image[];
-    tags: string[];
     links: LinkEntry[];
 }
 
@@ -73,7 +79,8 @@ export interface Artist {
     area: Area;
     beginArea: Area;
     endArea: Area;
-    tags: string[];
+    tags: Tag[];
+    genres: Tag[];
     images: Image[];
     albums: Album[];
     totalAlbums: number;

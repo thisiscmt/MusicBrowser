@@ -13,13 +13,13 @@ import {
 } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 
-import {SearchResults, SearchResult, SearchParams} from '../../models/models.ts';
-import { EntityType } from '../../enums/enums.ts';
-import { MainContext } from '../../contexts/MainContext.tsx';
-import { Colors } from '../../services/themeService.ts';
 import SearchResultDetails from '../../components/SearchResultDetails/SearchResultDetails.tsx';
 import SearchResultLoader from '../../components/SearchResultLoader/SearchResultLoader.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
+import { MainContext } from '../../contexts/MainContext.tsx';
+import { Colors } from '../../services/themeService.ts';
+import { SearchResults, SearchResult, SearchParams } from '../../models/models.ts';
+import { EntityType } from '../../enums/enums.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants';
@@ -140,7 +140,7 @@ interface HomeProps {
     topOfPageRef: RefObject<HTMLElement>;
 }
 
-const Home: FC<HomeProps> = ({ topOfPageRef }) => {
+const Home: FC<HomeProps> = (props: HomeProps) => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ searchText, setSearchText ] = useState<string>('');
@@ -198,14 +198,14 @@ const Home: FC<HomeProps> = ({ topOfPageRef }) => {
             setCurrentPage(searchRequestParams.page);
             setNoResults(results.rows.length === 0);
 
-            SharedService.scrollToTop(topOfPageRef);
+            SharedService.scrollToTop(props.topOfPageRef);
         } catch (error) {
             // TODO: Log this somewhere
             setBanner('An error occurred retrieving search results', 'error');
         } finally {
             setLoading(false);
         }
-    }, [setBanner, topOfPageRef]);
+    }, [setBanner, props.topOfPageRef]);
 
     useEffect(() => {
         const fetchData = async () => {

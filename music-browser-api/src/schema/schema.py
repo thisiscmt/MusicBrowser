@@ -15,13 +15,17 @@ class Image(Schema):
     width = Integer()
     url = String()
 
+class Tag(Schema):
+    id = String()
+    name = String()
+
 class SearchResult(Schema):
     id = String()
     name = String()
     artist = String()
     artistId = String()
     score = Integer()
-    tags = List(String())
+    tags = List(Nested(Tag()))
     entityType = String()
 
 class SearchOutput(Schema):
@@ -49,7 +53,8 @@ class Album(Schema):
     artist = String()
     releaseDate = String()
     description = String()
-    tags = List(String())
+    tags = List(Nested(Tag()))
+    genres = List(Nested(Tag()))
     images = List(Nested(Image()))
     links = List(Nested(Link()))
 
@@ -64,7 +69,8 @@ class Artist(Schema):
     area = Dict()
     beginArea = Dict()
     endArea = Dict()
-    tags = List(String())
+    tags = List(Nested(Tag()))
+    genres = List(Nested(Tag()))
     images = List(Nested(Image()))
     albums = List(Nested(Album()))
     totalAlbums = Integer()
@@ -82,3 +88,6 @@ class DiscographyParameters(Schema):
 class Discography(Schema):
     rows = List(Nested(Album()))
     count = Integer()
+
+class AlbumParameters(Schema):
+    artistId = String(metadata={'description': 'The ID of the artist for this album'})

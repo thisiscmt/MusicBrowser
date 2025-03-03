@@ -1,11 +1,12 @@
 import React, { FC } from 'react';
+import { Link } from 'react-router';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
+import TagCollection from '../TagCollection/TagCollection.tsx';
 import { SearchResult } from '../../models/models.ts';
-import {ChildAnchorGrayStyles, Colors} from '../../services/themeService.ts';
+import { ChildAnchorGrayStyles, Colors } from '../../services/themeService.ts';
 import { EntityType } from '../../enums/enums.ts';
-import { Link } from 'react-router';
 
 const useStyles = tss.create(() => ({
     card: {
@@ -67,43 +68,31 @@ interface SearchResultDetailsProps {
     image: string;
 }
 
-const SearchResultDetails: FC<SearchResultDetailsProps> = ({ entity, image }) => {
+const SearchResultDetails: FC<SearchResultDetailsProps> = (props: SearchResultDetailsProps) => {
     const { classes, cx } = useStyles();
 
     return (
         <Card variant='outlined'>
             <CardContent className={cx(classes.cardContent)}>
-                <img src={image} alt='Search result image' className={cx(classes.thumbnail)}/>
+                <img src={props.image} alt='Search result image' className={cx(classes.thumbnail)}/>
 
                 <Box>
                     <Typography variant='body1' className={cx(classes.mainTitle, classes.link)}>
-                        <Link to={`/${entity.entityType.toString()}/${entity.id}`}>{entity.name}</Link>
+                        <Link to={`/${props.entity.entityType.toString()}/${props.entity.id}`}>{props.entity.name}</Link>
                     </Typography>
 
                     {
-                        entity.entityType !== EntityType.Artist &&
+                        props.entity.entityType !== EntityType.Artist &&
                         <Typography variant='body2' className={cx(classes.link)}>
-                            <Link to={`/artist/${entity.artistId}`}>{entity.artist}</Link>
+                            <Link to={`/artist/${props.entity.artistId}`}>{props.entity.artist}</Link>
                         </Typography>
                     }
 
-                    {
-                        entity.tags && entity.tags.length > 0 &&
-                        <Box className={cx(classes.tagContainer)}>
-                            {
-                                entity.tags.slice(0, 5).map((item: string, index: number) => {
-                                    return (
-                                        <Box key={index} className={cx(classes.tag)}>{item}</Box>
-                                    )
-                                })
-
-                            }
-                        </Box>
-                    }
+                    <TagCollection items={(props.entity.tags || []).slice(0, 5)} compact={true} />
 
                     {
-                        entity.score !== undefined &&
-                        <Typography variant='body2' className={cx(classes.score)}>Score: {entity.score}</Typography>
+                        props.entity.score !== undefined &&
+                        <Typography variant='body2' className={cx(classes.score)}>Score: {props.entity.score}</Typography>
                     }
                 </Box>
             </CardContent>

@@ -7,7 +7,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 from flask_caching import Cache
 
 from src.config import Config
-from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, DiscographyParameters
+from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, DiscographyParameters, AlbumParameters
 from src.services.shared_service import supported_entity_type, supported_discog_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType, DiscographyType
@@ -23,7 +23,7 @@ def create_app(test_config=None):
     else:
         flask_app.config.from_mapping(test_config)
 
-    # Set caching defaults if the environment variables aren't set
+    # Set various defaults if the given environment variables are not set
     if flask_app.config['CACHE_TYPE'] is None:
         flask_app.config['CACHE_TYPE'] = 'FileSystemCache'
 
@@ -32,6 +32,9 @@ def create_app(test_config=None):
 
     if flask_app.config['CACHE_DEFAULT_TIMEOUT'] is None:
         flask_app.config['CACHE_DEFAULT_TIMEOUT'] = 86400  # 1 day
+
+    if flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] is None:
+        flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] = 300  # 5 minutes
 
     return flask_app
 
@@ -50,11 +53,7 @@ def set_lookup_cache_headers(response):
     """Sets caching headers in the response"""
 
     if isinstance(response, flask.wrappers.Response):
-        max_age = 300  # 5 minutes
-
-        if app.config['LOOKUP_RESPONSE_CACHE_AGE'] is not None:
-            max_age = int(app.config['LOOKUP_RESPONSE_CACHE_AGE'])
-
+        max_age = int(app.config['LOOKUP_RESPONSE_CACHE_AGE'])
         response.cache_control.max_age = max_age
 
     return response
@@ -77,7 +76,7 @@ def search(entity_type, query_data):
         raise BadRequest(description='Unsupported entity type')
 
     db = get_data_provider(app.config)
-    results = db.run_search(entity_type, query_data['query'], query_data['page'], query_data['pageSize'])
+    results = db.run_search(entity_type=entity_type, query=query_data['query'], page=query_data['page'], page_size=query_data['pageSize'])
 
     return results
 
@@ -89,7 +88,7 @@ def lookup_artist(entity_id):
     """Performs a lookup of a specific artist"""
 
     db = get_data_provider(app.config)
-    result = db.run_lookup(EntityType.ARTIST.value, entity_id, cache)
+    result = db.run_lookup(entity_type=EntityType.ARTIST.value, entity_id=entity_id, secondary_id=None, cache=cache)
 
     return result
 
@@ -102,32 +101,27 @@ def lookup_artist_discography(entity_id, query_data):
     """Performs a lookup of a specific artist's discography"""
 
     db = get_data_provider(app.config)
-    result = db.run_discography_lookup(query_data['discogType'], entity_id, query_data['page'], query_data['pageSize'], cache)
+    result = db.run_discography_lookup(discog_type=query_data['discogType'], entity_id=entity_id, page=query_data['page'], page_size=query_data['pageSize'], cache=cache)
 
     return result
 
 
 @app.get('/lookup/album/<string:entity_id>')
+@app.input(AlbumParameters, location='query')
 @app.output(Album)
 @app.after_request(set_lookup_cache_headers)
-def lookup_album(entity_id):
+def lookup_album(entity_id, query_data):
     """Performs a lookup of a specific album"""
 
     db = get_data_provider(app.config)
-    result = db.run_lookup(EntityType.ALBUM.value, entity_id, cache)
+    secondary_id = None
+
+    if 'artistId' in query_data:
+        secondary_id = query_data['artistId']
+
+    result = db.run_lookup(entity_type=EntityType.ALBUM.value, entity_id=entity_id, secondary_id=secondary_id, cache=cache)
 
     return result
-
-
-# TODO
-# @app.get('/lookup/song/<string:entity_id>')
-# @app.output(Song)
-# def lookup_song(entity_id):
-#     """Performs a lookup of a specific song"""
-#     db = get_data_provider(app.config)
-#     result = db.run_lookup(EntityType.SONG.value, entity_id)
-#
-#     return result
 
 
 @app.errorhandler(BadRequest)

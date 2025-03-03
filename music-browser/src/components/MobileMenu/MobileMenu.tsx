@@ -6,7 +6,7 @@ import { tss } from 'tss-react/mui';
 
 import { Colors } from '../../services/themeService';
 
-const useStyles = tss.create(({ theme } ) => ({
+const useStyles = tss.create(() => ({
     mainContainer: {
         height: '100%',
         width: '180px'
