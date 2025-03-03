@@ -97,6 +97,7 @@ export const getEmptyArtist = (): Artist => {
         beginArea: { name: '' },
         endArea: { name: '' },
         tags: [],
+        genres: [],
         images: [],
         albums: [],
         totalAlbums: 0,
@@ -115,6 +116,7 @@ export const getEmptyAlbum = (): Album => {
         artist: '',
         images: [],
         tags: [],
+        genres: [],
         links: []
     }
 }
