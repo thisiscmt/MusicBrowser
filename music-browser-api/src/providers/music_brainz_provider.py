@@ -283,7 +283,9 @@ class MusicBrainzProvider(BaseProvider):
         artist = Artist()
         artist.id = record['id']
         artist.name = record['name']
-        artist.artistType = record['type']
+
+        if 'type' in record:
+            artist.artistType = record['type']
 
         if 'life-span' in record:
             artist.lifeSpan = record['life-span']
