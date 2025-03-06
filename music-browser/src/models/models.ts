@@ -60,8 +60,10 @@ export interface Album {
     name: string;
     albumType: string;
     description: string;
+    comment: string;
     releaseDate: string;
     artist: string;
+    artistId: string;
     tags: Tag[];
     genres: Tag[];
     images: Image[];
@@ -92,3 +94,10 @@ export interface DiscographyResults {
     rows: Album[];
     count: number;
 }
+
+export interface EntityDescription {
+    hasFullDesc: boolean;
+    short: string;
+    full: string;
+}
+

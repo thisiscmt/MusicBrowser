@@ -77,6 +77,14 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
                         }
                     </>
             }
+
+            {
+                !props.artist.lifeSpan && props.artist.area && props.artist.area.name &&
+                <>
+                    <Typography variant='subtitle2'>Began:</Typography>
+                    <Typography variant='body2'>{props.artist.area.name}</Typography>
+                </>
+            }
         </>
     );
 }

@@ -46,13 +46,20 @@ class Link(Schema):
     label = String()
     target = String()
 
+class Track(Schema):
+    id = String()
+    name = String()
+    duration = String()
+
 class Album(Schema):
     id = String()
     name = String()
     albumType = String()
     artist = String()
+    artistId = String()
     releaseDate = String()
     description = String()
+    tracks = List(Nested(Track()))
     tags = List(Nested(Tag()))
     genres = List(Nested(Tag()))
     images = List(Nested(Image()))

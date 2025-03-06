@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import { ReactImageGalleryItem } from 'react-image-gallery';
 import InstaView from '../lib/InstaView/instaview';
 
-import { Album, Artist } from '../models/models.ts';
+import {Album, Artist, EntityDescription} from '../models/models.ts';
 import { EntityType } from '../enums/enums.ts';
 import * as Constants from '../constants/constants.ts';
 
@@ -61,12 +61,40 @@ export const getStockImageUrl = (entityType: EntityType) => {
         (entityType === EntityType.Album ? Constants.STOCK_ALBUM_IMAGE : Constants.STOCK_SONG_IMAGE);
 };
 
-export const getEntityImageList = (entity: Artist | Album): ReactImageGalleryItem[] => {
-    return entity.images.slice(0, 10).map((item) => {
+export const getEntityImageList = (entity: Artist | Album, size?: number): ReactImageGalleryItem[] => {
+    const sizeOfList = size === undefined ? 10 : size;
+
+    return entity.images.slice(0, sizeOfList).map((item) => {
         return {
             original: item.url
         };
     });
+};
+
+export const getEntityDescription = (desc: string): EntityDescription => {
+    const entityDesc: EntityDescription = {
+        hasFullDesc: false,
+        short: '',
+        full: ''
+    }
+
+    if (desc) {
+        // We normalize line breaks and do general cleanup so we get a nice presentation of the description text
+        const newDesc = desc.replace(/(\[\[)\n(\]\])/g, '\n').trim().replace(/\n\n/g, '\n');
+
+        const descParts = newDesc.split('\n');
+
+        if (descParts.length > 0) {
+            entityDesc.short = descParts[0];
+
+            if (descParts.length > 1) {
+                entityDesc.hasFullDesc = true;
+                entityDesc.full = newDesc.replace(/\n/g, '\n\n');
+            }
+        }
+    }
+
+    return entityDesc;
 };
 
 export const convertWikiTextToHTML = (text: string) =>{
@@ -112,8 +140,10 @@ export const getEmptyAlbum = (): Album => {
         name: '',
         albumType: '',
         description: '',
+        comment: '',
         releaseDate: '',
         artist: '',
+        artistId: '',
         images: [],
         tags: [],
         genres: [],

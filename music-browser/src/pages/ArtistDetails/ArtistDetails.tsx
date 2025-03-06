@@ -1,4 +1,4 @@
-import React, {FC, RefObject, useContext, useEffect, useState} from 'react';
+import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
 import { Link as RouteLink, useParams } from 'react-router';
 import { Box, Button, Tab, Typography, Link } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
@@ -48,18 +48,12 @@ const useStyles = tss.create(() => ({
         }
     },
 
-    image: {
-        minWidth: '250px',
-        width: '250px',
-        alignSelf: 'center'
-    },
-
     entityName: {
-        marginBottom: '8px'
+        marginBottom: '12px'
     },
 
     comment: {
-        marginBottom: '10px'
+        marginBottom: '12px'
     },
 
     lifeSpanSection: {
@@ -95,12 +89,6 @@ const useStyles = tss.create(() => ({
         padding: '12px 0 0 0'
     }
 }));
-
-interface EntityDescription {
-    hasFullDesc: boolean,
-    short: string;
-    full: string;
-}
 
 interface ArtistDetailsProps {
     topOfPageRef: RefObject<HTMLElement>;
@@ -163,34 +151,8 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
         setCurrentTab(newValue);
     };
 
-    const getEntityDescription = (): EntityDescription => {
-        const entityDesc: EntityDescription = {
-            hasFullDesc: false,
-            short: '',
-            full: ''
-        }
-
-        if (entity.description) {
-            // We normalize line breaks and do general cleanup so we get a nice presentation of the description text
-            const desc = entity.description.replace(/(\[\[)\n(\]\])/g, '\n').trim().replace(/\n\n/g, '\n');
-
-            const descParts = desc.split('\n');
-
-            if (descParts.length > 0) {
-                entityDesc.short = descParts[0];
-
-                if (descParts.length > 1) {
-                    entityDesc.hasFullDesc = true;
-                    entityDesc.full = desc.replace(/\n/g, '\n\n');
-                }
-            }
-        }
-
-        return entityDesc;
-    };
-
     const images = SharedService.getEntityImageList(entity);
-    const entityDesc = getEntityDescription();
+    const entityDesc = SharedService.getEntityDescription(entity.description);
     const showTabs = (entity.albums && entity.albums.length > 0) || (entity.members && entity.members.length > 0);
 
     return (
@@ -210,9 +172,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
 
                             {
                                 entity.comment &&
-                                <Box>
-                                    <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>
-                                </Box>
+                                <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>
                             }
 
                             <TagCollection items={(entity.tags || []).slice(0, 10)} />
@@ -280,7 +240,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
 
                                                 {
                                                     entity.annotation &&
-                                                    <Tab label='Annotation' value='annotation' />
+                                                    <Tab label='Extra' value='extra' />
                                                 }
                                             </TabList>
                                         </Box>
@@ -298,7 +258,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
 
                                         {
                                             entity.annotation &&
-                                            <TabPanel className={cx(classes.tabPanel)} value='annotation'>
+                                            <TabPanel className={cx(classes.tabPanel)} value='extra'>
                                                 <Typography
                                                     variant='body2'
                                                     className={cx(classes.annotation)}

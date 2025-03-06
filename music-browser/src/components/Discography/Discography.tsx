@@ -254,8 +254,10 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
 
                                                     return (
                                                         <Box key={item.id} className='entityDetail'>
-                                                            <EntityDetails id={item.id} name={item.name} entityType={EntityType.Album}
-                                                                           discogType={discogType} dateValue={item.releaseDate} image={albumImage} />
+                                                            <EntityDetails
+                                                                id={item.id} name={item.name} entityType={EntityType.Album} discogType={discogType}
+                                                                dateValue={item.releaseDate} image={albumImage} secondaryId={props.entityId}
+                                                            />
                                                         </Box>
                                                     );
                                                 })

@@ -59,7 +59,7 @@ def get_album_images(entity_id: str):
         request = Request(
             apikey=os.environ.get('FANART_APIKEY'),
             id=entity_id,
-            ws=fanart.WS.MUSIC,
+            ws=fanart.WS.MUSIC_ALBUMS,
             type=fanart.TYPE.MUSIC.COVER,
             sort=fanart.SORT.POPULAR,
             limit=fanart.LIMIT.ONE,

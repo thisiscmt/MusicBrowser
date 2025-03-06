@@ -7,7 +7,7 @@ import musicbrainzngs
 from src.enums.enums import EntityType, DiscographyType
 from src.models.models import Links, DataRequest
 from src.providers.base_provider import BaseProvider
-from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag
+from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag, Track
 from src.services.fanart_service import get_artist_images, get_album_images
 from src.services.wikipedia_service import get_entity_description
 
@@ -91,7 +91,10 @@ class MusicBrainzProvider(BaseProvider):
                 album_images_request.secondary_id = secondary_id
                 album_images_request.use_cache = False
 
-                cached_album_images = cache.get(secondary_id)
+                cached_album_images = None
+
+                if secondary_id:
+                    cached_album_images = cache.get(secondary_id)
 
                 if cached_album_images:
                     album_images_request.use_cache = True
@@ -111,6 +114,8 @@ class MusicBrainzProvider(BaseProvider):
                         cache.set(secondary_id, data[1])
 
                 result = self.build_album(data)
+                result.tracks = self.get_release_data(data[0]['release-group'])
+
             case EntityType.SONG.value:
                 pass # TODO
 
@@ -209,7 +214,7 @@ class MusicBrainzProvider(BaseProvider):
         result = None
 
         if data_request.data_type == 'album':
-            result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'artist-credits', 'url-rels', 'annotation'])
+            result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'releases', 'artist-credits', 'url-rels', 'annotation'])
 
         if data_request.data_type == 'album_images':
             if not data_request.use_cache:
@@ -223,18 +228,63 @@ class MusicBrainzProvider(BaseProvider):
         return result
 
 
+    def get_release_data(self, release_group):
+        release_id = None
+        result = []
+
+        if 'release-list' in release_group and len(release_group['release-list']) > 0:
+            release_list = release_group['release-list']
+
+            for release in release_list:
+                if len(release_list) == 1:
+                    release_id = release['id']
+                    break
+
+                if 'first-release-date' in release_group and release_group['first-release-date'] == release['date']:
+                    release_id = release['id']
+                    break
+
+                if 'status' in release and str(release['status']).lower() == 'official' and 'disambiguation' not in release and 'country' in release:
+                    country = str(release['country']).lower()
+
+                    if country in ['us', 'gb', 'ca', 'au']:
+                        release_id = release['id']
+                        break
+
+            release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings'])
+
+            if 'medium-list' in release_data['release'] and len(release_data['release']['medium-list']) > 0 and 'track-list' in release_data['release']['medium-list'][0]:
+                for item in release_data['release']['medium-list'][0]['track-list']:
+                    track = Track()
+                    track.id = item['id']
+                    track.name = item['recording']['title']
+
+                    if 'length' in item:
+                        total_seconds = round(int(item['length']) / 1000)
+                        minutes = total_seconds // 60
+                        seconds = total_seconds % 60
+
+                        track.duration = f'{minutes}:{seconds:02}'
+                    else:
+                        track.duration = ''
+
+                    result.append(track)
+
+        return result
+
+
     def build_artist_search_results(self, data):
         rows = []
 
-        for record in data['artist-list']:
+        for artist in data['artist-list']:
             result = SearchResult()
             result.entityType = EntityType.ARTIST.value
-            result.id = record['id']
-            result.name = record['name']
-            result.score = record['ext:score']
+            result.id = artist['id']
+            result.name = artist['name']
+            result.score = artist['ext:score']
 
-            if 'tag-list' in record:
-                result.tags = self.build_tag_list(record['tag-list'])
+            if 'tag-list' in artist:
+                result.tags = self.build_tag_list(artist['tag-list'])
 
             rows.append(result)
 
@@ -321,6 +371,7 @@ class MusicBrainzProvider(BaseProvider):
                     album = Album()
                     album.id = rel_group['id']
                     album.name = rel_group['title']
+                    album.tracks = []
 
                     if 'first-release-date' in rel_group:
                         album.releaseDate = rel_group['first-release-date']
@@ -380,18 +431,18 @@ class MusicBrainzProvider(BaseProvider):
         count = 0
 
         if 'release-group-list' in record:
-            for item in record['release-group-list']:
-                if album_only and str(item['type']).lower() != 'album':
+            for rel_group in record['release-group-list']:
+                if album_only and str(rel_group['type']).lower() != 'album':
                     add_record = False
                 else:
                     add_record = True
 
                 if add_record:
                     album = Album()
-                    album.id = item['id']
-                    album.name = item['title']
-                    album.albumType = item['type']
-                    album.releaseDate = item['first-release-date']
+                    album.id = rel_group['id']
+                    album.name = rel_group['title']
+                    album.albumType = rel_group['type']
+                    album.releaseDate = rel_group['first-release-date']
 
                     if album.id in album_images and len(album_images[album.id]) > 0 and 'url' in album_images[album.id][0]:
                         album_image = Image()
@@ -431,6 +482,7 @@ class MusicBrainzProvider(BaseProvider):
         if 'artist-credit' in record and len(record['artist-credit']) > 0:
             if 'artist' in record['artist-credit'][0]:
                 album.artist = record['artist-credit'][0]['artist']['name']
+                album.artistId = record['artist-credit'][0]['artist']['id']
 
         if album.id in album_images and len(album_images[album.id]) > 0 and 'url' in album_images[album.id][0]:
             album_image = Image()
@@ -462,28 +514,36 @@ class MusicBrainzProvider(BaseProvider):
         return items
 
 
+    def get_link_label(self, link):
+        label = 'Other'
+
+        if 'rateyourmusic.com' in link['target']:
+            label = 'Rate Your Music'
+
+        return label
+
+
     def build_link_list(self, data: dict):
         links = Links()
 
         if 'url-relation-list' in data:
             for link in data['url-relation-list']:
-                if link['type'] == 'wikidata' or link['type'] == 'allmusic' or link['type'] == 'discogs':
-                    if link['type'] == 'wikidata':
-                        links.entity_description = get_entity_description(link['target'])
+                if link['type'] == 'wikidata':
+                    links.entity_description = get_entity_description(link['target'])
+                else:
+                    link_entry = Link()
+
+                    if link['type'] == 'allmusic':
+                        link_entry.label = 'All Music'
+                    elif link['type'] == 'discogs':
+                        link_entry.label = 'Discogs'
                     else:
-                        link_entry = Link()
+                        link_entry.label = self.get_link_label(link)
 
-                        if link['type'] == 'allmusic':
-                            link_entry.label = 'All Music'
-                        elif link['type'] == 'discogs':
-                            link_entry.label = 'Discogs'
-                        else:
-                            link_entry.label = link['type']
+                    if 'source-credit' in link:
+                        link_entry.label += f' ({link['source-credit']})'
 
-                        if 'source-credit' in link:
-                            link_entry.label += f' ({link['source-credit']})'
-
-                        link_entry.target = link['target']
-                        links.items.append(link_entry)
+                    link_entry.target = link['target']
+                    links.items.append(link_entry)
 
         return links

@@ -58,10 +58,17 @@ interface EntityDetailsProps {
     discogType?: string;
     dateValue?: string;
     image?: Image;
+    secondaryId?: string;
 }
 
 const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
     const { classes, cx } = useStyles();
+
+    let url = `/${props.entityType.toString()}/${props.id}`;
+
+    if (props.entityType === EntityType.Album && props.secondaryId) {
+        url += `?artistId=${props.secondaryId}`;
+    }
 
     return (
         <Card variant='outlined'>
@@ -76,7 +83,7 @@ const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
 
                 <Box className={cx(classes.content)}>
                     <Typography variant='body1' className={cx(classes.mainTitle, classes.link)}>
-                        <Link to={`/${props.entityType.toString()}/${props.id}`} reloadDocument={props.entityType === EntityType.Artist}>{props.name}</Link>
+                        <Link to={url} reloadDocument={props.entityType === EntityType.Artist}>{props.name}</Link>
                     </Typography>
 
                     {
