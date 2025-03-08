@@ -43,6 +43,7 @@ class Member(Schema):
     lifeSpan = Nested(LifeSpan())
 
 class Link(Schema):
+    ordinal = Integer()
     label = String()
     target = String()
 

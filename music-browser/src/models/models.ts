@@ -55,6 +55,12 @@ export interface LinkEntry {
     target: string;
 }
 
+export interface Track {
+    id: string;
+    name: string;
+    duration: string;
+}
+
 export interface Album {
     id: string;
     name: string;
@@ -68,6 +74,7 @@ export interface Album {
     genres: Tag[];
     images: Image[];
     links: LinkEntry[];
+    tracks: Track[];
 }
 
 export interface Artist {
@@ -88,6 +95,15 @@ export interface Artist {
     totalAlbums: number;
     members: Member[];
     links: LinkEntry[];
+}
+
+export interface Song {
+    id: string;
+    name: string;
+    annotation: string;
+    appearsOn: Album[];
+    writers: Artist[];
+    images: Image[];
 }
 
 export interface DiscographyResults {

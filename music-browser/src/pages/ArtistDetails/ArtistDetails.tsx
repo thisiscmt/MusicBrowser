@@ -1,6 +1,6 @@
 import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
-import { Link as RouteLink, useParams } from 'react-router';
-import { Box, Button, Tab, Typography, Link } from '@mui/material';
+import { useParams } from 'react-router';
+import { Box, Tab, Typography, Link } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
 import DOMPurify from 'dompurify';
@@ -14,7 +14,8 @@ import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
 import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 import TagCollection from '../../components/TagCollection/TagCollection.tsx';
-import { Album, Artist, LinkEntry } from '../../models/models.ts';
+import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
+import { Album, Artist } from '../../models/models.ts';
 import { ChildAnchorBlueStyles, Colors } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
@@ -208,22 +209,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                 </Typography>
                             }
 
-                            {
-                                entity.links && entity.links.length > 0 &&
-                                <Box className={cx(classes.linkContainer)}>
-                                    {
-                                        entity.links.map((item: LinkEntry, index: number) => {
-                                            return (
-                                                <Box key={index}>
-                                                    <Button component={RouteLink} to={item.target} target='_blank'>
-                                                        {item.label}
-                                                    </Button>
-                                                </Box>
-                                            )
-                                        })
-                                    }
-                                </Box>
-                            }
+                            <LinkCollection items={entity.links} />
 
                             {
                                 showTabs &&

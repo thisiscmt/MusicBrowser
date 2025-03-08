@@ -7,4 +7,4 @@ flask-cors==5.0.0
 flask-caching==2.3.0
 musicbrainzngs @ git+https://github.com/thisiscmt/python-musicbrainzngs.git
 spotipy==2.24.0
-python3-fanart @ git+https://github.com/opacam/python3-fanart
+python3-fanart @ git+https://github.com/thisiscmt/python3-fanart

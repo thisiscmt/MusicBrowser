@@ -49,8 +49,8 @@ def get_artist_images(entity_id: str):
 
 def get_album_images(entity_id: str):
     """
-        The entity_id parameter can be the ID for an artist or album. If it's for an artist, a dictionary of images for their albums will be returned. If
-        it's for an album, the dictionary returned will have one key for the given album, if any images were found.
+        The entity_id parameter can be the ID for an artist or album. If it's for an artist, a dictionary of images for their albums will be returned.
+        If it's for an album, the dictionary returned will have at most one key for the given album, if any images were found.
     """
     begin_time = datetime.datetime.now()
     images = {}

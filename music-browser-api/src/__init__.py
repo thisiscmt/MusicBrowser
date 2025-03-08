@@ -50,7 +50,7 @@ CORS(app, origins=[allowed_origin])
 
 
 def set_lookup_cache_headers(response):
-    """Sets caching headers in the response"""
+    """Sets caching headers in a response"""
 
     if isinstance(response, flask.wrappers.Response):
         max_age = int(app.config['LOOKUP_RESPONSE_CACHE_AGE'])

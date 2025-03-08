@@ -1,18 +1,19 @@
 import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
 import { Link as RouteLink, useParams, useSearchParams } from 'react-router';
-import { Box, Button, Typography, Link, } from '@mui/material';
+import { Box, Typography, Link, } from '@mui/material';
 import { tss } from 'tss-react/mui';
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 
 import { MainContext } from '../../contexts/MainContext.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
-import TagCollection from '../../components/TagCollection/TagCollection.tsx';
 import AlbumLoader from '../../components/AlbumLoader/AlbumLoader.tsx';
-import { Album, LinkEntry } from '../../models/models.ts';
+import TagCollection from '../../components/TagCollection/TagCollection.tsx';
+import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
+import { Album, Track } from '../../models/models.ts';
+import { ChildAnchorBlueStyles, ChildAnchorGrayStyles, Colors } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService.ts';
 import * as DataService from '../../services/dataService.ts';
-import {ChildAnchorGrayStyles, Colors} from '../../services/themeService.ts';
 
 const useStyles = tss.create(() => ({
     mainContainer: {
@@ -46,6 +47,7 @@ const useStyles = tss.create(() => ({
     artistName: {
         fontSize: '18px',
         marginBottom: '8px',
+        marginTop: '4px',
         ...ChildAnchorGrayStyles
     },
 
@@ -63,14 +65,32 @@ const useStyles = tss.create(() => ({
         whiteSpace: 'pre-wrap'
     },
 
-    linkContainer: {
-        '& div': {
-            marginBottom: '6px',
+    trackContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: '12px',
+        minWidth: '50%',
+        rowGap: '6px',
+        width: 'fit-content'
+    },
 
-            '&:last-child': {
-                marginBottom: 0
-            }
-        }
+    track: {
+        display: 'flex'
+    },
+
+    trackNumberColumn: {
+        paddingRight: '12px',
+        minWidth: '22px',
+        textAlign: 'right'
+    },
+
+    nameColumn: {
+        ...ChildAnchorBlueStyles
+    },
+
+    durationColumn: {
+        marginLeft: 'auto',
+        paddingLeft: '18px'
     }
 }));
 
@@ -183,21 +203,31 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                                 </Typography>
                             }
 
+                            <LinkCollection items={entity.links} />
+
                             {
-                                entity.links && entity.links.length > 0 &&
-                                <Box className={cx(classes.linkContainer)}>
+                                entity.tracks && entity.tracks.length > 0 &&
+                                <Box className={cx(classes.trackContainer)}>
                                     {
-                                        entity.links.map((item: LinkEntry, index: number) => {
+                                        entity.tracks.map((track: Track, index: number) => {
                                             return (
-                                                <Box key={index}>
-                                                    <Button component={RouteLink} to={item.target} target='_blank'>
-                                                        {item.label}
-                                                    </Button>
+                                                <Box key={track.id} className={cx(classes.track)}>
+                                                    <Typography variant='body2' className={cx(classes.trackNumberColumn)}>{index + 1}</Typography>
+
+                                                    <Box className={cx(classes.nameColumn)}>
+                                                        <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`}>{track.name}</Typography>
+                                                    </Box>
+
+                                                    <Typography variant='body2' className={cx(classes.durationColumn)}>{track.duration}</Typography>
                                                 </Box>
-                                            )
+                                            );
                                         })
                                     }
                                 </Box>
+                            }
+
+                            {
+
                             }
                         </>
             }

@@ -229,27 +229,63 @@ class MusicBrainzProvider(BaseProvider):
 
 
     def get_release_data(self, release_group):
+        """
+            This function attempts to retrieve a MusicBrainz release based on a given release group. It's not perfect, because we aren't using the
+            existing facility that MusicBrainz offers to get a canonical release, because it is fairly unwieldy. Instead, we are making the best guess
+            we can for what would be an accurate representation of the given release group. The ultimate goal is to build a track listing.
+
+            The criteria used is as follows, in orer of importance:
+
+            - If there is only one release, use it.
+            - If there are multiple releases, loop through the list and separate them into two buckets, where each country is included only once:
+                - Those with a date matching the first release date on the release group.
+                - Those whose date doesn't match first the release date.
+            - Go through the release date matches by country, in the order of US -> GB -> CA -> AU -> JP. If one is found, use it. We assume this
+            release has a high chance of having an accurate track listing, since it matches the release date and those countries represent markets
+            where music that has multiple releases would be found.
+            - If there is no date-matrching release, do the same check on non-date-matching releases. If one is found, use it.
+            - If a release hasn't been found yet, we use the first one in the original list.
+        :param release_group: The release group for which we want to get release data.
+        :return: A list of tracks for the given release group, if a candidate release was found.
+        """
         release_id = None
         result = []
 
         if 'release-list' in release_group and len(release_group['release-list']) > 0:
             release_list = release_group['release-list']
+            candidate_releases = {
+                'release-date': [],
+                'other-date': []
+            }
 
-            for release in release_list:
-                if len(release_list) == 1:
-                    release_id = release['id']
-                    break
+            if len(release_list) == 1:
+                release_id = release_list[0]['id']
+            else:
+                for release in release_list:
+                    if 'status' in release and str(release['status']).lower() == 'official' and 'country' in release:
+                        if ('first-release-date' in release_group and 'date' in release and release_group['first-release-date'] == release['date'] and
+                                not any(x for x in candidate_releases['release-date'] if x['country'] == release['country'])):
+                            candidate_releases['release-date'].append({
+                                'release_id': release['id'],
+                                'country': release['country']
+                            })
 
-                if 'first-release-date' in release_group and release_group['first-release-date'] == release['date']:
-                    release_id = release['id']
-                    break
+                            continue
+                        else:
+                            if not any(x for x in candidate_releases['other-date'] if x['country'] == release['country']):
+                                candidate_releases['other-date'].append({
+                                    'release_id': release['id'],
+                                    'country': release['country']
+                                })
 
-                if 'status' in release and str(release['status']).lower() == 'official' and 'disambiguation' not in release and 'country' in release:
-                    country = str(release['country']).lower()
+                                continue
 
-                    if country in ['us', 'gb', 'ca', 'au']:
-                        release_id = release['id']
-                        break
+                if len(candidate_releases['release-date']) > 0:
+                    release_id = self.get_release_id_by_country(candidate_releases['release-date'])
+                elif len(candidate_releases['other-date']) > 0:
+                    release_id = self.get_release_id_by_country(candidate_releases['other-date'])
+                else:
+                    release_id = release_list[0]['id']
 
             release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings'])
 
@@ -514,19 +550,12 @@ class MusicBrainzProvider(BaseProvider):
         return items
 
 
-    def get_link_label(self, link):
-        label = 'Other'
-
-        if 'rateyourmusic.com' in link['target']:
-            label = 'Rate Your Music'
-
-        return label
-
-
     def build_link_list(self, data: dict):
         links = Links()
 
         if 'url-relation-list' in data:
+            fan_page_found = False
+
             for link in data['url-relation-list']:
                 if link['type'] == 'wikidata':
                     links.entity_description = get_entity_description(link['target'])
@@ -535,10 +564,31 @@ class MusicBrainzProvider(BaseProvider):
 
                     if link['type'] == 'allmusic':
                         link_entry.label = 'All Music'
+                        link_entry.ordinal = 1
                     elif link['type'] == 'discogs':
                         link_entry.label = 'Discogs'
+                        link_entry.ordinal = 2
+                    elif link['type'] == 'songkick':
+                        link_entry.label = 'Songkick'
+                        link_entry.ordinal = 4
+                    elif link['type'] == 'setlistfm':
+                        link_entry.label = 'Setlist.fm'
+                        link_entry.ordinal = 5
+                    elif link['type'] == 'fanpage':
+                        if not fan_page_found:
+                            link_entry.label = 'Fan page'
+                            link_entry.ordinal = 6
+                            fan_page_found = True
+                        else:
+                            continue
+                    elif link['type'] == 'other databases':
+                        if 'rateyourmusic.com' in link['target']:
+                            link_entry.label = 'Rate Your Music'
+                            link_entry.ordinal = 3
+                        else:
+                            continue
                     else:
-                        link_entry.label = self.get_link_label(link)
+                        continue
 
                     if 'source-credit' in link:
                         link_entry.label += f' ({link['source-credit']})'
@@ -546,4 +596,35 @@ class MusicBrainzProvider(BaseProvider):
                     link_entry.target = link['target']
                     links.items.append(link_entry)
 
+            links.items = sorted(links.items, key=lambda x: x.ordinal)
+
         return links
+
+
+    def get_release_id_by_country(self, candidate_releases: list):
+        release_id = None
+
+        for candidate_release in candidate_releases:
+            country = candidate_release['country']
+
+            if country == 'US':
+                release_id = candidate_release['release_id']
+                break
+
+            if country == 'GB':
+                release_id = candidate_release['release_id']
+                break
+
+            if country == 'CA':
+                release_id = candidate_release['release_id']
+                break
+
+            if country == 'AU':
+                release_id = candidate_release['release_id']
+                break
+
+            if country == 'JP':
+                release_id = candidate_release['release_id']
+                break
+
+        return release_id
