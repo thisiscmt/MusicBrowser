@@ -59,12 +59,17 @@ class MusicBrainzProvider(BaseProvider):
 
                 artist_images_request = copy.copy(artist_request)
                 artist_images_request.data_type = 'artist_images'
+                artist_images_request.use_cache = False
 
                 album_images_request = copy.copy(artist_request)
                 album_images_request.data_type = 'album_images'
                 album_images_request.use_cache = False
 
-                cached_album_images = cache.get(entity_id)
+                cached_artist_images = self.get_cached_images(entity_id, EntityType.ARTIST, cache)
+                cached_album_images = self.get_cached_images(entity_id, EntityType.ALBUM, cache)
+
+                if cached_artist_images:
+                    artist_images_request.use_cache = True
 
                 if cached_album_images:
                     album_images_request.use_cache = True
@@ -74,10 +79,15 @@ class MusicBrainzProvider(BaseProvider):
 
                 print(f'__MusicBrainz artist lookup: {datetime.datetime.now() - begin_time}')
 
+                if cached_artist_images:
+                    data[2] = cached_artist_images
+                else:
+                    self.set_cached_images(entity_id, EntityType.ARTIST, data[2], cache)
+
                 if cached_album_images:
                     data[3] = cached_album_images
                 else:
-                    cache.set(entity_id, data[3])
+                    self.set_cached_images(entity_id, EntityType.ALBUM, data[3], cache)
 
                 result = self.build_artist(data)
             case EntityType.ALBUM.value:
@@ -94,7 +104,7 @@ class MusicBrainzProvider(BaseProvider):
                 cached_album_images = None
 
                 if secondary_id:
-                    cached_album_images = cache.get(secondary_id)
+                    cached_album_images = self.get_cached_images(secondary_id, EntityType.ARTIST, cache)
 
                 if cached_album_images:
                     album_images_request.use_cache = True
@@ -111,7 +121,7 @@ class MusicBrainzProvider(BaseProvider):
                 else:
                     # We only cache fetched images if we have an artist ID they can be stored under
                     if secondary_id:
-                        cache.set(secondary_id, data[1])
+                        self.set_cached_images(secondary_id, EntityType.ALBUM, data[1], cache)
 
                 result = self.build_album(data)
                 result.tracks = self.get_release_data(data[0]['release-group'])
@@ -154,7 +164,7 @@ class MusicBrainzProvider(BaseProvider):
         album_images_request.data_type = 'album_images'
         album_images_request.use_cache = False
 
-        cached_album_images = cache.get(entity_id)
+        cached_album_images = self.get_cached_images(entity_id, EntityType.ALBUM, cache)
 
         if cached_album_images:
             album_images_request.use_cache = True
@@ -169,7 +179,7 @@ class MusicBrainzProvider(BaseProvider):
         if cached_album_images:
             data[1] = cached_album_images
         else:
-            cache.set(entity_id, data[1])
+            self.set_cached_images(entity_id, EntityType.ALBUM, data[1], cache)
 
         result = self.build_discography_list(data, album_only)
         print(f'Discography lookup total: {datetime.datetime.now() - begin_time}')
@@ -187,7 +197,8 @@ class MusicBrainzProvider(BaseProvider):
             result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], limit=data_request.limit,
                                                           offset=data_request.offset, release_group_status='website-default')
         if data_request.data_type == 'artist_images':
-            result = get_artist_images(data_request.entity_id)
+            if not data_request.use_cache:
+                result = get_artist_images(data_request.entity_id)
 
         if data_request.data_type == 'album_images':
             if not data_request.use_cache:
@@ -230,28 +241,30 @@ class MusicBrainzProvider(BaseProvider):
 
     def get_release_data(self, release_group):
         """
-            This function attempts to retrieve a MusicBrainz release based on a given release group. It's not perfect, because we aren't using the
-            existing facility that MusicBrainz offers to get a canonical release, because it is fairly unwieldy. Instead, we are making the best guess
-            we can for what would be an accurate representation of the given release group. The ultimate goal is to build a track listing.
+            This function attempts to retrieve an accurate MusicBrainz release based on a given release group. It's not perfect because we aren't
+            using the existing facility that MusicBrainz offers to get a canonical release, which itself is fairly unwieldy. Instead, we are making
+            the best guess we can for what would be a correct representation of the given release group. The ultimate goal is to build a track listing.
 
-            The criteria used is as follows, in orer of importance:
+            The criteria used is as follows:
 
             - If there is only one release, use it.
             - If there are multiple releases, loop through the list and separate them into two buckets, where each country is included only once:
                 - Those with a date matching the first release date on the release group.
-                - Those whose date doesn't match first the release date.
+                - Those whose date doesn't match the first release date.
             - Go through the release date matches by country, in the order of US -> GB -> CA -> AU -> JP. If one is found, use it. We assume this
-            release has a high chance of having an accurate track listing, since it matches the release date and those countries represent markets
-            where music that has multiple releases would be found.
-            - If there is no date-matrching release, do the same check on non-date-matching releases. If one is found, use it.
+            release has a high chance of having an accurate track listing, since it matches the release date and those countries cover areas where
+            music that has multiple releases would be found.
+            - If there is no date-matrching release, do the same check on non-date-matching releases using the same country order. If one is found,
+            use it.
             - If a release hasn't been found yet, we use the first one in the original list.
         :param release_group: The release group for which we want to get release data.
         :return: A list of tracks for the given release group, if a candidate release was found.
         """
-        release_id = None
         result = []
 
         if 'release-list' in release_group and len(release_group['release-list']) > 0:
+            release_id = None
+
             release_list = release_group['release-list']
             candidate_releases = {
                 'release-date': [],
@@ -284,27 +297,16 @@ class MusicBrainzProvider(BaseProvider):
                     release_id = self.get_release_id_by_country(candidate_releases['release-date'])
                 elif len(candidate_releases['other-date']) > 0:
                     release_id = self.get_release_id_by_country(candidate_releases['other-date'])
-                else:
-                    release_id = release_list[0]['id']
+
+            if release_id is None:
+                release_id = release_list[0]['id']
 
             release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings'])
 
-            if 'medium-list' in release_data['release'] and len(release_data['release']['medium-list']) > 0 and 'track-list' in release_data['release']['medium-list'][0]:
-                for item in release_data['release']['medium-list'][0]['track-list']:
-                    track = Track()
-                    track.id = item['id']
-                    track.name = item['recording']['title']
-
-                    if 'length' in item:
-                        total_seconds = round(int(item['length']) / 1000)
-                        minutes = total_seconds // 60
-                        seconds = total_seconds % 60
-
-                        track.duration = f'{minutes}:{seconds:02}'
-                    else:
-                        track.duration = ''
-
-                    result.append(track)
+            if 'medium-list' in release_data['release'] and len(release_data['release']['medium-list']) > 0:
+                for item in release_data['release']['medium-list']:
+                    tracks = self.get_release_tracks(item)
+                    result.append(tracks)
 
         return result
 
@@ -628,3 +630,47 @@ class MusicBrainzProvider(BaseProvider):
                 break
 
         return release_id
+
+    def get_cached_images(self, entity_id: str, entity_type: EntityType, cache: Cache):
+        images = None
+
+        cache_key = f'{entity_type.value}-images'
+        cache_collection = cache.get(cache_key)
+
+        if cache_collection:
+            images = cache_collection[entity_id]
+
+        return images
+
+    def set_cached_images(self, entity_id: str, entity_type: EntityType, images: list, cache: Cache):
+        cache_key = f'{entity_type.value}-images'
+        cache_collection = cache.get(cache_key)
+
+        if cache_collection is None:
+            cache.set(cache_key, {})
+            cache_collection = cache.get(cache_key)
+
+        cache_collection[entity_id] = images
+        cache.set(cache_key, cache_collection)
+
+    def get_release_tracks(self, data: dict):
+        tracks = []
+
+        if 'track-list' in data:
+            for item in data['track-list']:
+                track = Track()
+                track.id = item['id']
+                track.name = item['recording']['title']
+
+                if 'length' in item:
+                    total_seconds = round(int(item['length']) / 1000)
+                    minutes = total_seconds // 60
+                    seconds = total_seconds % 60
+
+                    track.duration = f'{minutes}:{seconds:02}'
+                else:
+                    track.duration = ''
+
+                tracks.append(track)
+
+        return tracks

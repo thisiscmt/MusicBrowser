@@ -147,7 +147,8 @@ export const getEmptyAlbum = (): Album => {
         images: [],
         tags: [],
         genres: [],
-        links: []
+        links: [],
+        tracks: []
     }
 }
 

@@ -60,7 +60,7 @@ class Album(Schema):
     artistId = String()
     releaseDate = String()
     description = String()
-    tracks = List(Nested(Track()))
+    tracks = List(List(Nested(Track())))
     tags = List(Nested(Tag()))
     genres = List(Nested(Tag()))
     images = List(Nested(Image()))

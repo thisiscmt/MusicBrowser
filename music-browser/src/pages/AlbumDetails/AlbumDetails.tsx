@@ -209,7 +209,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                                 entity.tracks && entity.tracks.length > 0 &&
                                 <Box className={cx(classes.trackContainer)}>
                                     {
-                                        entity.tracks.map((track: Track, index: number) => {
+                                        entity.tracks[0].map((track: Track, index: number) => {
                                             return (
                                                 <Box key={track.id} className={cx(classes.track)}>
                                                     <Typography variant='body2' className={cx(classes.trackNumberColumn)}>{index + 1}</Typography>

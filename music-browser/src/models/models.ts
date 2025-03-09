@@ -74,7 +74,7 @@ export interface Album {
     genres: Tag[];
     images: Image[];
     links: LinkEntry[];
-    tracks: Track[];
+    tracks: Track[][];
 }
 
 export interface Artist {
