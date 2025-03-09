@@ -123,7 +123,9 @@ class MusicBrainzProvider(BaseProvider):
                         set_cached_images(secondary_id, EntityType.ALBUM, data[1], cache)
 
                 result = build_album(data)
-                result.tracks = get_release_data(data[0]['release-group'])
+
+#                data = get_release_data(data[0]['release-group'])
+                result.trackList = get_release_data(data[0]['release-group'])
 
             case EntityType.SONG.value:
                 pass # TODO

@@ -51,6 +51,11 @@ class Track(Schema):
     id = String()
     name = String()
     duration = String()
+    artist = String()
+
+class TrackList(Schema):
+    tracks = List(Nested(Track()))
+    totalDuration = String()
 
 class Album(Schema):
     id = String()
@@ -60,7 +65,7 @@ class Album(Schema):
     artistId = String()
     releaseDate = String()
     description = String()
-    tracks = List(List(Nested(Track())))
+    trackList = List(Nested(TrackList()))
     tags = List(Nested(Tag()))
     genres = List(Nested(Tag()))
     images = List(Nested(Image()))

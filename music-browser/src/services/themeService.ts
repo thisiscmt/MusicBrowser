@@ -35,6 +35,28 @@ export const ChildAnchorBlueStyles = {
     }
 };
 
+export const ImageViewerStyles = {
+    marginBottom: '12px',
+
+        '& .image-gallery-left-nav': {
+        paddingLeft: 0
+    },
+
+    '& .image-gallery-right-nav': {
+        paddingRight: 0
+    },
+
+    '& .image-gallery-left-nav .image-gallery-svg, .image-gallery-right-nav .image-gallery-svg': {
+        height: '40px',
+            width: '20px'
+    },
+
+    '& .image-gallery-slide .image-gallery-image': {
+        maxWidth: '400px'
+    }
+};
+
+
 export const buildTheme = () => {
     return createTheme({
         typography: {

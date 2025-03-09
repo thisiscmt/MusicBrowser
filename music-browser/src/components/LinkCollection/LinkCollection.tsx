@@ -5,25 +5,25 @@ import { tss } from 'tss-react/mui';
 
 import { LinkEntry } from '../../models/models.ts';
 
+const useStyles = tss.create(() => ({
+    linkContainer: {
+        columnGap: '12px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        rowGap: '4px'
+    },
+
+    linkButton: {
+        paddingBottom: '4px',
+        paddingTop: '4px'
+    }
+}));
+
 interface LinkCollectionProps {
     items: LinkEntry[];
 }
 
 const LinkCollection: FC<LinkCollectionProps> = (props: LinkCollectionProps) => {
-    const useStyles = tss.create(() => ({
-        linkContainer: {
-            columnGap: '12px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            rowGap: '4px'
-        },
-
-        linkButton: {
-            paddingBottom: '4px',
-            paddingTop: '4px'
-        }
-    }));
-
     const { classes, cx } = useStyles();
 
     return (

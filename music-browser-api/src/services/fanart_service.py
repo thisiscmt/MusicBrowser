@@ -6,6 +6,7 @@ from fanart.core import Request
 from fanart.errors import ResponseFanartError
 
 from src.schema.schema import Image
+from src.enums.enums import EntityType
 
 
 def get_artist_images(entity_id: str):
@@ -39,31 +40,30 @@ def get_artist_images(entity_id: str):
             images = list(map(lambda x: Image().load({ 'url': x['url'] }), data['hdmusiclogo']))
 
     except (ResponseFanartError, RuntimeError) as error:
-        # We don't really need to worry about cases where the given artist has no images
-        if len(error.args) > 0 and 'Not found' in error.args[0]:
-            pass
-        else:
-            # TODO: Log this somewhere
-            print(f'Error fetching artist images: {error}')
+        # TODO: Log this somewhere
+        print(f'Error fetching artist images: {error}')
 
     print(f'__Fanart artist lookup: {datetime.datetime.now() - begin_time}')
 
     return images
 
 
-def get_album_images(entity_id: str):
+def get_album_images(entity_id: str, entity_type: EntityType):
     """
-        The entity_id parameter can be the ID for an artist or album. If it's for an artist, a dictionary of images for their albums will be returned.
-        If it's for an album, the dictionary returned will have at most one key for the given album, if any images were found.
+        The entity_id parameter should be the ID for an artist or album, according to the entity_type parameter. If it's for an artist, a dictionary
+        of images for their albums will be returned. If it's for an album, the dictionary returned will have at most one key for the given album, if
+        any images were found.
     """
     begin_time = datetime.datetime.now()
     images = {}
 
     try:
+        ws_param = fanart.WS.MUSIC_ALBUMS if entity_type == EntityType.ALBUM else fanart.WS.MUSIC
+
         request = Request(
             apikey=os.environ.get('FANART_APIKEY'),
             id=entity_id,
-            ws=fanart.WS.MUSIC_ALBUMS,
+            ws=ws_param,
             type=fanart.TYPE.MUSIC.COVER,
             sort=fanart.SORT.POPULAR,
             limit=fanart.LIMIT.ONE,
@@ -84,12 +84,8 @@ def get_album_images(entity_id: str):
                     images[key] = list(map(lambda x: Image().load({ 'url': x['url'] }), record[key]['cdart']))
 
     except (ResponseFanartError, RuntimeError) as error:
-        # We don't really need to worry about cases where the given album has no images
-        if len(error.args) > 0 and 'Not found' in error.args[0]:
-            pass
-        else:
-            # TODO: Log this somewhere
-            print(f'Error fetching artist images: {error}')
+        # TODO: Log this somewhere
+        print(f'Error fetching artist images: {error}')
 
     print(f'__Fanart album lookup: {datetime.datetime.now() - begin_time}')
 

@@ -65,7 +65,7 @@ const AlbumLoader: FC = () => {
 
             <Box className={cx(classes.trackLoaderContainer)}>
                 {
-                    [1, 2, 3, 4].map((item: number) => {
+                    [1, 2, 3, 4, 5].map((item: number) => {
                         return (
                             <Box key={item} className={cx(classes.trackLoader)}>
                                 <Skeleton variant='rectangular' height='20px' width='240px' />

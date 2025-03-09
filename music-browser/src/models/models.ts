@@ -59,6 +59,12 @@ export interface Track {
     id: string;
     name: string;
     duration: string;
+    artist: string;
+}
+
+export interface TrackList {
+    tracks: Track[]
+    totalDuration: string;
 }
 
 export interface Album {
@@ -74,7 +80,7 @@ export interface Album {
     genres: Tag[];
     images: Image[];
     links: LinkEntry[];
-    tracks: Track[][];
+    trackList: TrackList[];
 }
 
 export interface Artist {

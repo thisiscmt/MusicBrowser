@@ -1,6 +1,6 @@
 import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { Box, Tab, Typography, Link } from '@mui/material';
+import { Box, Tab, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
 import DOMPurify from 'dompurify';
@@ -10,13 +10,14 @@ import 'react-image-gallery/styles/css/image-gallery.css';
 import { MainContext } from '../../contexts/MainContext.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
+import EntityDescription from '../../components/EntityDescription/EntityDescription.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
 import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 import TagCollection from '../../components/TagCollection/TagCollection.tsx';
 import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
 import { Album, Artist } from '../../models/models.ts';
-import { ChildAnchorBlueStyles, Colors } from '../../services/themeService.ts';
+import { Colors, ChildAnchorBlueStyles, ImageViewerStyles } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 
@@ -29,24 +30,7 @@ const useStyles = tss.create(() => ({
     },
 
     imageContainer: {
-        marginBottom: '12px',
-
-        '& .image-gallery-left-nav': {
-            paddingLeft: 0
-        },
-
-        '& .image-gallery-right-nav': {
-            paddingRight: 0
-        },
-
-        '& .image-gallery-left-nav .image-gallery-svg, .image-gallery-right-nav .image-gallery-svg': {
-            height: '40px',
-            width: '20px'
-        },
-
-        '& .image-gallery-slide .image-gallery-image': {
-            maxWidth: '400px'
-        }
+        ...ImageViewerStyles
     },
 
     entityName: {
@@ -69,25 +53,6 @@ const useStyles = tss.create(() => ({
         '& pre': {
             whiteSpace: 'pre-line'
         }
-    },
-
-    entityDesc: {
-        marginBottom: '12px',
-        whiteSpace: 'pre-wrap'
-    },
-
-    hideFullDesc: {
-        height: 0,
-        marginBottom: 0,
-        opacity: 0
-    },
-
-    showFullDesc: {
-        height: 'auto',
-        marginBottom: '12px',
-        opacity: 1,
-        transition: 'opacity 0.5s linear',
-        whiteSpace: 'pre-wrap'
     },
 
     linkContainer: {
@@ -113,7 +78,6 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Artist>(SharedService.getEmptyArtist());
-    const [ showFullDesc, setShowFullDesc ] = useState<boolean>(false);
     const [ albums, setAlbums] = useState<Album[]>([]);
     const [ currentTab, setCurrentTab] = useState<string>('discography');
     const [ loading, setLoading ] = useState<boolean>(true);
@@ -154,20 +118,14 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
             fetchData();
             SharedService.scrollToTop(props.topOfPageRef);
         }
-    });
-
-    const handleShowFullDesc = (event: React.MouseEvent<HTMLAnchorElement>) => {
-        event.preventDefault();
-        setShowFullDesc(!showFullDesc);
-    };
+    }, [artistId, entity.name, props.topOfPageRef, setBanner]);
 
     const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);
     };
 
     const images = SharedService.getEntityImageList(entity);
-    const entityDesc = SharedService.getEntityDescription(entity.description);
-    const showTabs = (entity.albums && entity.albums.length > 0) || (entity.members && entity.members.length > 0);
+    const showTabs = (entity.albums && entity.albums.length > 0) || (entity.members && entity.members.length > 0) || entity.annotation;
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -198,27 +156,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                 </Box>
                             }
 
-                            {
-                                entityDesc.short &&
-                                <Typography variant='body2' className={cx(classes.entityDesc)}>
-                                    {entityDesc.short}
-
-                                    {
-                                        entityDesc.hasFullDesc && !showFullDesc &&
-                                        <>
-                                            &nbsp;
-                                            <Link href='#' onClick={handleShowFullDesc} className='app-link'>(show more)</Link>
-                                        </>
-                                    }
-                                </Typography>
-                            }
-
-                            <Typography variant='body2' className={showFullDesc ? cx(classes.showFullDesc) : cx(classes.hideFullDesc)}>
-                                {entityDesc.full}
-                                &nbsp;
-                                <Link href='#' onClick={handleShowFullDesc} className='app-link'>(show less)</Link>
-                            </Typography>
-
+                            <EntityDescription entityDesc={entity.description} />
                             <LinkCollection items={entity.links} />
 
                             {

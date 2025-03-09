@@ -1,7 +1,7 @@
 from flask_caching import Cache
 import musicbrainzngs
 
-from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag, Track
+from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag, Track, TrackList
 from src.services.fanart_service import get_artist_images, get_album_images
 from src.services.wikipedia_service import get_entity_description
 from src.models.models import Links, DataRequest
@@ -23,7 +23,7 @@ def get_artist_data(data_request: DataRequest):
 
     if data_request.data_type == 'album_images':
         if not data_request.use_cache:
-            result = get_album_images(data_request.entity_id)
+            result = get_album_images(data_request.entity_id, EntityType.ARTIST)
 
     return result
 
@@ -37,7 +37,7 @@ def get_discography_data(data_request: DataRequest):
 
     if data_request.data_type == 'album_images':
         if not data_request.use_cache:
-            result = get_album_images(data_request.entity_id)
+            result = get_album_images(data_request.entity_id, EntityType.ARTIST)
 
     return result
 
@@ -55,7 +55,7 @@ def get_album_data(data_request: DataRequest):
             else:
                 entity_id = data_request.entity_id
 
-            result = get_album_images(entity_id)
+            result = get_album_images(entity_id, EntityType.ALBUM)
 
     return result
 
@@ -64,7 +64,8 @@ def get_release_data(release_group):
     """
         This function attempts to retrieve an accurate MusicBrainz release based on a given release group. It's not perfect because we aren't
         using the existing facility that MusicBrainz offers to get a canonical release, which itself is fairly unwieldy. Instead, we are making
-        the best guess we can for what would be a correct representation of the given release group. The ultimate goal is to build a track list.
+        the best guess we can for what would be a correct representation of the given release group. The ultimate goal is to build a track list. One
+        thing to note is the release list for the given release group will have a max of 25 items, which we assume is enough to find a good release.
 
         The criteria used is as follows:
 
@@ -79,7 +80,8 @@ def get_release_data(release_group):
         - If a release hasn't been found, do the same check on non-date-matching releases using the same country order. If one is found, use it.
         - If a release still hasn't been found, we use the first one in the original list.
     :param release_group: The release group for which we want to get release data.
-    :return: A list of tracks for the given release group, if a candidate release was found.
+    :return: A list of track lists for the given release group, if a candidate release was found. A list of track lists is used to support releases
+    that have more than one medium (e.g. box sets). For most albums the return value will only have one element.
     """
     result = []
 
@@ -120,12 +122,12 @@ def get_release_data(release_group):
         if release_id is None:
             release_id = release_list[0]['id']
 
-        release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings'])
+        release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings', 'artist-credits'])
 
         if 'medium-list' in release_data['release'] and len(release_data['release']['medium-list']) > 0:
             for item in release_data['release']['medium-list']:
-                tracks = get_release_tracks(item)
-                result.append(tracks)
+                track_list = get_release_tracks(item)
+                result.append(track_list)
 
     return result
 
@@ -424,44 +426,57 @@ def build_link_list(data: dict):
 
 def get_release_id_by_country(candidate_releases: list):
     release_id = None
+    country_list = []
 
     for candidate_release in candidate_releases:
         country = candidate_release['country']
+        country_obj = dict()
 
         if country == 'US':
-            release_id = candidate_release['release_id']
-            break
+            country_obj['ordinal'] = 1
+        elif country == 'GB':
+            country_obj['ordinal'] = 2
+        elif country == 'CA':
+            country_obj['ordinal'] = 3
+        elif country == 'AU':
+            country_obj['ordinal'] = 4
+        elif country == 'JP':
+            country_obj['ordinal'] = 5
+        else:
+            continue
 
-        if country == 'GB':
-            release_id = candidate_release['release_id']
-            break
+        country_obj['release_id'] = candidate_release['release_id']
+        country_list.append(country_obj)
 
-        if country == 'CA':
-            release_id = candidate_release['release_id']
-            break
+    country_list = sorted(country_list, key=lambda x: x['ordinal'])
 
-        if country == 'AU':
-            release_id = candidate_release['release_id']
-            break
-
-        if country == 'JP':
-            release_id = candidate_release['release_id']
-            break
+    if len(country_list) > 0:
+        release_id = country_list[0]['release_id']
 
     return release_id
 
 
 def get_release_tracks(data: dict):
-    tracks = []
+    result = TrackList()
+    result.tracks = []
+    result.total_duration = ''
 
     if 'track-list' in data:
+        total_duration = 0
+
         for item in data['track-list']:
             track = Track()
             track.id = item['id']
             track.name = item['recording']['title']
 
+            if 'artist-credit-phrase' in item:
+                track.artist = item['artist-credit-phrase']
+
             if 'length' in item:
-                total_seconds = round(int(item['length']) / 1000)
+                length = int(item['length'])
+
+                total_duration += length
+                total_seconds = round(length / 1000)
                 minutes = total_seconds // 60
                 seconds = total_seconds % 60
 
@@ -469,9 +484,24 @@ def get_release_tracks(data: dict):
             else:
                 track.duration = ''
 
-            tracks.append(track)
+            result.tracks.append(track)
 
-    return tracks
+        if total_duration > 0:
+            total_seconds = round(total_duration / 1000)
+            hours = total_seconds // (60 * 60)
+            minutes = total_seconds // 60
+            seconds = total_seconds % 60
+
+            if hours >= 1:
+                total_minutes = round(total_duration / (1000 * 60))
+                minutes = total_minutes % 60
+                formatted_total_duration = f'{hours}:{minutes:02}:{seconds:02}'
+            else:
+                formatted_total_duration = f'{minutes}:{seconds:02}'
+
+            result.totalDuration = formatted_total_duration
+
+    return result
 
 
 def get_cached_images(entity_id: str, entity_type: EntityType, cache: Cache):
@@ -485,18 +515,21 @@ def get_cached_images(entity_id: str, entity_type: EntityType, cache: Cache):
             images = cache_collection[entity_id]
     except (RuntimeError, KeyError) as error:
         # TODO: Log this somewhere
-        print(f'Error fetching artist images: {error}')
-
+        print(f'Error fetching cached images: {error}')
 
     return images
 
 
 def set_cached_images(entity_id: str, entity_type: EntityType, images: list, cache: Cache):
-    cache_key = f'{entity_type.value}-images'
-    cache_collection = cache.get(cache_key)
+    try:
+        cache_key = f'{entity_type.value}-images'
+        cache_collection = cache.get(cache_key)
 
-    if cache_collection is None:
-        cache_collection = dict()
+        if cache_collection is None:
+            cache_collection = dict()
 
-    cache_collection[entity_id] = images
-    cache.set(cache_key, cache_collection)
+        cache_collection[entity_id] = images
+        cache.set(cache_key, cache_collection)
+    except (RuntimeError, KeyError) as error:
+        # TODO: Log this somewhere
+        print(f'Error storing images in the cache: {error}')
