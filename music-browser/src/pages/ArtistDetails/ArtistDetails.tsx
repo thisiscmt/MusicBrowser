@@ -76,6 +76,20 @@ const useStyles = tss.create(() => ({
         whiteSpace: 'pre-wrap'
     },
 
+    hideFullDesc: {
+        height: 0,
+        marginBottom: 0,
+        opacity: 0
+    },
+
+    showFullDesc: {
+        height: 'auto',
+        marginBottom: '12px',
+        opacity: 1,
+        transition: 'opacity 0.5s linear',
+        whiteSpace: 'pre-wrap'
+    },
+
     linkContainer: {
         '& div': {
             marginBottom: '6px',
@@ -144,7 +158,6 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
 
     const handleShowFullDesc = (event: React.MouseEvent<HTMLAnchorElement>) => {
         event.preventDefault();
-
         setShowFullDesc(!showFullDesc);
     };
 
@@ -186,12 +199,12 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                             }
 
                             {
-                                entityDesc.short && !showFullDesc &&
+                                entityDesc.short &&
                                 <Typography variant='body2' className={cx(classes.entityDesc)}>
                                     {entityDesc.short}
 
                                     {
-                                        entityDesc.hasFullDesc &&
+                                        entityDesc.hasFullDesc && !showFullDesc &&
                                         <>
                                             &nbsp;
                                             <Link href='#' onClick={handleShowFullDesc} className='app-link'>(show more)</Link>
@@ -200,14 +213,11 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                 </Typography>
                             }
 
-                            {
-                                showFullDesc &&
-                                <Typography variant='body2' className={cx(classes.entityDesc)}>
-                                    {entityDesc.full}
-                                    &nbsp;
-                                    <Link href='#' onClick={handleShowFullDesc} className='app-link'>(show less)</Link>
-                                </Typography>
-                            }
+                            <Typography variant='body2' className={showFullDesc ? cx(classes.showFullDesc) : cx(classes.hideFullDesc)}>
+                                {entityDesc.full}
+                                &nbsp;
+                                <Link href='#' onClick={handleShowFullDesc} className='app-link'>(show less)</Link>
+                            </Typography>
 
                             <LinkCollection items={entity.links} />
 

@@ -38,11 +38,15 @@ def get_artist_images(entity_id: str):
         if 'hdmusiclogo' in data and len(data['hdmusiclogo']) > 0 and len(images) == 0:
             images = list(map(lambda x: Image().load({ 'url': x['url'] }), data['hdmusiclogo']))
 
-    except (RuntimeError, ResponseFanartError) as error:
-        # TODO: Log this somewhere
-        print(f'Error fetching artist images: {error}')
+    except (ResponseFanartError, RuntimeError) as error:
+        # We don't really need to worry about cases where the given artist has no images
+        if len(error.args) > 0 and 'Not found' in error.args[0]:
+            pass
+        else:
+            # TODO: Log this somewhere
+            print(f'Error fetching artist images: {error}')
 
-    print(f'__Fanart lookup (artist): {datetime.datetime.now() - begin_time}')
+    print(f'__Fanart artist lookup: {datetime.datetime.now() - begin_time}')
 
     return images
 
@@ -79,10 +83,14 @@ def get_album_images(entity_id: str):
                 if 'cdart' in record[key] and len(record[key]) > 0 and len(images[key]) == 0:
                     images[key] = list(map(lambda x: Image().load({ 'url': x['url'] }), record[key]['cdart']))
 
-    except (RuntimeError, ResponseFanartError) as error:
-        # TODO: Log this somewhere
-        print(f'Error fetching album images: {error}')
+    except (ResponseFanartError, RuntimeError) as error:
+        # We don't really need to worry about cases where the given album has no images
+        if len(error.args) > 0 and 'Not found' in error.args[0]:
+            pass
+        else:
+            # TODO: Log this somewhere
+            print(f'Error fetching artist images: {error}')
 
-    print(f'__Fanart lookup (album): {datetime.datetime.now() - begin_time}')
+    print(f'__Fanart album lookup: {datetime.datetime.now() - begin_time}')
 
     return images

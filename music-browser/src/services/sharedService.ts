@@ -89,7 +89,7 @@ export const getEntityDescription = (desc: string): EntityDescription => {
 
             if (descParts.length > 1) {
                 entityDesc.hasFullDesc = true;
-                entityDesc.full = newDesc.replace(/\n/g, '\n\n');
+                entityDesc.full = descParts.slice(1).join().replace(/\n/g, '\n\n');
             }
         }
     }

@@ -31,7 +31,7 @@ def create_app(test_config=None):
         flask_app.config['CACHE_DIR'] = 'mb-cache'
 
     if flask_app.config['CACHE_DEFAULT_TIMEOUT'] is None:
-        flask_app.config['CACHE_DEFAULT_TIMEOUT'] = 86400  # 1 day
+        flask_app.config['CACHE_DEFAULT_TIMEOUT'] = 604800  # 7 days
 
     if flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] is None:
         flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] = 300  # 5 minutes
