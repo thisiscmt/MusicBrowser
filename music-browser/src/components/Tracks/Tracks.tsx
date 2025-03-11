@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
 import { Track } from '../../models/models.ts';
-import { ChildAnchorBlueStyles } from '../../services/themeService.ts';
+import { BlueAnchorStyles } from '../../services/themeService.ts';
 
 const useStyles = tss.create(() => ({
     trackContainer: {
@@ -31,14 +31,13 @@ const useStyles = tss.create(() => ({
         textAlign: 'right'
     },
 
-    nameColumn: {
-        ...ChildAnchorBlueStyles
+    link: {
+        ...BlueAnchorStyles
     },
 
-    totalDuration: {
-        display: 'flex',
-        paddingLeft: '36px',
-        marginTop: '6px'
+    totalDurationColumn: {
+        fontWeight: 'bold',
+        textAlign: 'right'
     }
 }));
 
@@ -69,13 +68,15 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                                 <Box key={track.id} className={cx(classes.track, trackClasses)}>
                                     <Typography variant='body2' className={cx(classes.numericColumn)}>{index + 1}</Typography>
 
-                                    <Box className={cx(classes.nameColumn)}>
-                                        <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`}>{track.name}</Typography>
-                                    </Box>
+                                    <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`} className={cx(classes.link)}>
+                                        {track.name}
+                                    </Typography>
 
                                     {
                                         nonUniqueArtists &&
-                                        <Typography variant='body2'>{track.artist}</Typography>
+                                        <Typography variant='body2' component={RouteLink} to={`.artist/${track.artist}`} className={cx(classes.link)}>
+                                            {track.artist}
+                                        </Typography>
                                     }
 
                                     <Typography variant='body2' className={cx(classes.numericColumn)}>{track.duration}</Typography>
@@ -89,7 +90,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                         <Box className={cx(classes.track, classes.stdGridColumns)}>
                             <Typography variant='body2' className={cx(classes.numericColumn)}></Typography>
                             <Typography variant='subtitle2'>Total duration:</Typography>
-                            <Typography variant='body2' className={cx(classes.numericColumn)}>{props.totalDuration}</Typography>
+                            <Typography variant='body2' className={cx(classes.totalDurationColumn)}>{props.totalDuration}</Typography>
                         </Box>
                     }
                 </Box>

@@ -13,25 +13,21 @@ export const Colors = {
     black: '#000000'
 };
 
-export const ChildAnchorGrayStyles = {
-    '& a': {
-        color: Colors.primaryTextColor,
-        textDecoration: 'none',
+export const GrayAnchorStyles = {
+    color: Colors.primaryTextColor,
+    textDecoration: 'none',
 
-        '&:hover': {
-            color: Colors.secondaryTextColor
-        }
+    '&:hover': {
+        color: Colors.secondaryTextColor
     }
 };
 
-export const ChildAnchorBlueStyles = {
-    '& a': {
-        color: Colors.primaryLinkColor,
-        textDecoration: 'none',
+export const BlueAnchorStyles = {
+    color: Colors.primaryLinkColor,
+    textDecoration: 'none',
 
-        '&:hover': {
-            color: Colors.secondaryLinkColor
-        }
+    '&:hover': {
+        color: Colors.secondaryLinkColor
     }
 };
 

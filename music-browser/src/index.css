@@ -17,8 +17,10 @@ body {
 a.app-link:link,
 a.app-link:visited,
 a.app-link:focus,
-a.app-link:hover,
 a.app-link:active {
     color: #1976d2;
     text-decoration: none;
+}
+a.app-link:hover {
+    color: rgba(25, 118, 210, 0.60);
 }

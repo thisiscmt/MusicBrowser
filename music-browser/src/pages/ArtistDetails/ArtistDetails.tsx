@@ -17,7 +17,7 @@ import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 import TagCollection from '../../components/TagCollection/TagCollection.tsx';
 import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
 import { Album, Artist } from '../../models/models.ts';
-import { Colors, ChildAnchorBlueStyles, ImageViewerStyles } from '../../services/themeService.ts';
+import { Colors, BlueAnchorStyles, ImageViewerStyles } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 
@@ -48,7 +48,10 @@ const useStyles = tss.create(() => ({
     annotation: {
         fontSize: '14px',
         marginBottom: '10px',
-        ...ChildAnchorBlueStyles,
+
+        '& a': {
+            ...BlueAnchorStyles
+        },
 
         '& pre': {
             whiteSpace: 'pre-line'

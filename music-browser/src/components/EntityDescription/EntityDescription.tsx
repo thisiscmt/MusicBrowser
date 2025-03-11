@@ -13,7 +13,8 @@ const useStyles = tss.create(() => ({
     hideFullDesc: {
         height: 0,
         marginBottom: 0,
-        opacity: 0
+        opacity: 0,
+        zIndex: -1
     },
 
     showFullDesc: {

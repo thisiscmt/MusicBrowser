@@ -12,7 +12,7 @@ import EntityDescription from '../../components/EntityDescription/EntityDescript
 import TagCollection from '../../components/TagCollection/TagCollection.tsx';
 import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
 import { Album } from '../../models/models.ts';
-import { Colors, ChildAnchorGrayStyles, ImageViewerStyles } from '../../services/themeService.ts';
+import { Colors, GrayAnchorStyles, ImageViewerStyles } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService.ts';
 import * as DataService from '../../services/dataService.ts';
 import Tracks from '../../components/Tracks/Tracks.tsx';
@@ -33,7 +33,10 @@ const useStyles = tss.create(() => ({
         fontSize: '18px',
         marginBottom: '8px',
         marginTop: '4px',
-        ...ChildAnchorGrayStyles
+
+        '& a': {
+            ...GrayAnchorStyles
+        }
     },
 
     comment: {

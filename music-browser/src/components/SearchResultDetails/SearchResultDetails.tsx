@@ -5,7 +5,7 @@ import { tss } from 'tss-react/mui';
 
 import TagCollection from '../TagCollection/TagCollection.tsx';
 import { SearchResult } from '../../models/models.ts';
-import { ChildAnchorGrayStyles, Colors } from '../../services/themeService.ts';
+import { GrayAnchorStyles, Colors } from '../../services/themeService.ts';
 import { EntityType } from '../../enums/enums.ts';
 
 const useStyles = tss.create(() => ({
@@ -39,7 +39,10 @@ const useStyles = tss.create(() => ({
     link: {
         lineHeight: 1,
         marginBottom: '9px',
-        ...ChildAnchorGrayStyles
+
+        '& a': {
+            ...GrayAnchorStyles
+        }
     },
 
     tagContainer: {

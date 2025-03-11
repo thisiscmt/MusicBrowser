@@ -5,7 +5,7 @@ import { tss } from 'tss-react/mui';
 
 import { Image } from '../../models/models.ts';
 import { EntityType } from '../../enums/enums.ts';
-import { ChildAnchorGrayStyles } from '../../services/themeService.ts';
+import { GrayAnchorStyles } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService';
 
 const useStyles = tss.create(() => ({
@@ -42,7 +42,10 @@ const useStyles = tss.create(() => ({
 
     link: {
         lineHeight: 1,
-        ...ChildAnchorGrayStyles
+
+        '& a': {
+            ...GrayAnchorStyles
+        }
     },
 
     secondaryDataValue: {
