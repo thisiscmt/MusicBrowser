@@ -125,7 +125,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
 
                             <EntityDescription entityDesc={entity.description} />
                             <LinkCollection items={entity.links} />
-                            <Tracks tracks={entity.trackList[0].tracks} totalDuration={entity.trackList[0].totalDuration} />
+                            <Tracks tracks={entity.trackList[0].tracks} totalDuration={entity.trackList[0].totalDuration} artist={entity.artist} />
                         </>
             }
         </Box>

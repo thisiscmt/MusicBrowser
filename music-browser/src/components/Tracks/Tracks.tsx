@@ -8,21 +8,26 @@ import { ChildAnchorBlueStyles } from '../../services/themeService.ts';
 
 const useStyles = tss.create(() => ({
     trackContainer: {
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'grid',
         marginTop: '12px',
-        minWidth: '50%',
         rowGap: '6px',
         width: 'fit-content'
     },
 
     track: {
-        display: 'flex'
+        display: 'grid',
+        columnGap: '16px'
     },
 
-    trackNumberColumn: {
-        paddingRight: '12px',
-        minWidth: '22px',
+    stdGridColumns: {
+        gridTemplateColumns: '20px auto 50px'
+    },
+
+    withArtistGridColumns: {
+        gridTemplateColumns: '20px 2fr 1fr 50px'
+    },
+
+    numericColumn: {
         textAlign: 'right'
     },
 
@@ -30,13 +35,9 @@ const useStyles = tss.create(() => ({
         ...ChildAnchorBlueStyles
     },
 
-    durationColumn: {
-        marginLeft: 'auto',
-        paddingLeft: '18px'
-    },
-
     totalDuration: {
         display: 'flex',
+        paddingLeft: '36px',
         marginTop: '6px'
     }
 }));
@@ -44,10 +45,18 @@ const useStyles = tss.create(() => ({
 interface TracksProps {
     tracks: Track[];
     totalDuration: string;
+    artist: string;
 }
 
 const Tracks: FC<TracksProps> = (props: TracksProps) => {
     const { classes, cx } = useStyles();
+    const artist = props.artist.toLowerCase();
+
+    const nonUniqueArtists = props.tracks.some((track: Track) => {
+        return track.artist.toLowerCase() !== artist;
+    });
+
+    const trackClasses = nonUniqueArtists ? classes.withArtistGridColumns : classes.stdGridColumns;
 
     return (
         <>
@@ -57,14 +66,19 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                     {
                         props.tracks.map((track: Track, index: number) => {
                             return (
-                                <Box key={track.id} className={cx(classes.track)}>
-                                    <Typography variant='body2' className={cx(classes.trackNumberColumn)}>{index + 1}</Typography>
+                                <Box key={track.id} className={cx(classes.track, trackClasses)}>
+                                    <Typography variant='body2' className={cx(classes.numericColumn)}>{index + 1}</Typography>
 
                                     <Box className={cx(classes.nameColumn)}>
                                         <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`}>{track.name}</Typography>
                                     </Box>
 
-                                    <Typography variant='body2' className={cx(classes.durationColumn)}>{track.duration}</Typography>
+                                    {
+                                        nonUniqueArtists &&
+                                        <Typography variant='body2'>{track.artist}</Typography>
+                                    }
+
+                                    <Typography variant='body2' className={cx(classes.numericColumn)}>{track.duration}</Typography>
                                 </Box>
                             );
                         })
@@ -72,10 +86,10 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
 
                     {
                         props.totalDuration &&
-                        <Box className={cx(classes.totalDuration)}>
-                            <Typography variant='body2' className={cx(classes.trackNumberColumn)}></Typography>
-                            <Typography variant='subtitle2'>Total duration: </Typography>
-                            <Typography variant='body2' className={cx(classes.durationColumn)}>{props.totalDuration}</Typography>
+                        <Box className={cx(classes.track, classes.stdGridColumns)}>
+                            <Typography variant='body2' className={cx(classes.numericColumn)}></Typography>
+                            <Typography variant='subtitle2'>Total duration:</Typography>
+                            <Typography variant='body2' className={cx(classes.numericColumn)}>{props.totalDuration}</Typography>
                         </Box>
                     }
                 </Box>
