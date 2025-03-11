@@ -2,7 +2,7 @@ import { RefObject } from 'react';
 import { ReactImageGalleryItem } from 'react-image-gallery';
 import InstaView from '../lib/InstaView/instaview';
 
-import {Album, Artist, EntityDescription} from '../models/models.ts';
+import { Album, Artist, EntityDescription, TrackList } from '../models/models.ts';
 import { EntityType } from '../enums/enums.ts';
 import * as Constants from '../constants/constants.ts';
 
@@ -149,6 +149,15 @@ export const getEmptyAlbum = (): Album => {
         genres: [],
         links: [],
         trackList: []
+    }
+}
+
+export const getEmptyTrackList = (): TrackList => {
+    return {
+        tracks: [],
+        totalDuration: '',
+        position: 0,
+        format: ''
     }
 }
 

@@ -65,6 +65,8 @@ export interface Track {
 export interface TrackList {
     tracks: Track[]
     totalDuration: string;
+    position: number;
+    format: string;
 }
 
 export interface Album {

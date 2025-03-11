@@ -98,7 +98,7 @@ export const buildTheme = () => {
             MuiSkeleton: {
                 styleOverrides: {
                     root: {
-                        borderRadius: '3px'
+                        borderRadius: '4px'
                     }
                 }
             },

@@ -56,6 +56,8 @@ class Track(Schema):
 class TrackList(Schema):
     tracks = List(Nested(Track()))
     totalDuration = String()
+    position = Integer()
+    format = String()
 
 class Album(Schema):
     id = String()

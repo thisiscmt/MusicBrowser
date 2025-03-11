@@ -501,6 +501,12 @@ def get_release_tracks(data: dict):
 
             result.totalDuration = formatted_total_duration
 
+        if 'position' in data:
+            result.position = data['position']
+
+        if 'format' in data:
+            result.format = data['format']
+
     return result
 
 

@@ -9,14 +9,6 @@ import { GrayAnchorStyles } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService';
 
 const useStyles = tss.create(() => ({
-    card: {
-        marginBottom: '2px',
-
-        '&:last-child': {
-            marginBottom: 0
-        }
-    },
-
     cardContent: {
         display: 'flex',
         gap: '16px',

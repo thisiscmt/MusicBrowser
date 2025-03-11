@@ -9,7 +9,6 @@ import { BlueAnchorStyles } from '../../services/themeService.ts';
 const useStyles = tss.create(() => ({
     trackContainer: {
         display: 'grid',
-        marginTop: '12px',
         rowGap: '6px',
         width: 'fit-content'
     },
@@ -74,7 +73,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
 
                                     {
                                         nonUniqueArtists &&
-                                        <Typography variant='body2' component={RouteLink} to={`.artist/${track.artist}`} className={cx(classes.link)}>
+                                        <Typography variant='body2' component={RouteLink} to={`/artist/${track.artist}`} className={cx(classes.link)}>
                                             {track.artist}
                                         </Typography>
                                     }
