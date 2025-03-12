@@ -51,6 +51,7 @@ class Track(Schema):
     id = String()
     name = String()
     duration = String()
+    artistId = String()
     artist = String()
 
 class TrackList(Schema):

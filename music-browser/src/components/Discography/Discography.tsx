@@ -67,7 +67,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ currentDiscogType, setCurrentDiscogType ] = useState<DiscographyType>(DiscographyType.Album);
-    const [ discogPage, setDiscogPage] = useState<number>(1);
     const [ entities, setEntities ] = useState<Album[] | undefined>(undefined);
     const [ albums, setAlbums ] = useState<Album[] | undefined>(undefined);
     const [ singlesEPs, setSinglesEPs ] = useState<Album[] | undefined>(undefined);
@@ -83,11 +82,18 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     useEffect(() => {
         setEntities(props.entities);
         setAlbums(props.entities);
-        setEntityCounts({ [DiscographyType.Album.toString()]: props.totalEntities });
+
+        const entityCounts = { [DiscographyType.Album.toString()]: props.totalEntities };
 
         if (props.entities.length < defaultPageSize) {
+            // For the initial load we are showing albums, and the total count passed in that is returned by the API will include a lot more items that
+            // are not just albums. So if the total is less than the default page size, we set that as the total count so the Show More button isn't
+            // visible if the user switches the discog type and then goes back to Albums.
+            entityCounts[DiscographyType.Album] = props.entities.length;
             setDisableShowMore(true);
         }
+
+        setEntityCounts(entityCounts);
     }, [props.entities, props.totalEntities, defaultPageSize]);
 
     const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void,
@@ -189,11 +195,14 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const handleShowMoreItems = async () => {
         try {
             setLoading(true);
-            const newPage = discogPage + 1;
+
             const { stateVariable, stateUpdateFunction } = getStateObjects(currentDiscogType);
 
+            // We need to get the current page for the given discog type, since they could all vary independently
+            const currentPage = Math.floor((stateVariable || []).length / defaultPageSize);
+
+            const newPage = currentPage + 1;
             await getDiscogEntities(currentDiscogType, stateVariable, stateUpdateFunction, newPage, defaultPageSize, true);
-            setDiscogPage(newPage);
         } catch (error) {
             setBanner((error as Error).message, 'error');
         } finally {

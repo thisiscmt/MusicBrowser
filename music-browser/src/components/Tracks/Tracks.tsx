@@ -73,9 +73,20 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
 
                                     {
                                         nonUniqueArtists &&
-                                        <Typography variant='body2' component={RouteLink} to={`/artist/${track.artist}`} className={cx(classes.link)}>
-                                            {track.artist}
-                                        </Typography>
+                                            <>
+                                                {
+                                                    track.artistId
+                                                        ?
+                                                            <Typography variant='body2' component={RouteLink} to={`/artist/${track.artistId}`}
+                                                                        className={cx(classes.link)}>
+                                                                {track.artist}
+                                                            </Typography>
+                                                        :
+                                                            <Typography variant='body2'>
+                                                                {track.artist}
+                                                            </Typography>
+                                                }
+                                            </>
                                     }
 
                                     <Typography variant='body2' className={cx(classes.numericColumn)}>{track.duration}</Typography>

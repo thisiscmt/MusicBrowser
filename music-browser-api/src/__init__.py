@@ -3,7 +3,7 @@
 import flask
 from apiflask import APIFlask
 from flask_cors import CORS
-from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.exceptions import NotFound, BadRequest, InternalServerError
 from flask_caching import Cache
 
 from src.config import Config
@@ -140,9 +140,9 @@ def handle_not_found():
     return '', 404
 
 
-# @app.errorhandler(InternalServerError)
-# def handle_server_error(error):
-#     """Handler for 500 errors"""
-#
-#     # TODO: Log this somewhere
-#     return error.description, 500
+@app.errorhandler(InternalServerError)
+def handle_server_error(error):
+    """Handler for 500 errors"""
+
+    # TODO: Log this somewhere
+    return error.description, 500

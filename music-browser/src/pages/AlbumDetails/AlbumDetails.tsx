@@ -146,9 +146,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                                         ?
                                             <RouteLink to={`/artist/${entity.artistId}`}>{entity.artist}</RouteLink>
                                         :
-                                            <>
-                                                {entity.artist}
-                                            </>
+                                            <>{entity.artist}</>
                                 }
                             </Typography>
 

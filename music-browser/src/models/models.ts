@@ -59,6 +59,7 @@ export interface Track {
     id: string;
     name: string;
     duration: string;
+    artistId: string;
     artist: string;
 }
 

@@ -8,6 +8,10 @@ from src.models.models import Links, DataRequest
 from src.enums.enums import EntityType
 
 
+# These tags are excluded from any responses because they don't provide any value
+EXCLUDED_TAGS = ['1–9 wochen', 'offizielle charts']
+
+
 def get_artist_data(data_request: DataRequest):
     result = None
 
@@ -130,6 +134,124 @@ def get_release_data(release_group):
                 result.append(track_list)
 
     return result
+
+
+def get_release_id_by_country(candidate_releases: list):
+    release_id = None
+    country_list = []
+
+    for candidate_release in candidate_releases:
+        country = candidate_release['country']
+        country_obj = dict()
+
+        if country == 'US':
+            country_obj['ordinal'] = 1
+        elif country == 'GB':
+            country_obj['ordinal'] = 2
+        elif country == 'CA':
+            country_obj['ordinal'] = 3
+        elif country == 'AU':
+            country_obj['ordinal'] = 4
+        elif country == 'JP':
+            country_obj['ordinal'] = 5
+        else:
+            continue
+
+        country_obj['release_id'] = candidate_release['release_id']
+        country_list.append(country_obj)
+
+    country_list = sorted(country_list, key=lambda x: x['ordinal'])
+
+    if len(country_list) > 0:
+        release_id = country_list[0]['release_id']
+
+    return release_id
+
+
+def get_release_tracks(data: dict):
+    result = TrackList()
+    result.tracks = []
+    result.total_duration = ''
+
+    if 'track-list' in data:
+        total_duration = 0
+
+        for item in data['track-list']:
+            track = Track()
+            track.id = item['id']
+            track.name = item['recording']['title']
+
+            if 'artist-credit' in item and len(item['artist-credit']) > 0 and 'artist' in item['artist-credit'][0]:
+                track.artistId = item['artist-credit'][0]['artist']['id']
+                track.artist = item['artist-credit'][0]['artist']['name']
+
+            if 'length' in item:
+                length = int(item['length'])
+
+                total_duration += length
+                total_seconds = round(length / 1000)
+                minutes = total_seconds // 60
+                seconds = total_seconds % 60
+
+                track.duration = f'{minutes}:{seconds:02}'
+            else:
+                track.duration = ''
+
+            result.tracks.append(track)
+
+        if total_duration > 0:
+            total_seconds = round(total_duration / 1000)
+            hours = total_seconds // (60 * 60)
+            minutes = total_seconds // 60
+            seconds = total_seconds % 60
+
+            if hours >= 1:
+                total_minutes = round(total_duration / (1000 * 60))
+                minutes = total_minutes % 60
+                formatted_total_duration = f'{hours}:{minutes:02}:{seconds:02}'
+            else:
+                formatted_total_duration = f'{minutes}:{seconds:02}'
+
+            result.totalDuration = formatted_total_duration
+
+        if 'position' in data:
+            result.position = data['position']
+
+        if 'format' in data:
+            result.format = data['format']
+
+    return result
+
+
+def get_cached_images(entity_id: str, entity_type: EntityType, cache: Cache):
+    images = None
+
+    try:
+        cache_key = f'{entity_type.value}-images'
+        cache_collection = cache.get(cache_key)
+
+        if cache_collection:
+            images = cache_collection[entity_id]
+    except (RuntimeError, KeyError) as error:
+        # TODO: Log this somewhere
+        print(f'Error fetching cached images: {error}')
+
+    return images
+
+
+def set_cached_images(entity_id: str, entity_type: EntityType, images: list, cache: Cache):
+    try:
+        cache_key = f'{entity_type.value}-images'
+        cache_collection = cache.get(cache_key)
+
+        if cache_collection is None:
+            cache_collection = dict()
+
+        cache_collection[entity_id] = images
+        cache.set(cache_key, cache_collection)
+    except (RuntimeError, KeyError) as error:
+        # TODO: Log this somewhere
+        print(f'Error storing images in the cache: {error}')
 
 
 def build_artist_search_results(data):
@@ -362,6 +484,9 @@ def build_tag_list(data: list):
     items = []
 
     for item in sorted_items:
+        if item['name'] in EXCLUDED_TAGS:
+            continue
+
         tag = Tag()
         tag.name = item['name']
 
@@ -422,120 +547,3 @@ def build_link_list(data: dict):
         links.items = sorted(links.items, key=lambda x: x.ordinal)
 
     return links
-
-
-def get_release_id_by_country(candidate_releases: list):
-    release_id = None
-    country_list = []
-
-    for candidate_release in candidate_releases:
-        country = candidate_release['country']
-        country_obj = dict()
-
-        if country == 'US':
-            country_obj['ordinal'] = 1
-        elif country == 'GB':
-            country_obj['ordinal'] = 2
-        elif country == 'CA':
-            country_obj['ordinal'] = 3
-        elif country == 'AU':
-            country_obj['ordinal'] = 4
-        elif country == 'JP':
-            country_obj['ordinal'] = 5
-        else:
-            continue
-
-        country_obj['release_id'] = candidate_release['release_id']
-        country_list.append(country_obj)
-
-    country_list = sorted(country_list, key=lambda x: x['ordinal'])
-
-    if len(country_list) > 0:
-        release_id = country_list[0]['release_id']
-
-    return release_id
-
-
-def get_release_tracks(data: dict):
-    result = TrackList()
-    result.tracks = []
-    result.total_duration = ''
-
-    if 'track-list' in data:
-        total_duration = 0
-
-        for item in data['track-list']:
-            track = Track()
-            track.id = item['id']
-            track.name = item['recording']['title']
-
-            if 'artist-credit-phrase' in item:
-                track.artist = item['artist-credit-phrase']
-
-            if 'length' in item:
-                length = int(item['length'])
-
-                total_duration += length
-                total_seconds = round(length / 1000)
-                minutes = total_seconds // 60
-                seconds = total_seconds % 60
-
-                track.duration = f'{minutes}:{seconds:02}'
-            else:
-                track.duration = ''
-
-            result.tracks.append(track)
-
-        if total_duration > 0:
-            total_seconds = round(total_duration / 1000)
-            hours = total_seconds // (60 * 60)
-            minutes = total_seconds // 60
-            seconds = total_seconds % 60
-
-            if hours >= 1:
-                total_minutes = round(total_duration / (1000 * 60))
-                minutes = total_minutes % 60
-                formatted_total_duration = f'{hours}:{minutes:02}:{seconds:02}'
-            else:
-                formatted_total_duration = f'{minutes}:{seconds:02}'
-
-            result.totalDuration = formatted_total_duration
-
-        if 'position' in data:
-            result.position = data['position']
-
-        if 'format' in data:
-            result.format = data['format']
-
-    return result
-
-
-def get_cached_images(entity_id: str, entity_type: EntityType, cache: Cache):
-    images = None
-
-    try:
-        cache_key = f'{entity_type.value}-images'
-        cache_collection = cache.get(cache_key)
-
-        if cache_collection:
-            images = cache_collection[entity_id]
-    except (RuntimeError, KeyError) as error:
-        # TODO: Log this somewhere
-        print(f'Error fetching cached images: {error}')
-
-    return images
-
-
-def set_cached_images(entity_id: str, entity_type: EntityType, images: list, cache: Cache):
-    try:
-        cache_key = f'{entity_type.value}-images'
-        cache_collection = cache.get(cache_key)
-
-        if cache_collection is None:
-            cache_collection = dict()
-
-        cache_collection[entity_id] = images
-        cache.set(cache_key, cache_collection)
-    except (RuntimeError, KeyError) as error:
-        # TODO: Log this somewhere
-        print(f'Error storing images in the cache: {error}')
