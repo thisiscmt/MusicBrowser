@@ -1,5 +1,6 @@
 import datetime
 import requests
+import urllib.parse
 
 
 def get_entity_description(wikidata_url: str):
@@ -39,7 +40,7 @@ def get_wikipedia_page_intro(page_title: str):
 
     if page_title is not None and page_title != '':
         try:
-            url = f'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exlimit=1&exintro=true&titles={page_title}&explaintext=1&format=json'
+            url = f'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exlimit=1&exintro=true&titles={urllib.parse.quote_plus(page_title)}&explaintext=1&format=json'
 
             begin_time = datetime.datetime.now()
             response = requests.get(url=url, timeout=30)

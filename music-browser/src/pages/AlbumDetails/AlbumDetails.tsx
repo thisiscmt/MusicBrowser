@@ -31,7 +31,7 @@ const useStyles = tss.create(() => ({
 
     artistName: {
         fontSize: '18px',
-        marginBottom: '8px',
+        marginBottom: '12px',
         marginTop: '4px',
 
         '& a': {

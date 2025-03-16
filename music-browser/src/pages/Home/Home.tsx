@@ -9,8 +9,11 @@ import {
     Radio,
     RadioGroup,
     TextField,
-    Pagination
+    Pagination,
+    InputAdornment,
+    IconButton
 } from '@mui/material';
+import { CloseOutlined } from '@mui/icons-material';
 import { makeStyles } from 'tss-react/mui';
 
 import SearchResultDetails from '../../components/SearchResultDetails/SearchResultDetails.tsx';
@@ -70,12 +73,16 @@ const useStyles = makeStyles()((theme) => ({
         },
 
         '& .MuiOutlinedInput-root': {
-            paddingRight: 0
+            paddingRight: '6px'
         },
 
         '& .MuiFormControlLabel-root': {
             marginRight: 0
         }
+    },
+
+    clearSearch: {
+        padding: '4px'
     },
 
     entityTypeLabel: {
@@ -257,6 +264,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
 
         setCurrentPage(value);
         setSearchParams(searchParams);
+        SharedService.scrollToTop(props.topOfPageRef);
     }
 
     const handleSearch = () => {
@@ -292,6 +300,10 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
         }
     };
 
+    const handleClearSearchText = () => {
+        setSearchText('');
+    };
+
     const searchResultsToRender = searchResults || [];
 
     return (
@@ -305,8 +317,6 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
                         control={
                             <TextField
                                 name='Search'
-                                margin='none'
-                                variant='outlined'
                                 value={searchText}
                                 size='small'
                                 error={searchTextInputError}
@@ -315,6 +325,22 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
                                 inputProps={{ maxLength: 255 }}
                                 onChange={handleChangeSearchText}
                                 onKeyDown={handleEnterKeyDown}
+                                InputProps={ searchText ?
+                                    {
+                                        endAdornment:
+                                            <InputAdornment position='end'>
+                                                <IconButton
+                                                    className={cx(classes.clearSearch)}
+                                                    aria-label='clear search input'
+                                                    onClick={handleClearSearchText}
+                                                    title='Clear search text'
+                                                    type='submit'
+                                                >
+                                                    <CloseOutlined />
+                                                </IconButton>
+                                            </InputAdornment>
+                                    } : undefined
+                                }
                             />
                         }
                     />

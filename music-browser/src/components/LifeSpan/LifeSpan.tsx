@@ -57,7 +57,7 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
                         }
 
                         {
-                            props.artist.lifeSpan.ended &&
+                            props.artist.lifeSpan.ended && props.artist.lifeSpan.end &&
                             <Box className={cx(classes.lifeSpanSection)}>
                                 <Typography variant='subtitle2'>{artistEndLabel}</Typography>
 

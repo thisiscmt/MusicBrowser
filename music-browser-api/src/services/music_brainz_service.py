@@ -9,7 +9,7 @@ from src.enums.enums import EntityType
 
 
 # These tags are excluded from any responses because they don't provide any value
-EXCLUDED_TAGS = ['1–9 wochen', 'offizielle charts']
+EXCLUDED_TAGS = ['1–9 wochen', 'offizielle charts', 'aln-sh']
 
 
 def get_artist_data(data_request: DataRequest):
@@ -432,6 +432,7 @@ def build_discography_list(data, album_only=False):
 
                 rows.append(album)
 
+        rows = sorted(rows, key=lambda x: x.releaseDate)
         count = record['release-group-count']
 
     result.rows = rows

@@ -19,11 +19,11 @@ const useStyles = tss.create(() => ({
     },
 
     stdGridColumns: {
-        gridTemplateColumns: '20px auto 50px'
+        gridTemplateColumns: '16px auto 50px'
     },
 
     withArtistGridColumns: {
-        gridTemplateColumns: '20px 2fr 1fr 50px'
+        gridTemplateColumns: '16px 2fr 1fr 50px'
     },
 
     numericColumn: {
@@ -32,6 +32,14 @@ const useStyles = tss.create(() => ({
 
     link: {
         ...BlueAnchorStyles
+    },
+
+    nameOverflow: {
+        overflowWrap: 'anywhere'
+    },
+
+    totalDurationContainer: {
+        marginTop: '4px'
     },
 
     totalDurationColumn: {
@@ -67,7 +75,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                                 <Box key={track.id} className={cx(classes.track, trackClasses)}>
                                     <Typography variant='body2' className={cx(classes.numericColumn)}>{index + 1}</Typography>
 
-                                    <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`} className={cx(classes.link)}>
+                                    <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`} className={cx(classes.link, classes.nameOverflow)}>
                                         {track.name}
                                     </Typography>
 
@@ -78,11 +86,11 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                                                     track.artistId
                                                         ?
                                                             <Typography variant='body2' component={RouteLink} to={`/artist/${track.artistId}`}
-                                                                        className={cx(classes.link)}>
+                                                                        className={cx(classes.link, classes.nameOverflow)}>
                                                                 {track.artist}
                                                             </Typography>
                                                         :
-                                                            <Typography variant='body2'>
+                                                            <Typography variant='body2' className={cx(classes.nameOverflow)}>
                                                                 {track.artist}
                                                             </Typography>
                                                 }
@@ -97,7 +105,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
 
                     {
                         props.totalDuration &&
-                        <Box className={cx(classes.track, classes.stdGridColumns)}>
+                        <Box className={cx(classes.totalDurationContainer, classes.track, classes.stdGridColumns)}>
                             <Typography variant='body2' className={cx(classes.numericColumn)}></Typography>
                             <Typography variant='subtitle2'>Total duration:</Typography>
                             <Typography variant='body2' className={cx(classes.totalDurationColumn)}>{props.totalDuration}</Typography>

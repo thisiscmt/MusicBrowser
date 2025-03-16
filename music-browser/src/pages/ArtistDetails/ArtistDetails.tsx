@@ -42,7 +42,7 @@ const useStyles = tss.create(() => ({
     },
 
     lifeSpanSection: {
-        marginBottom: '10px'
+        marginBottom: '8px'
     },
 
     annotation: {
@@ -92,6 +92,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
         const fetchData = async () => {
             try {
                 setBanner('');
+                setLoading(true);
 
                 const artist = await DataService.getArtist(artistId);
 
@@ -117,11 +118,12 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
             }
         }
 
-        if (entity.name === '') {
+        // The second cae here is for when the user goes backwards or forwards in the browser history to different artists
+        if (entity.name === '' || (entity.id && entity.id !== artistId)) {
             fetchData();
             SharedService.scrollToTop(props.topOfPageRef);
         }
-    }, [artistId, entity.name, props.topOfPageRef, setBanner]);
+    }, [artistId, entity.id, entity.name, props.topOfPageRef, setBanner]);
 
     const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);
