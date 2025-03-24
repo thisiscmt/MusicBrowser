@@ -50,7 +50,7 @@ interface EntityDetailsProps {
     id: string;
     name: string;
     entityType: EntityType;
-    entityIds: string[];
+    entityIds?: string[];
     discogType?: string;
     dateValue?: string;
     image?: Image;
@@ -63,7 +63,7 @@ const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
     let state;
 
     if (props.entityType === EntityType.Album) {
-        state = { entityIds: props.entityIds };
+        state = { entityIds: (props.entityIds || []) };
 
         if (props.secondaryId) {
             url += `?artistId=${props.secondaryId}`;
