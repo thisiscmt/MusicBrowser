@@ -50,7 +50,7 @@ def get_album_data(data_request: DataRequest):
     result = None
 
     if data_request.data_type == 'album':
-        result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'releases', 'artist-credits', 'url-rels', 'annotation'])
+        result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'releases', 'artist-credits', 'media', 'url-rels', 'annotation'])
 
     if data_request.data_type == 'album_images':
         if not data_request.use_cache:
@@ -95,7 +95,8 @@ def get_release_data(release_group):
         release_list = release_group['release-list']
         candidate_releases = {
             'release-date': [],
-            'other-date': []
+            'other-date': [],
+            'format': ''
         }
 
         if len(release_list) == 1:
@@ -103,20 +104,36 @@ def get_release_data(release_group):
         else:
             for release in release_list:
                 if 'status' in release and str(release['status']).lower() == 'official' and 'country' in release:
-                    if ('first-release-date' in release_group and 'date' in release and release_group['first-release-date'] == release['date'] and
-                            not any(x for x in candidate_releases['release-date'] if x['country'] == release['country'])):
-                        candidate_releases['release-date'].append({
-                            'release_id': release['id'],
-                            'country': release['country']
-                        })
+                    candidate_release = {'release_id': release['id'], 'country': release['country']}
 
+                    if 'medium-list' in release and len(release['medium-list']) > 0:
+                        candidate_release['format'] = release['medium-list'][0]['format']
+
+                    if 'first-release-date' in release_group and 'date' in release and release_group['first-release-date'] == release['date']:
+                        existing_items = [x for x in candidate_releases['release-date'] if x['country'] == release['country']]
+
+                        if len(existing_items) > 0:
+                            # If we've already found a release for the given country but it is not in CD format, and the release being checked is
+                            # for the same country but is in CD format, use it instead. There could be some instances where the first US release
+                            # has multiple mediums, which may not make sense for the given album.
+                            if existing_items[0]['format'] != 'CD' and candidate_release['format'] == 'CD':
+                                existing_items[0]['release_id'] = candidate_release['release_id']
+
+                            continue
+
+                        candidate_releases['release-date'].append(candidate_release)
                         continue
 
                     if not any(x for x in candidate_releases['other-date'] if x['country'] == release['country']):
-                        candidate_releases['other-date'].append({
-                            'release_id': release['id'],
-                            'country': release['country']
-                        })
+                        existing_items = [x for x in candidate_releases['other-date'] if x['country'] == release['country']]
+
+                        if len(existing_items) > 0:
+                            if existing_items[0]['format'] != 'CD' and candidate_release['format'] == 'CD':
+                                existing_items[0]['release_id'] = candidate_release['release_id']
+
+                            continue
+
+                        candidate_releases['other-date'].append(candidate_release)
 
             if len(candidate_releases['release-date']) > 0:
                 release_id = get_release_id_by_country(candidate_releases['release-date'])
@@ -347,9 +364,12 @@ def build_artist(data):
     albums = []
 
     if 'release-group-list' in albums_record:
+        ordinal = 0
+
         for rel_group in albums_record['release-group-list']:
             if 'type' in rel_group and str(rel_group['type']).lower() == 'album':
                 album = Album()
+                album.albumType = 'Album'
                 album.id = rel_group['id']
                 album.name = rel_group['title']
                 album.tracks = []
@@ -358,6 +378,9 @@ def build_artist(data):
                     album.releaseDate = rel_group['first-release-date']
                 else:
                     album.releaseDate = ''
+
+                album.ordinal = ordinal
+                ordinal += 1
 
                 if album.id in album_images and len(album_images[album.id]) > 0 and 'url' in album_images[album.id][0]:
                     album_image = Image()
@@ -412,6 +435,8 @@ def build_discography_list(data, album_only=False):
     count = 0
 
     if 'release-group-list' in record:
+        ordinal = 0
+
         for rel_group in record['release-group-list']:
             if album_only and str(rel_group['type']).lower() != 'album':
                 add_record = False
@@ -424,6 +449,9 @@ def build_discography_list(data, album_only=False):
                 album.name = rel_group['title']
                 album.albumType = rel_group['type']
                 album.releaseDate = rel_group['first-release-date']
+
+                album.ordinal = ordinal
+                ordinal += 1
 
                 if album.id in album_images and len(album_images[album.id]) > 0 and 'url' in album_images[album.id][0]:
                     album_image = Image()

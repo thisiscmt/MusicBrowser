@@ -19,8 +19,10 @@ export const searchAlbums = async (searchParams: SearchParams): Promise<SearchRe
     return search(EntityType.Album, searchParams);
 };
 
-export const getArtist = async (id: string): Promise<Artist> => {
-    const response = await Axios.get<Artist>(`${import.meta.env.VITE_API_URL}/lookup/artist/${id}`, getRequestConfig());
+export const getArtist = async (id: string, pageSize: number | undefined): Promise<Artist> => {
+    const queryString = pageSize !== undefined ? `?pageSize=${pageSize}` : '';
+    const response = await Axios.get<Artist>(`${import.meta.env.VITE_API_URL}/lookup/artist/${id}${queryString}`, getRequestConfig());
+
     return response.data;
 };
 

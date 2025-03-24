@@ -161,7 +161,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
     const [ noResults, setNoResults ] = useState<boolean>(false);
     const [ searchParams, setSearchParams ] = useSearchParams();
 
-    const defaultPageSize = 10;
+    const defaultPageSize = SharedService.getDefaultPageSize();
 
     useDocumentTitle('Home - Music Browser');
 
@@ -212,7 +212,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
         } finally {
             setLoading(false);
         }
-    }, [setBanner, props.topOfPageRef]);
+    }, [defaultPageSize, props.topOfPageRef, setBanner]);
 
     useEffect(() => {
         const fetchData = async () => {

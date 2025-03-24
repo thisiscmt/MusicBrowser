@@ -7,15 +7,15 @@ import { LinkEntry } from '../../models/models.ts';
 
 const useStyles = tss.create(() => ({
     linkContainer: {
-        columnGap: '12px',
+        columnGap: '16px',
         display: 'flex',
         flexWrap: 'wrap',
-        rowGap: '4px'
+        rowGap: '6px'
     },
 
     linkButton: {
-        paddingBottom: '4px',
-        paddingTop: '4px'
+        minWidth: 0,
+        padding: '0 2px'
     }
 }));
 

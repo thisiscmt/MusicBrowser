@@ -50,6 +50,7 @@ interface EntityDetailsProps {
     id: string;
     name: string;
     entityType: EntityType;
+    entityIds: string[];
     discogType?: string;
     dateValue?: string;
     image?: Image;
@@ -58,11 +59,15 @@ interface EntityDetailsProps {
 
 const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
     const { classes, cx } = useStyles();
-
     let url = `/${props.entityType.toString()}/${props.id}`;
+    let state;
 
-    if (props.entityType === EntityType.Album && props.secondaryId) {
-        url += `?artistId=${props.secondaryId}`;
+    if (props.entityType === EntityType.Album) {
+        state = { entityIds: props.entityIds };
+
+        if (props.secondaryId) {
+            url += `?artistId=${props.secondaryId}`;
+        }
     }
 
     return (
@@ -78,7 +83,7 @@ const EntityDetails: FC<EntityDetailsProps> = (props: EntityDetailsProps) => {
 
                 <Box className={cx(classes.content)}>
                     <Typography variant='body1' className={cx(classes.mainTitle, classes.link)}>
-                        <Link to={url} reloadDocument={props.entityType === EntityType.Artist}>{props.name}</Link>
+                        <Link to={url} reloadDocument={props.entityType === EntityType.Artist} state={state}>{props.name}</Link>
                     </Typography>
 
                     {

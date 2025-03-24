@@ -113,6 +113,12 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
 
         if (stateVariable !== undefined && append) {
             newRows = [...stateVariable, ...newRows];
+            let ordinal = 0;
+
+            for (const row of newRows) {
+                row.ordinal = ordinal;
+                ordinal += 1;
+            }
         }
 
         stateUpdateFunction(newRows);
@@ -210,6 +216,14 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         }
     };
 
+    const entityIds: string[] = [];
+
+    if (entities) {
+        for (const item of entities) {
+            entityIds.push(item.id);
+        }
+    }
+
     return (
         <>
             {
@@ -266,6 +280,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                                                             <EntityDetails
                                                                 id={item.id} name={item.name} entityType={EntityType.Album} discogType={discogType}
                                                                 dateValue={item.releaseDate} image={albumImage} secondaryId={props.entityId}
+                                                                entityIds={entityIds}
                                                             />
                                                         </Box>
                                                     );

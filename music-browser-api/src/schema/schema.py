@@ -68,6 +68,7 @@ class Album(Schema):
     artistId = String()
     releaseDate = String()
     description = String()
+    ordinal = Integer()
     trackList = List(Nested(TrackList()))
     tags = List(Nested(Tag()))
     genres = List(Nested(Tag()))
@@ -92,6 +93,10 @@ class Artist(Schema):
     totalAlbums = Integer()
     members = List(Nested(Member()))
     links = List(Nested(Link()))
+
+class ArtistParameters(Schema):
+    page = Integer(load_default=1)
+    pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
 
 class DiscographyParameters(Schema):
     page = Integer(load_default=1)

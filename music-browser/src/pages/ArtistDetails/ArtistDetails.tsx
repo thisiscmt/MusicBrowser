@@ -84,7 +84,10 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
     const [ albums, setAlbums] = useState<Album[]>([]);
     const [ currentTab, setCurrentTab] = useState<string>('discography');
     const [ loading, setLoading ] = useState<boolean>(true);
+    const [ error, setError ] = useState<boolean>(false);
     const { id: artistId } = useParams() as { id: string };
+
+    const defaultPageSize = SharedService.getDefaultPageSize();
 
     useDocumentTitle(entity.name === '' ? 'Artist - Music Browser' : `Artist - ${entity.name} - Music Browser`);
 
@@ -94,7 +97,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                 setBanner('');
                 setLoading(true);
 
-                const artist = await DataService.getArtist(artistId);
+                const artist = await DataService.getArtist(artistId, defaultPageSize);
 
                 if (artist.lifeSpan) {
                     artist.lifeSpan.begin = SharedService.formatDateValue(artist.lifeSpan.begin);
@@ -111,19 +114,21 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
 
                 setEntity(artist);
                 setAlbums(artist.albums);
+                setError(false);
             } catch (error) {
                 setBanner((error as Error).message, 'error');
+                setError(true);
             } finally {
                 setLoading(false);
             }
         }
 
-        // The second cae here is for when the user goes backwards or forwards in the browser history to different artists
-        if (entity.name === '' || (entity.id && entity.id !== artistId)) {
+        // The entity ID comparison is for when the user goes backwards or forwards in the browser history to different artists
+        if ((entity.name === '' || (entity.id && entity.id !== artistId)) && !error) {
             fetchData();
             SharedService.scrollToTop(props.topOfPageRef);
         }
-    }, [artistId, entity.id, entity.name, props.topOfPageRef, setBanner]);
+    }, [artistId, defaultPageSize, entity.id, entity.name, error, props.topOfPageRef, setBanner]);
 
     const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);

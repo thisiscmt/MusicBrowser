@@ -9,6 +9,7 @@ export const Colors = {
     chipBackgroundColor: '#4678B2',
     primaryLinkColor: '#1976d2',
     secondaryLinkColor: 'rgba(25, 118, 210, 0.60)',
+    disabled: 'rgb(0, 0, 0, 0.26)',
     white: '#FFFFFF',
     black: '#000000'
 };

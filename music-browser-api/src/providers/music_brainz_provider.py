@@ -41,7 +41,7 @@ class MusicBrainzProvider(BaseProvider):
         return results
 
 
-    def run_lookup(self, entity_type, entity_id, secondary_id, cache: Cache):
+    def run_lookup(self, entity_type, entity_id, secondary_id, page_size, cache: Cache):
         result = None
         begin_time = datetime.datetime.now()
 
@@ -53,7 +53,7 @@ class MusicBrainzProvider(BaseProvider):
 
                 artist_albums_request = copy.copy(artist_request)
                 artist_albums_request.data_type = 'artist_albums'
-                artist_albums_request.limit = 10
+                artist_albums_request.limit = page_size
                 artist_albums_request.offset = 0
 
                 artist_images_request = copy.copy(artist_request)

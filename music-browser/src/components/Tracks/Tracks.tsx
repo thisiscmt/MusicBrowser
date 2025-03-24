@@ -26,10 +26,6 @@ const useStyles = tss.create(() => ({
         gridTemplateColumns: '16px 2fr 1fr 50px'
     },
 
-    numericColumn: {
-        textAlign: 'right'
-    },
-
     link: {
         ...BlueAnchorStyles
     },
@@ -73,7 +69,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                         props.tracks.map((track: Track, index: number) => {
                             return (
                                 <Box key={track.id} className={cx(classes.track, trackClasses)}>
-                                    <Typography variant='body2' className={cx(classes.numericColumn)}>{index + 1}</Typography>
+                                    <Typography variant='body2'>{index + 1}</Typography>
 
                                     <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`} className={cx(classes.link, classes.nameOverflow)}>
                                         {track.name}
@@ -97,7 +93,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                                             </>
                                     }
 
-                                    <Typography variant='body2' className={cx(classes.numericColumn)}>{track.duration}</Typography>
+                                    <Typography variant='body2'>{track.duration}</Typography>
                                 </Box>
                             );
                         })
@@ -106,7 +102,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                     {
                         props.totalDuration &&
                         <Box className={cx(classes.totalDurationContainer, classes.track, classes.stdGridColumns)}>
-                            <Typography variant='body2' className={cx(classes.numericColumn)}></Typography>
+                            <Typography variant='body2'></Typography>
                             <Typography variant='subtitle2'>Total duration:</Typography>
                             <Typography variant='body2' className={cx(classes.totalDurationColumn)}>{props.totalDuration}</Typography>
                         </Box>

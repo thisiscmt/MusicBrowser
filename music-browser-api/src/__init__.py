@@ -7,7 +7,7 @@ from werkzeug.exceptions import NotFound, BadRequest, InternalServerError
 from flask_caching import Cache
 
 from src.config import Config
-from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, DiscographyParameters, AlbumParameters
+from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, DiscographyParameters, AlbumParameters, ArtistParameters
 from src.services.shared_service import supported_entity_type, supported_discog_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType, DiscographyType
@@ -31,7 +31,7 @@ def create_app(test_config=None):
         flask_app.config['CACHE_DIR'] = 'mb-cache'
 
     if flask_app.config['CACHE_DEFAULT_TIMEOUT'] is None:
-        flask_app.config['CACHE_DEFAULT_TIMEOUT'] = 604800  # 7 days
+        flask_app.config['CACHE_DEFAULT_TIMEOUT'] = 2678400  # 31 days
 
     if flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] is None:
         flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] = 300  # 5 minutes
@@ -47,16 +47,6 @@ if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower(
     allowed_origin = app.config['ALLOWED_ORIGIN']
 
 CORS(app, origins=[allowed_origin])
-
-
-def set_lookup_cache_headers(response):
-    """Sets caching headers in a response"""
-
-    if isinstance(response, flask.wrappers.Response):
-        max_age = int(app.config['LOOKUP_RESPONSE_CACHE_AGE'])
-        response.cache_control.max_age = max_age
-
-    return response
 
 
 @app.get('/')
@@ -82,13 +72,13 @@ def search(entity_type, query_data):
 
 
 @app.get('/lookup/artist/<string:entity_id>')
+@app.input(ArtistParameters, location='query')
 @app.output(Artist)
-@app.after_request(set_lookup_cache_headers)
-def lookup_artist(entity_id):
+def lookup_artist(entity_id, query_data):
     """Performs a lookup of a specific artist"""
 
     db = get_data_provider(app.config)
-    result = db.run_lookup(entity_type=EntityType.ARTIST.value, entity_id=entity_id, secondary_id=None, cache=cache)
+    result = db.run_lookup(entity_type=EntityType.ARTIST.value, entity_id=entity_id, secondary_id=None, page_size=query_data['pageSize'], cache=cache)
 
     return result
 
@@ -96,12 +86,12 @@ def lookup_artist(entity_id):
 @app.get('/lookup/artist/<string:entity_id>/discography')
 @app.input(DiscographyParameters, location='query')
 @app.output(Discography)
-@app.after_request(set_lookup_cache_headers)
 def lookup_artist_discography(entity_id, query_data):
     """Performs a lookup of a specific artist's discography"""
 
     db = get_data_provider(app.config)
-    result = db.run_discography_lookup(discog_type=query_data['discogType'], entity_id=entity_id, page=query_data['page'], page_size=query_data['pageSize'], cache=cache)
+    result = db.run_discography_lookup(discog_type=query_data['discogType'], entity_id=entity_id, page=query_data['page'], page_size=query_data['pageSize'],
+                                       cache=cache)
 
     return result
 
@@ -109,7 +99,6 @@ def lookup_artist_discography(entity_id, query_data):
 @app.get('/lookup/album/<string:entity_id>')
 @app.input(AlbumParameters, location='query')
 @app.output(Album)
-@app.after_request(set_lookup_cache_headers)
 def lookup_album(entity_id, query_data):
     """Performs a lookup of a specific album"""
 
@@ -119,9 +108,20 @@ def lookup_album(entity_id, query_data):
     if 'artistId' in query_data:
         secondary_id = query_data['artistId']
 
-    result = db.run_lookup(entity_type=EntityType.ALBUM.value, entity_id=entity_id, secondary_id=secondary_id, cache=cache)
+    result = db.run_lookup(entity_type=EntityType.ALBUM.value, entity_id=entity_id, secondary_id=secondary_id, page_size=None, cache=cache)
 
     return result
+
+
+@app.after_request
+def set_cache_headers(response):
+    """Sets caching headers in a response"""
+
+    if isinstance(response, flask.wrappers.Response) and response.status_code < 300:
+        max_age = int(app.config['LOOKUP_RESPONSE_CACHE_AGE'])
+        response.cache_control.max_age = max_age
+
+    return response
 
 
 @app.errorhandler(BadRequest)

@@ -79,6 +79,7 @@ export interface Album {
     releaseDate: string;
     artist: string;
     artistId: string;
+    ordinal: number;
     tags: Tag[];
     genres: Tag[];
     images: Image[];
