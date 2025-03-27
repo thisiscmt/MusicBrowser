@@ -103,6 +103,8 @@ export const convertWikiTextToHTML = (text: string) =>{
     if (text) {
         try {
             result = InstaView.convert(text);
+            result = result.replace(/<pre>/g, '<p>');
+            result = result.replace(/<\/pre>/g, '</p>');
         } catch (error) {
             // TODO: Log this somewhere
             console.log(error);

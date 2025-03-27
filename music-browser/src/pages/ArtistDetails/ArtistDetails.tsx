@@ -53,7 +53,7 @@ const useStyles = tss.create(() => ({
             ...BlueAnchorStyles
         },
 
-        '& pre': {
+        '& p': {
             whiteSpace: 'pre-line'
         }
     },
@@ -115,8 +115,9 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                 setEntity(artist);
                 setAlbums(artist.albums);
                 setError(false);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
-                setBanner((error as Error).message, 'error');
+                setBanner('An error occurred retrieving artist details', 'error');
                 setError(true);
             } finally {
                 setLoading(false);

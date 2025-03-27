@@ -206,6 +206,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
             setNoResults(results.rows.length === 0);
 
             SharedService.scrollToTop(props.topOfPageRef);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             // TODO: Log this somewhere
             setBanner('An error occurred retrieving search results', 'error');

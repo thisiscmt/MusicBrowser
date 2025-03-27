@@ -1,5 +1,6 @@
 """Primary entry point for the service"""
 
+import sys
 import flask
 from apiflask import APIFlask
 from flask_cors import CORS
@@ -23,30 +24,21 @@ def create_app(test_config=None):
     else:
         flask_app.config.from_mapping(test_config)
 
-    # Set various defaults if the given environment variables are not set
-    if flask_app.config['CACHE_TYPE'] is None:
-        flask_app.config['CACHE_TYPE'] = 'FileSystemCache'
-
-    if flask_app.config['CACHE_DIR'] is None:
-        flask_app.config['CACHE_DIR'] = 'mb-cache'
-
-    if flask_app.config['CACHE_DEFAULT_TIMEOUT'] is None:
-        flask_app.config['CACHE_DEFAULT_TIMEOUT'] = 2678400  # 31 days
-
-    if flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] is None:
-        flask_app.config['LOOKUP_RESPONSE_CACHE_AGE'] = 300  # 5 minutes
-
     return flask_app
 
 
-app = create_app()
-cache = Cache(app)
-allowed_origin = '*'
+try:
+    app = create_app()
+    cache = Cache(app)
+    allowed_origin = '*'
 
-if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower() == 'true':
-    allowed_origin = app.config['ALLOWED_ORIGIN']
+    if app.config['PRODUCTION'] is not None and str(app.config['PRODUCTION']).lower() == 'true':
+        allowed_origin = app.config['ALLOWED_ORIGIN']
 
-CORS(app, origins=[allowed_origin])
+    CORS(app, origins=[allowed_origin])
+except RuntimeError:
+    print('Exception occurred during app initialization, shutting down')
+    sys.exit()
 
 
 @app.get('/')
@@ -118,7 +110,7 @@ def set_cache_headers(response):
     """Sets caching headers in a response"""
 
     if isinstance(response, flask.wrappers.Response) and response.status_code < 300:
-        max_age = int(app.config['LOOKUP_RESPONSE_CACHE_AGE'])
+        max_age = app.config['LOOKUP_RESPONSE_CACHE_AGE']
         response.cache_control.max_age = max_age
 
     return response
@@ -145,4 +137,13 @@ def handle_server_error(error):
     """Handler for 500 errors"""
 
     # TODO: Log this somewhere
-    return error.description, 500
+    return 'An unknown error occurred', 500
+
+
+@app.errorhandler(Exception)
+def handle_generic_exception(e):
+    """Handler for uncaught errors"""
+
+    # TODO: Log this somewhere
+    return 'An unknown error occurred', 500
+

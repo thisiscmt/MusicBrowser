@@ -9,7 +9,7 @@ from src.enums.enums import EntityType
 
 
 # These tags are excluded from any responses because they don't provide any value
-EXCLUDED_TAGS = ['1–9 wochen', 'offizielle charts', 'aln-sh', 'laut.de', 'plattentests.de']
+EXCLUDED_TAGS = ['1–4 wochen', '1–9 wochen', 'offizielle charts', 'aln-sh', 'laut.de', 'plattentests.de', '2008 universal fire victim', 'a filk artist']
 
 
 def get_artist_data(data_request: DataRequest):
@@ -104,9 +104,9 @@ def get_release_data(release_group):
         else:
             for release in release_list:
                 if 'status' in release and str(release['status']).lower() == 'official' and 'country' in release:
-                    candidate_release = {'release_id': release['id'], 'country': release['country']}
+                    candidate_release = {'release_id': release['id'], 'country': release['country'], 'format': ''}
 
-                    if 'medium-list' in release and len(release['medium-list']) > 0:
+                    if 'medium-list' in release and len(release['medium-list']) > 0 and 'format' in release['medium-list'][0]:
                         candidate_release['format'] = release['medium-list'][0]['format']
 
                     if 'first-release-date' in release_group and 'date' in release and release_group['first-release-date'] == release['date']:
