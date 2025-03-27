@@ -9,7 +9,7 @@ from src.enums.enums import EntityType
 
 
 # These tags are excluded from any responses because they don't provide any value
-EXCLUDED_TAGS = ['1–9 wochen', 'offizielle charts', 'aln-sh']
+EXCLUDED_TAGS = ['1–9 wochen', 'offizielle charts', 'aln-sh', 'laut.de', 'plattentests.de']
 
 
 def get_artist_data(data_request: DataRequest):

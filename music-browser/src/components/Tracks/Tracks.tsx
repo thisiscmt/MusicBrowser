@@ -34,13 +34,16 @@ const useStyles = tss.create(() => ({
         overflowWrap: 'anywhere'
     },
 
+    durationColumn: {
+        textAlign: 'right'
+    },
+
     totalDurationContainer: {
         marginTop: '4px'
     },
 
-    totalDurationColumn: {
-        fontWeight: 'bold',
-        textAlign: 'right'
+    totalDuration: {
+        fontWeight: 'bold'
     }
 }));
 
@@ -93,7 +96,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                                             </>
                                     }
 
-                                    <Typography variant='body2'>{track.duration}</Typography>
+                                    <Typography variant='body2' className={cx(classes.durationColumn)}>{track.duration}</Typography>
                                 </Box>
                             );
                         })
@@ -104,7 +107,7 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
                         <Box className={cx(classes.totalDurationContainer, classes.track, classes.stdGridColumns)}>
                             <Typography variant='body2'></Typography>
                             <Typography variant='subtitle2'>Total duration:</Typography>
-                            <Typography variant='body2' className={cx(classes.totalDurationColumn)}>{props.totalDuration}</Typography>
+                            <Typography variant='body2' className={cx(classes.durationColumn, classes.totalDuration)}>{props.totalDuration}</Typography>
                         </Box>
                     }
                 </Box>
