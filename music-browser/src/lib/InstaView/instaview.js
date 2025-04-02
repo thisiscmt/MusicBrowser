@@ -160,8 +160,7 @@ InstaView.convert = function(wiki)
 	{
 		var prev='';
 		
-		while (remain() && $(/^([*#:;]+)(.*)$/)) {
-			
+		while (remain() && $(/^(    [*#:;]+)(.*)$/)) {
 			var l_match = $r
 			
 			sh()
@@ -457,8 +456,8 @@ InstaView.convert = function(wiki)
 					substart+=2;
 					close=str.indexOf(']]',substart);
 					open=str.indexOf('[[',substart);
-					if (close<=open||open==-1) {
-						if (close==-1) return str;
+					if (close <= open || open == -1) {
+						if (close == -1) return str;
 						substart=close;
 						if (nestlev) {
 							nestlev--;
@@ -517,14 +516,18 @@ InstaView.convert = function(wiki)
 		// Build a Mediawiki-formatted date string
 		var date = new Date;
 		var minutes = date.getUTCMinutes();
-		if (minutes < 10) minutes = '0' + minutes;
-		var date = f("?:?, ? ? ? (UTC)", date.getUTCHours(), minutes, date.getUTCDate(), InstaView.conf.locale.months[date.getUTCMonth()], date.getUTCFullYear());
+
+		if (minutes < 10) {
+			minutes = '0' + minutes;
+		}
+
+		var newDate = f("?:?, ? ? ? (UTC)", date.getUTCHours(), minutes, date.getUTCDate(), InstaView.conf.locale.months[date.getUTCMonth()], date.getUTCFullYear());
 		
 		// text formatting
-		return str.
+		const formattedStr = str.trim().
 			// signatures
-			replace(/~{5}(?!~)/g, date).
-			replace(/~{4}(?!~)/g, InstaView.conf.user.name+' '+date).
+			replace(/~{5}(?!~)/g, newDate).
+			replace(/~{4}(?!~)/g, InstaView.conf.user.name+' ' + newDate).
 			replace(/~{3}(?!~)/g, InstaView.conf.user.name).
 			
 			// [[:Category:...]], [[:Image:...]], etc...
@@ -550,12 +553,20 @@ InstaView.convert = function(wiki)
 			// The separator between the URL and optional label can be either a space character or a pipe symbol
 			replace(/\[(https?|news|ftp|mailto|gopher|irc):(\/*)([^\]]*?)[ |](.*?)\]/g, "<a href='$1:$2$3'>$4</a>").
 
+			// MusicBrainz short links
+			replace(/\[(series|release-group|release|artist):([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12})\|(.*)\]/g, "<a href='https://musicbrainz.org/$1/$2'>$3</a>").
+
+			// MusicBrainz full links
+			replace(/\[(https?:\/\/.*)\|(.*)\]/g, "<a href='$1'>$2</a>").
+
 			replace(/\[http:\/\/(.*?)\]/g, "<a href='http://$1'>[#]</a>").
 			replace(/\[(news|ftp|mailto|gopher|irc):(\/*)(.*?)\]/g, "<a href='$1:$2$3'>$1:$2$3</a>").
 			replace(/(^| )(https?|news|ftp|mailto|gopher|irc):(\/*)([^ $]*)/g, "$1<a href='$2:$3$4'>$2:$3$4</a>").
 			
 			replace('__NOTOC__','').
 			replace('__NOEDITSECTION__','');
+
+		return formattedStr;
 	}
 	
 	function strip_inline_wiki(str)
@@ -571,7 +582,7 @@ InstaView.convert = function(wiki)
 		p=0
 		endl(f('<h?>?</h?>?', $r[1].length, parse_inline_nowiki($r[2]), $r[1].length, $r[3]))
 		
-	} else if ($(/^[*#:;]/)) {
+	} else if ($(/^    [*#:;]/)) {
 		p=0
 		parse_list()
 		
