@@ -14,6 +14,7 @@ const useStyles = tss.create(() => ({
         height: 0,
         marginBottom: 0,
         opacity: 0,
+        overflow: 'hidden',
         zIndex: -1
     },
 

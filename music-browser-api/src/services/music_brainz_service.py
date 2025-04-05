@@ -115,7 +115,7 @@ def get_release_data(release_group):
                         if len(existing_items) > 0:
                             # If we've already found a release for the given country but it is not in CD format, and the release being checked is
                             # for the same country but is in CD format, use it instead. There could be some instances where the first US release
-                            # has multiple mediums, which may not make sense for the given album.
+                            # has multiple mediums, which will probably not make sense for the given album.
                             if existing_items[0]['format'] != 'CD' and candidate_release['format'] == 'CD':
                                 existing_items[0]['release_id'] = candidate_release['release_id']
 
