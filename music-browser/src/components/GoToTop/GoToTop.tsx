@@ -7,14 +7,13 @@ import * as SharedService from '../../services/sharedService.ts';
 
 const useStyles = tss.create(() => ({
     mainContainer: {
-        position: 'relative'
+        position: 'relative',
+        textAlign: 'right'
     },
 
     button: {
-        bottom: 0,
+        opacity: 0.5,
         padding: 0,
-        position: 'absolute',
-        right: 0,
 
         '& svg': {
             height: '56px',
@@ -36,7 +35,7 @@ const GoToTop: FC<GoToTopProps> = (props: GoToTopProps) => {
 
     return (
         <Box className={cx(classes.mainContainer)}>
-            <IconButton className={cx(classes.button)} aria-label='go to top of page' title='Go to top' onClick={handleGoToTop}>
+            <IconButton className={cx(classes.button)} aria-label='go to top of page' title='Go to top' disableRipple={true} onClick={handleGoToTop}>
                 <ArrowCircleUpOutlined color='primary' />
             </IconButton>
         </Box>

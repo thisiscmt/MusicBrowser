@@ -47,9 +47,12 @@ const useStyles = tss.create(() => ({
     },
 
     showMoreButton: {
-        marginBottom: '10px',
         marginTop: '10px',
-        textAlign: 'center'
+        textAlign: 'center',
+
+        '& .MuiButtonBase-root': {
+            padding: '2px 6px'
+        }
     }
 }));
 
@@ -86,9 +89,9 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         const entityCounts = { [DiscographyType.Album.toString()]: props.totalEntities };
 
         if (props.entities.length < defaultPageSize) {
-            // For the initial load we are showing albums, and the total count passed in that is returned by the API will include a lot more items that
-            // are not just albums. So if the total is less than the default page size, we set that as the total count so the Show More button isn't
-            // visible if the user switches the discog type and then goes back to Albums.
+            // For the initial load we are showing albums, and the total count passed in that is returned by the API includes subtypes that we don't
+            // show on the Album tab (e.g. compilations, demos, etc). So if the total is less than the default page size, we set that as the total
+            // count so the Show More button isn't visible if the user switches the discog type and then goes back to Albums.
             entityCounts[DiscographyType.Album] = props.entities.length;
             setDisableShowMore(true);
         }
