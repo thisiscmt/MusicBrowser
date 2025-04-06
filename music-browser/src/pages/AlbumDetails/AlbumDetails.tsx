@@ -12,6 +12,7 @@ import EntityDescription from '../../components/EntityDescription/EntityDescript
 import TagCollection from '../../components/TagCollection/TagCollection.tsx';
 import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
 import Tracks from '../../components/Tracks/Tracks.tsx';
+import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Album, TrackList } from '../../models/models.ts';
 import { Colors, GrayAnchorStyles, ImageViewerStyles } from '../../services/themeService.ts';
 import * as SharedService from '../../services/sharedService.ts';
@@ -295,6 +296,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                             }
 
                             <Tracks tracks={currentTrackList.tracks} totalDuration={currentTrackList.totalDuration} artist={entity.artist} />
+                            <GoToTop topOfPageRef={props.topOfPageRef} />
                         </>
             }
         </Box>

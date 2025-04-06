@@ -166,6 +166,6 @@ export const getEmptyTrackList = (): TrackList => {
 
 export const scrollToTop = (ref: RefObject<HTMLElement>) => {
     if (ref && ref.current) {
-        ref.current.scrollIntoView();
+        ref.current.scrollIntoView({ behavior: 'smooth' });
     }
 }

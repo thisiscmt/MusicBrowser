@@ -16,6 +16,7 @@ import Discography from '../../components/Discography/Discography.tsx';
 import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 import TagCollection from '../../components/TagCollection/TagCollection.tsx';
 import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
+import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Album, Artist } from '../../models/models.ts';
 import { Colors, BlueAnchorStyles, ImageViewerStyles } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
@@ -214,6 +215,8 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                     </TabContext>
                                 </>
                             }
+
+                            <GoToTop topOfPageRef={props.topOfPageRef} />
                         </>
             }
         </Box>
