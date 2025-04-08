@@ -11,7 +11,8 @@ import {
     TextField,
     Pagination,
     InputAdornment,
-    IconButton
+    IconButton,
+    Typography
 } from '@mui/material';
 import { CloseOutlined } from '@mui/icons-material';
 import { makeStyles } from 'tss-react/mui';
@@ -414,7 +415,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
                                             <>
                                                 {
                                                     !loading && noResults &&
-                                                    <Box>No results for '{searchText}'</Box>
+                                                    <Typography variant='body2'>No results for '{searchText}'</Typography>
                                                 }
                                             </>
                                 }
