@@ -30,13 +30,13 @@ const InstaView = {}
 
 InstaView.conf = {
 	user: {},
-	
+
 	wiki: {
 		lang: 'en',
 		interwiki: 'ab|aa|af|ak|sq|als|am|ang|ar|an|arc|hy|roa-rup|as|ast|av|ay|az|bm|ba|eu|be|bn|bh|bi|bs|br|bg|my|ca|ch|ce|chr|chy|ny|zh|zh-tw|zh-cn|cho|cv|kw|co|cr|hr|cs|da|dv|nl|dz|en|eo|et|ee|fo|fj|fi|fr|fy|ff|gl|ka|de|got|el|kl|gn|gu|ht|ha|haw|he|hz|hi|ho|hu|is|io|ig|id|ia|ie|iu|ik|ga|it|ja|jv|kn|kr|csb|ks|kk|km|ki|rw|rn|tlh|kv|kg|ko|kj|ku|ky|lo|la|lv|li|ln|lt|jbo|nds|lg|lb|mk|mg|ms|ml|mt|gv|mi|minnan|mr|mh|zh-min-nan|mo|mn|mus|nah|na|nv|ne|se|no|nn|oc|or|om|pi|fa|pl|pt|pa|ps|qu|ro|rm|ru|sm|sg|sa|sc|gd|sr|sh|st|tn|sn|scn|simple|sd|si|sk|sl|so|st|es|su|sw|ss|sv|tl|ty|tg|ta|tt|te|th|bo|ti|tpi|to|tokipona|ts|tum|tr|tk|tw|uk|ur|ug|uz|ve|vi|vo|wa|cy|wo|xh|ii|yi|yo|za|zu',
 		default_thumb_width: 180
 	},
-	
+
 	paths: {
 		base_href: '/',
 		articles: '/wiki/',
@@ -45,7 +45,7 @@ InstaView.conf = {
 		images_fallback: 'http://upload.wikimedia.org/wikipedia/commons/',
 		magnify_icon: 'skins/common/images/magnify-clip.png'
 	},
-	
+
 	locale: {
 		user: 'User',
 		image: 'Image',
@@ -139,7 +139,7 @@ InstaView.convert = function (wiki) {
 
 		return o + f;
 	}
-	
+
 	function html_entities(s) {
 		return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 	}
@@ -161,12 +161,11 @@ InstaView.convert = function (wiki) {
 
 		return i;
 	}
-	
-	// compare current line against a string or regexp
-	// if passed a string it will compare only the first string.length characters
-	// if passed a regexp the result is stored in $r
+
+	// Compare current line against a string or regexp. If passed a string it will compare only the first string.length characters. If passed a regexp
+	// the result is stored in $r.
 	function $(c) {
-		return (typeof c === 'string') ? (ll[0].substr(0, c.length) === c) : ($r = ll[0].match(c));
+		return (typeof c === 'string') ? (ll[0].substring(0, c.length) === c) : ($r = ll[0].match(c));
 	}
 
 	// Compare the current line against a string
@@ -177,7 +176,7 @@ InstaView.convert = function (wiki) {
 	function _(p) {
 		return ll[0].charAt(p);
 	}
-	
+
 	function endl(s) {
 		ps(s);
 		sh();
@@ -185,8 +184,8 @@ InstaView.convert = function (wiki) {
 
 	function parse_list() {
 		let prev = '';
-		
-		while (remain() && $(/^(    [*#:;]+)(.*)$/)) {
+
+		while (remain() && $(/^( {4}[*#:;]+)(.*)$/)) {
 			const l_match = $r;
 
 			sh();
@@ -201,12 +200,13 @@ InstaView.convert = function (wiki) {
 					ps('</ul>');
 				} else if (pi === '#') {
 					ps('</ol>');
-				} // close a dl only if the new item is not a dl item (:, ; or empty)
+				}
 				else {
+					// Close a dl only if the new item is not a dl item (:, ; or empty)
 					switch (l_match[1].charAt(i)) {
-						case'':
-                        case'*':
-						case'#':
+						case '':
+                        case '*':
+						case '#':
 							ps('</dl>');
 					}
 				}
@@ -230,7 +230,7 @@ InstaView.convert = function (wiki) {
 					}
 				}
 			}
-			
+
 			switch (l_match[1].charAt(l_match[1].length - 1)) {
 				case '*':
 				case '#':
@@ -238,11 +238,11 @@ InstaView.convert = function (wiki) {
 					break;
 				case ';':
 					ps('<dt>');
-					
-					let dt_match;
+
+					let dt_match = l_match[2].match(/(.*?) (:.*?)$/);
 
 					// Handle ;dt :dd format
-					if (dt_match = l_match[2].match(/(.*?) (:.*?)$/)) {
+					if (dt_match) {
 						ps(parse_inline_nowiki(dt_match[1]));
 						ll.unshift(dt_match[2]);
 					} else {
@@ -256,13 +256,13 @@ InstaView.convert = function (wiki) {
 
 			prev = l_match[1];
 		}
-		
+
 		// Close remaining lists
 		for (let i = prev.length-1; i >= 0; i--){
 			ps(f('</?>', (prev.charAt(i) === '*')? 'ul': ((prev.charAt(i) === '#') ? 'ol' : 'dl')));
 		}
 	}
-	
+
 	function parse_table() {
 		endl(f('<table?>', $(/^\{\|( .*)$/)? $r[1]: ''));
 
@@ -286,7 +286,7 @@ InstaView.convert = function (wiki) {
 			}
 		}
 	}
-	
+
 	function parse_table_data()
 	{
 		let td_line;
@@ -313,8 +313,7 @@ InstaView.convert = function (wiki) {
 		ps('>');
 
 		if (td_match[1] !== '|+') {
-			// use || or !! as a cell separator depending on context
-			// NOTE: when split() is passed a regexp make sure to use non-capturing brackets
+			// Use || or !! as a cell separator depending on context. Note: when split() is passed a regexp make sure to use non-capturing brackets.
 			td_line = td_match[match_i].split((td_match[1] === '|')? '||': /(?:\|\||!!)/)
 
 			ps(parse_inline_nowiki(td_line.shift()));
@@ -343,12 +342,12 @@ InstaView.convert = function (wiki) {
 				tc++;
 			}
 		}
-		
+
 		if (td.length) {
 			ps(InstaView.convert(td));
 		}
 	}
-	
+
 	function parse_pre() {
 		ps('<pre>');
 
@@ -358,7 +357,7 @@ InstaView.convert = function (wiki) {
 
 		ps('</pre>');
 	}
-	
+
 	function parse_block_image() {
 		ps(parse_image(sh()));
 	}
@@ -375,7 +374,7 @@ InstaView.convert = function (wiki) {
 		let frame = 0;
 		let center = 0;
 		let align = '';
-		
+
 		if (tag.match(/\|/)) {
 			// Manage nested links
 			let nesting = 0;
@@ -386,7 +385,7 @@ InstaView.convert = function (wiki) {
 					last_attr = tag.substring(i + 1);
 					tag = tag.substring(0, i);
 					break;
-				} else switch (tag.substr(i-1, 2)) {
+				} else switch (tag.substring(i-1, 2)) {
 					case ']]':
 						nesting++;
 						i--;
@@ -396,7 +395,7 @@ InstaView.convert = function (wiki) {
 						i--;
 				}
 			}
-			
+
 			attr = tag.split(/\s*\|\s*/);
 			attr.push(last_attr);
 			filename = attr.shift();
@@ -404,7 +403,9 @@ InstaView.convert = function (wiki) {
 			let w_match;
 
 			for (; attr.length; attr.shift()) {
-				if (w_match = attr[0].match(/^(\d*)px$/)) {
+				w_match = attr[0].match(/^(\d*)px$/);
+
+				if (w_match) {
 					width = w_match[1]
 				} else {
 					switch(attr[0]) {
@@ -519,9 +520,9 @@ InstaView.convert = function (wiki) {
 
 		return html + parse_inline_wiki(str.substring(lastend));
 	}
-	
+
 	function make_image(filename, caption, width) {
-		// Uppercase first letter in file name
+		// Uppercase first letter in the file name
 		filename = filename.charAt(0).toUpperCase() + filename.substring(1);
 
 		// Replace spaces with underscores
@@ -530,12 +531,12 @@ InstaView.convert = function (wiki) {
 		caption = strip_inline_wiki(caption);
 
 		const md5 = hex_md5(filename);
-		const source = md5.charAt(0) + '/' + md5.substr(0,2) + '/' + filename;
-		
+		const source = md5.charAt(0) + '/' + md5.substring(0, 2) + '/' + filename;
+
 		if (width) {
 			width = "width='" + width + "px'";
 		}
-		
+
 		const img = f("<img onerror=\"this.onerror=null;this.src='?'\" src='?' ? ?>", InstaView.conf.paths.images_fallback + source, InstaView.conf.paths.images + source, (caption !== '')? "alt='" + caption + "'" : '', width);
 
 		return f("<a class='image' ? href='?'>?</a>", (caption !== '') ? "title='" + caption + "'" : '', InstaView.conf.paths.articles + InstaView.conf.locale.image + ':' + filename, img);
@@ -591,7 +592,7 @@ InstaView.convert = function (wiki) {
 
 		return str;
 	}
-	
+
 	// The output of this function doesn't respect the FILO structure of HTML but most browsers can handle it.
 	function parse_inline_formatting(str)
 	{
@@ -617,7 +618,7 @@ InstaView.convert = function (wiki) {
 
 		return o + str.substring(li);
 	}
-	
+
 	function parse_inline_wiki(inputStr)
 	{
 		let str = parse_inline_images(inputStr);
@@ -647,26 +648,26 @@ InstaView.convert = function (wiki) {
 			replace(/~{5}(?!~)/g, newDate).
 			replace(/~{4}(?!~)/g, InstaView.conf.user.name+' ' + newDate).
 			replace(/~{3}(?!~)/g, InstaView.conf.user.name).
-			
+
 			// [[:Category:...]], [[:Image:...]], etc...
 			replace(RegExp('\\[\\[:((?:'+InstaView.conf.locale.category+'|'+InstaView.conf.locale.image+'|'+InstaView.conf.wiki.interwiki+'):.*?)\\]\\]','gi'), "<a href='"+InstaView.conf.paths.articles+"$1'>$1</a>").
 			replace(RegExp('\\[\\[(?:'+InstaView.conf.locale.category+'|'+InstaView.conf.wiki.interwiki+'):.*?\\]\\]','gi'),'').
-			
+
 			// [[/Relative links]]
 			replace(/\[\[(\/[^|]*?)\]\]/g, f("<a href='?$1'>$1</a>", InstaView.conf.paths.base_href)).
-			
+
 			// [[/Replaced|Relative links]]
 			replace(/\[\[(\/.*?)\|(.+?)\]\]/g, f("<a href='?$1'>$2</a>", InstaView.conf.paths.base_href)).
-			
+
 			// [[Common links]]
 			replace(/\[\[([^|]*?)\]\](\w*)/g, f("<a href='?$1'>$1$2</a>", InstaView.conf.paths.articles)).
-			
+
 			// [[Replaced|Links]]
 			replace(/\[\[(.*?)\|([^\]]+?)\]\](\w*)/g, f("<a href='?$1'>$2$3</a>", InstaView.conf.paths.articles)).
-			
+
 			// [[Stripped:Namespace|Namespace]]
 			replace(/\[\[([^\]]*?:)?(.*?)( *\(.*?\))?\|\]\]/g, f("<a href='?$1$2$3'>$2</a>", InstaView.conf.paths.articles)).
-			
+
 			// External links
 			// The separator between the URL and optional label can be either a space character or a pipe symbol
 			replace(/\[(https?|news|ftp|mailto|gopher|irc):(\/*)([^\]]*?)[ |](.*?)\]/g, "<a href='$1:$2$3'>$4</a>").
@@ -680,24 +681,24 @@ InstaView.convert = function (wiki) {
 			replace(/\[http:\/\/(.*?)\]/g, "<a href='http://$1'>[#]</a>").
 			replace(/\[(news|ftp|mailto|gopher|irc):(\/*)(.*?)\]/g, "<a href='$1:$2$3'>$1:$2$3</a>").
 			replace(/(^| )(https?|news|ftp|mailto|gopher|irc):(\/*)([^ $]*)/g, "$1<a href='$2:$3$4'>$2:$3$4</a>").
-			
+
 			replace('__NOTOC__','').
 			replace('__NOEDITSECTION__','');
 	}
-	
+
 	function strip_inline_wiki(str) {
 		return str
 			.replace(/\[\[[^\]]*\|(.*?)\]\]/g,'$1')
 			.replace(/\[\[(.*?)\]\]/g,'$1')
 			.replace(/''(.*?)''/g,'$1');
 	}
-	
+
 	// Begin parsing
 	for (; remain();) {
 		if ($(/^(={1,6})(.*)\1(.*)$/)) {
 			p = 0;
 			endl(f('<h?>?</h?>?', $r[1].length, parse_inline_nowiki($r[2]), $r[1].length, $r[3]));
-		} else if ($(/^    [*#:;]/)) {
+		} else if ($(/^ {4}[*#:;]/)) {
 			p = 0;
 			parse_list();
 		} else if ($(' ')) {
@@ -715,7 +716,9 @@ InstaView.convert = function (wiki) {
 		} else {
 			// Handle paragraphs
 			if ($$('')) {
-				if (p = (remain() > 1 && ll[1] === '')) {
+				p = remain() > 1 && ll[1] === '';
+
+				if (p) {
 					endl('<p><br>');
 				}
 			} else {
@@ -730,13 +733,12 @@ InstaView.convert = function (wiki) {
 			sh();
 		}
 	}
-	
+
 	return o;
 }
 
 /*
- * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
- * Digest Algorithm, as defined in RFC 1321.
+ * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message Digest Algorithm, as defined in RFC 1321.
  * Version 2.2-alpha Copyright (C) Paul Johnston 1999 - 2005
  * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
  * Distributed under the BSD License
@@ -748,21 +750,12 @@ InstaView.convert = function (wiki) {
  * the server-side, but the defaults work in most cases.
  */
 let hexcase = 0;   /* hex output format. 0 - lowercase; 1 - uppercase        */
-let b64pad  = ""; /* base-64 pad character. "=" for strict RFC compliance   */
 
 /*
  * These are the functions you'll usually want to call
  * They take string arguments and return either hex or base-64 encoded strings
  */
 function hex_md5(s)    { return rstr2hex(rstr_md5(str2rstr_utf8(s))); }
-function b64_md5(s)    { return rstr2b64(rstr_md5(str2rstr_utf8(s))); }
-function any_md5(s, e) { return rstr2any(rstr_md5(str2rstr_utf8(s)), e); }
-function hex_hmac_md5(k, d)
-{ return rstr2hex(rstr_hmac_md5(str2rstr_utf8(k), str2rstr_utf8(d))); }
-function b64_hmac_md5(k, d)
-{ return rstr2b64(rstr_hmac_md5(str2rstr_utf8(k), str2rstr_utf8(d))); }
-function any_hmac_md5(k, d, e)
-{ return rstr2any(rstr_hmac_md5(str2rstr_utf8(k), str2rstr_utf8(d)), e); }
 
 /*
  * Calculate the MD5 of a raw string
@@ -770,25 +763,6 @@ function any_hmac_md5(k, d, e)
 function rstr_md5(s)
 {
 	return binl2rstr(binl_md5(rstr2binl(s), s.length * 8));
-}
-
-/*
- * Calculate the HMAC-MD5, of a key and some data (raw strings)
- */
-function rstr_hmac_md5(key, data)
-{
-	let bkey = rstr2binl(key);
-	if(bkey.length > 16) bkey = binl_md5(bkey, key.length * 8);
-
-	let ipad = Array(16), opad = Array(16);
-	for(let i = 0; i < 16; i++)
-	{
-		ipad[i] = bkey[i] ^ 0x36363636;
-		opad[i] = bkey[i] ^ 0x5C5C5C5C;
-	}
-
-	let hash = binl_md5(ipad.concat(rstr2binl(data)), 512 + data.length * 8);
-	return binl2rstr(binl_md5(opad.concat(hash), 512 + 128));
 }
 
 /*
@@ -805,74 +779,6 @@ function rstr2hex(input)
 		output += hex_tab.charAt((x >>> 4) & 0x0F)
 			+  hex_tab.charAt( x        & 0x0F);
 	}
-	return output;
-}
-
-/*
- * Convert a raw string to a base-64 string
- */
-function rstr2b64(input)
-{
-	let tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	let output = "";
-	let len = input.length;
-	for(let i = 0; i < len; i += 3)
-	{
-		let triplet = (input.charCodeAt(i) << 16)
-			| (i + 1 < len ? input.charCodeAt(i+1) << 8 : 0)
-			| (i + 2 < len ? input.charCodeAt(i+2)      : 0);
-		for(let j = 0; j < 4; j++)
-		{
-			if(i * 8 + j * 6 > input.length * 8) output += b64pad;
-			else output += tab.charAt((triplet >>> 6*(3-j)) & 0x3F);
-		}
-	}
-	return output;
-}
-
-/*
- * Convert a raw string to an arbitrary string encoding
- */
-function rstr2any(input, encoding)
-{
-	let divisor = encoding.length;
-	let remainders = Array();
-	let i, q, x, quotient;
-
-	/* Convert to an array of 16-bit big-endian values, forming the dividend */
-	let dividend = Array(input.length / 2);
-	for(i = 0; i < dividend.length; i++)
-	{
-		dividend[i] = (input.charCodeAt(i * 2) << 8) | input.charCodeAt(i * 2 + 1);
-	}
-
-	/*
-     * Repeatedly perform a long division. The binary array forms the dividend,
-     * the length of the encoding is the divisor. Once computed, the quotient
-     * forms the dividend for the next step. We stop when the dividend is zero.
-     * All remainders are stored for later use.
-     */
-	while(dividend.length > 0)
-	{
-		quotient = Array();
-		x = 0;
-		for(i = 0; i < dividend.length; i++)
-		{
-			x = (x << 16) + dividend[i];
-			q = Math.floor(x / divisor);
-			x -= q * divisor;
-			if(quotient.length > 0 || q > 0)
-				quotient[quotient.length] = q;
-		}
-		remainders[remainders.length] = x;
-		dividend = quotient;
-	}
-
-	/* Convert the remainders to the output string */
-	let output = "";
-	for(i = remainders.length - 1; i >= 0; i--)
-		output += encoding.charAt(remainders[i]);
-
 	return output;
 }
 
@@ -913,27 +819,6 @@ function str2rstr_utf8(input)
 				0x80 | ((x >>> 6 ) & 0x3F),
 				0x80 | ( x         & 0x3F));
 	}
-	return output;
-}
-
-/*
- * Encode a string as utf-16
- */
-function str2rstr_utf16le(input)
-{
-	let output = "";
-	for(let i = 0; i < input.length; i++)
-		output += String.fromCharCode( input.charCodeAt(i)        & 0xFF,
-			(input.charCodeAt(i) >>> 8) & 0xFF);
-	return output;
-}
-
-function str2rstr_utf16be(input)
-{
-	let output = "";
-	for(let i = 0; i < input.length; i++)
-		output += String.fromCharCode((input.charCodeAt(i) >>> 8) & 0xFF,
-			input.charCodeAt(i)        & 0xFF);
 	return output;
 }
 
@@ -983,7 +868,7 @@ function binl_md5(x, len)
 		let oldc = c;
 		let oldd = d;
 
-		a = md5_ff(a, b, c, d, x[i+ 0], 7 , -680876936);
+		a = md5_ff(a, b, c, d, x[i], 7 , -680876936);
 		d = md5_ff(d, a, b, c, x[i+ 1], 12, -389564586);
 		c = md5_ff(c, d, a, b, x[i+ 2], 17,  606105819);
 		b = md5_ff(b, c, d, a, x[i+ 3], 22, -1044525330);
@@ -1003,7 +888,7 @@ function binl_md5(x, len)
 		a = md5_gg(a, b, c, d, x[i+ 1], 5 , -165796510);
 		d = md5_gg(d, a, b, c, x[i+ 6], 9 , -1069501632);
 		c = md5_gg(c, d, a, b, x[i+11], 14,  643717713);
-		b = md5_gg(b, c, d, a, x[i+ 0], 20, -373897302);
+		b = md5_gg(b, c, d, a, x[i], 20, -373897302);
 		a = md5_gg(a, b, c, d, x[i+ 5], 5 , -701558691);
 		d = md5_gg(d, a, b, c, x[i+10], 9 ,  38016083);
 		c = md5_gg(c, d, a, b, x[i+15], 14, -660478335);
@@ -1026,7 +911,7 @@ function binl_md5(x, len)
 		c = md5_hh(c, d, a, b, x[i+ 7], 16, -155497632);
 		b = md5_hh(b, c, d, a, x[i+10], 23, -1094730640);
 		a = md5_hh(a, b, c, d, x[i+13], 4 ,  681279174);
-		d = md5_hh(d, a, b, c, x[i+ 0], 11, -358537222);
+		d = md5_hh(d, a, b, c, x[i], 11, -358537222);
 		c = md5_hh(c, d, a, b, x[i+ 3], 16, -722521979);
 		b = md5_hh(b, c, d, a, x[i+ 6], 23,  76029189);
 		a = md5_hh(a, b, c, d, x[i+ 9], 4 , -640364487);
@@ -1034,7 +919,7 @@ function binl_md5(x, len)
 		c = md5_hh(c, d, a, b, x[i+15], 16,  530742520);
 		b = md5_hh(b, c, d, a, x[i+ 2], 23, -995338651);
 
-		a = md5_ii(a, b, c, d, x[i+ 0], 6 , -198630844);
+		a = md5_ii(a, b, c, d, x[i], 6 , -198630844);
 		d = md5_ii(d, a, b, c, x[i+ 7], 10,  1126891415);
 		c = md5_ii(c, d, a, b, x[i+14], 15, -1416354905);
 		b = md5_ii(b, c, d, a, x[i+ 5], 21, -57434055);
