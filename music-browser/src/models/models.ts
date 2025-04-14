@@ -20,6 +20,8 @@ export interface SearchResult {
     name: string;
     artist: string;
     artistId: string;
+    album: string;
+    albumId: string;
     score: number;
     tags: Tag[];
     entityType: EntityType;

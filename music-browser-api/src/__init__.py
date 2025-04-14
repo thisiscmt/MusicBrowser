@@ -8,7 +8,7 @@ from werkzeug.exceptions import NotFound, BadRequest, InternalServerError
 from flask_caching import Cache
 
 from src.config import Config
-from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, DiscographyParameters, AlbumParameters, ArtistParameters
+from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, Song, DiscographyParameters, PaginationParameters, ArtistParameters
 from src.services.shared_service import supported_entity_type, supported_discog_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType, DiscographyType
@@ -64,7 +64,7 @@ def search(entity_type, query_data):
 
 
 @app.get('/lookup/artist/<string:entity_id>')
-@app.input(ArtistParameters, location='query')
+@app.input(PaginationParameters, location='query')
 @app.output(Artist)
 def lookup_artist(entity_id, query_data):
     """Performs a lookup of a specific artist"""
@@ -89,7 +89,7 @@ def lookup_artist_discography(entity_id, query_data):
 
 
 @app.get('/lookup/album/<string:entity_id>')
-@app.input(AlbumParameters, location='query')
+@app.input(ArtistParameters, location='query')
 @app.output(Album)
 def lookup_album(entity_id, query_data):
     """Performs a lookup of a specific album"""
@@ -101,6 +101,23 @@ def lookup_album(entity_id, query_data):
         secondary_id = query_data['artistId']
 
     result = db.run_lookup(entity_type=EntityType.ALBUM.value, entity_id=entity_id, secondary_id=secondary_id, page_size=None, cache=cache)
+
+    return result
+
+
+@app.get('/lookup/song/<string:entity_id>')
+@app.input(ArtistParameters, location='query')
+@app.output(Song)
+def lookup_song(entity_id, query_data):
+    """Performs a lookup of a specific song"""
+
+    db = get_data_provider(app.config)
+    secondary_id = None
+
+    if 'artistId' in query_data:
+        secondary_id = query_data['artistId']
+
+    result = db.run_lookup(entity_type=EntityType.SONG.value, entity_id=entity_id, secondary_id=secondary_id, page_size=None, cache=cache)
 
     return result
 

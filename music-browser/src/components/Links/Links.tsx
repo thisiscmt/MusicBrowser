@@ -23,7 +23,7 @@ interface LinkCollectionProps {
     items: LinkEntry[];
 }
 
-const LinkCollection: FC<LinkCollectionProps> = (props: LinkCollectionProps) => {
+const Links: FC<LinkCollectionProps> = (props: LinkCollectionProps) => {
     const { classes, cx } = useStyles();
 
     return (
@@ -48,4 +48,4 @@ const LinkCollection: FC<LinkCollectionProps> = (props: LinkCollectionProps) => 
     );
 }
 
-export default LinkCollection;
+export default Links;

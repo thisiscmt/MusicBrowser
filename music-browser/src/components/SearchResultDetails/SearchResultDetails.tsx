@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-import TagCollection from '../TagCollection/TagCollection.tsx';
+import Tags from '../Tags/Tags.tsx';
 import { SearchResult } from '../../models/models.ts';
 import { GrayAnchorStyles, Colors } from '../../services/themeService.ts';
 import { EntityType } from '../../enums/enums.ts';
@@ -91,7 +91,14 @@ const SearchResultDetails: FC<SearchResultDetailsProps> = (props: SearchResultDe
                         </Typography>
                     }
 
-                    <TagCollection items={(props.entity.tags || []).slice(0, 5)} compact={true} />
+                    {
+                        props.entity.entityType === EntityType.Song &&
+                        <Typography variant='body2' className={cx(classes.link)}>
+                            <Link to={`/album/${props.entity.albumId}?artistId=${props.entity.artistId}`}>{props.entity.album}</Link>
+                        </Typography>
+                    }
+
+                    <Tags items={(props.entity.tags || []).slice(0, 5)} compact={true} />
 
                     {
                         props.entity.score !== undefined &&

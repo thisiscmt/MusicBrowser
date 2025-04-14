@@ -11,13 +11,13 @@ interface TagCollectionProps {
     compact?: boolean;
 }
 
-const TagCollection: FC<TagCollectionProps> = (props: TagCollectionProps) => {
+const Tags: FC<TagCollectionProps> = (props: TagCollectionProps) => {
     const useStyles = tss.create(() => ({
         tagContainer: {
             columnGap: '8px',
             display: 'flex',
             flexWrap: 'wrap',
-            marginBottom: props.compact ? '7px' : '12px',
+            marginBottom: props.compact ? '9px' : '12px',
             rowGap: '6px'
         },
 
@@ -68,4 +68,4 @@ const TagCollection: FC<TagCollectionProps> = (props: TagCollectionProps) => {
     );
 }
 
-export default TagCollection;
+export default Tags;

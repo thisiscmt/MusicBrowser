@@ -14,8 +14,8 @@ import EntityDescription from '../../components/EntityDescription/EntityDescript
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
 import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
-import TagCollection from '../../components/TagCollection/TagCollection.tsx';
-import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
+import Tags from '../../components/Tags/Tags.tsx';
+import Links from '../../components/Links/Links.tsx';
 import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Album, Artist } from '../../models/models.ts';
 import { Colors, BlueAnchorStyles, ImageViewerStyles } from '../../services/themeService.ts';
@@ -159,7 +159,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                 <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>
                             }
 
-                            <TagCollection items={(entity.tags || []).slice(0, 10)} />
+                            <Tags items={(entity.tags || []).slice(0, 10)} />
 
                             {
                                 entity.lifeSpan &&
@@ -169,7 +169,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                             }
 
                             <EntityDescription entityDesc={entity.description} />
-                            <LinkCollection items={entity.links} />
+                            <Links items={entity.links} />
 
                             {
                                 showTabs &&

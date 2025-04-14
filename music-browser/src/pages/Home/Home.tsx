@@ -198,6 +198,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
                     break;
 
                 case EntityType.Song:
+                    results = await DataService.searchSongs(searchRequestParams);
                     break;
             }
 

@@ -1,7 +1,7 @@
 from flask_caching import Cache
 import musicbrainzngs
 
-from src.schema.schema import SearchResult, Artist, Album, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag, Track, TrackList
+from src.schema.schema import SearchResult, Artist, Album, Song, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag, Track, TrackList
 from src.services.fanart_service import get_artist_images, get_album_images
 from src.services.wikipedia_service import get_entity_description
 from src.models.models import Links, DataRequest
@@ -153,6 +153,12 @@ def get_release_data(release_group):
     return result
 
 
+def get_song_data(data_request: DataRequest):
+    result = musicbrainzngs.get_recording_by_id(id=data_request.entity_id, includes=['artists', 'release-groups', 'url-rels'])
+
+    return result
+
+
 def get_release_id_by_country(candidate_releases: list):
     release_id = None
     country_list = []
@@ -271,51 +277,36 @@ def set_cached_images(entity_id: str, entity_type: EntityType, images: list, cac
         print(f'Error storing images in the cache: {error}')
 
 
-def build_artist_search_results(data):
+def build_search_results(entity_type: EntityType, rows_key: str, count_key: str, data):
     rows = []
 
-    for artist in data['artist-list']:
+    name_key = 'name' if entity_type == EntityType.ARTIST else 'title'
+
+    for record in data[rows_key]:
         result = SearchResult()
-        result.entityType = EntityType.ARTIST.value
-        result.id = artist['id']
-        result.name = artist['name']
-        result.score = artist['ext:score']
-
-        if 'tag-list' in artist:
-            result.tags = build_tag_list(artist['tag-list'])
-
-        rows.append(result)
-
-    count = min(int(data['artist-count']), 100)
-
-    results = SearchOutput()
-    results.rows = rows
-    results.count = count
-
-    return results
-
-
-def build_album_search_results(data):
-    rows = []
-
-    for record in data['release-group-list']:
-        result = SearchResult()
-        result.entityType = EntityType.ALBUM.value
+        result.entityType = entity_type.value
         result.id = record['id']
-        result.name = record['title']
-        result.artist = record['artist-credit-phrase']
+        result.name = record[name_key]
         result.score = record['ext:score']
 
-        if 'artist-credit' in record and len(record['artist-credit']) > 0:
-            if 'artist' in record['artist-credit'][0]:
-                result.artistId = record['artist-credit'][0]['artist']['id']
+        if entity_type != EntityType.ARTIST:
+            result.artist = record['artist-credit-phrase']
+
+            if 'artist-credit' in record and len(record['artist-credit']) > 0:
+                if 'artist' in record['artist-credit'][0]:
+                    result.artistId = record['artist-credit'][0]['artist']['id']
+
+        if entity_type == EntityType.SONG:
+            if 'release-list' in record and len(record['release-list']) > 0 and 'release-group' in record['release-list'][0]:
+                result.album = record['release-list'][0]['release-group']['title']
+                result.albumId = record['release-list'][0]['release-group']['id']
 
         if 'tag-list' in record:
             result.tags = build_tag_list(record['tag-list'])
 
         rows.append(result)
 
-    count = min(int(data['release-group-count']), 100)
+    count = min(int(data[count_key]), 100)
 
     results = SearchOutput()
     results.rows = rows
@@ -506,6 +497,61 @@ def build_album(data):
     album.description = links.entity_description
 
     return album
+
+
+def build_song(data):
+    record = data['recording']
+
+    song = Song()
+    song.id = record['id']
+    song.name = record['title']
+
+    if 'tag-list' in record:
+        song.tags = build_tag_list(record['tag-list'])
+
+    if 'genre-list' in record:
+        song.genres = build_tag_list(record['genre-list'])
+
+    if 'artist-credit' in record and len(record['artist-credit']) > 0:
+        if 'artist' in record['artist-credit'][0]:
+            song.artist = record['artist-credit'][0]['artist']['name']
+            song.artistId = record['artist-credit'][0]['artist']['id']
+
+    albums = []
+
+    if 'release-list' in record and len(record['release-list']) > 0:
+        ordinal = 0
+
+        for release in record['release-list']:
+            album = Album()
+            album.id = release['id']
+            album.name = release['title']
+            album.artist = release['artist-credit-phrase']
+
+            if 'date' in release:
+                album.releaseDate = release['date']
+            else:
+                continue
+
+            if 'release-event-list' in release and len(release['release-event-list']) > 0 and 'area' in release['release-event-list'][0] and 'name' in release['release-event-list'][0]['area']:
+                album.country = release['release-event-list'][0]['area']['name'].replace('[', '').replace(']', '')
+            else:
+                if 'country' in release:
+                    album.country = release['country']
+
+            album.ordinal = ordinal
+            ordinal += 1
+
+            albums.append(album)
+
+        albums = sorted(albums, key=lambda x: x.releaseDate)
+
+
+    song.albums = albums
+    links = build_link_list(record)
+    song.links = links.items
+
+    return song
 
 
 def build_tag_list(data: list):

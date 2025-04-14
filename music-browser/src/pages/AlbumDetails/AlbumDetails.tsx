@@ -9,8 +9,8 @@ import { MainContext } from '../../contexts/MainContext.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import AlbumLoader from '../../components/AlbumLoader/AlbumLoader.tsx';
 import EntityDescription from '../../components/EntityDescription/EntityDescription.tsx';
-import TagCollection from '../../components/TagCollection/TagCollection.tsx';
-import LinkCollection from '../../components/LinkCollection/LinkCollection.tsx';
+import Tags from '../../components/Tags/Tags.tsx';
+import Links from '../../components/Links/Links.tsx';
 import Tracks from '../../components/Tracks/Tracks.tsx';
 import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Album, TrackList } from '../../models/models.ts';
@@ -226,7 +226,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                                 <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>
                             }
 
-                            <TagCollection items={(entity.tags || []).slice(0, 10)} />
+                            <Tags items={(entity.tags || []).slice(0, 10)} />
 
                             {
                                 (entity.releaseDate || showAlbumNav) &&
@@ -264,7 +264,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                             {
                                 entity.links.length > 0 &&
                                 <Box className={cx(classes.linkContainer)}>
-                                    <LinkCollection items={entity.links} />
+                                    <Links items={entity.links} />
                                 </Box>
                             }
 

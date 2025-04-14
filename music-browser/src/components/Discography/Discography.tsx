@@ -1,4 +1,5 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
@@ -79,6 +80,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const [ entityCounts, setEntityCounts ] = useState<EntityCount>({});
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ disableShowMore, setDisableShowMore ] = useState<boolean>(false);
+    const [ searchParams, setSearchParams ] = useSearchParams();
 
     const defaultPageSize = SharedService.getDefaultPageSize();
 

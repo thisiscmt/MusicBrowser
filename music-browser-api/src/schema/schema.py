@@ -24,6 +24,8 @@ class SearchResult(Schema):
     name = String()
     artist = String()
     artistId = String()
+    album = String()
+    albumId = String()
     score = Integer()
     tags = List(Nested(Tag()))
     entityType = String()
@@ -68,6 +70,7 @@ class Album(Schema):
     artistId = String()
     releaseDate = String()
     description = String()
+    country = String()
     ordinal = Integer()
     trackList = List(Nested(TrackList()))
     tags = List(Nested(Tag()))
@@ -94,7 +97,23 @@ class Artist(Schema):
     members = List(Nested(Member()))
     links = List(Nested(Link()))
 
-class ArtistParameters(Schema):
+class Song(Schema):
+    id = String()
+    name = String()
+    artist = String()
+    artistId = String()
+    releaseDate = String()
+    description = String()
+    albums = List(Nested(Album()))
+    tags = List(Nested(Tag()))
+    genres = List(Nested(Tag()))
+    links = List(Nested(Link()))
+
+class Discography(Schema):
+    rows = List(Nested(Album()))
+    count = Integer()
+
+class PaginationParameters(Schema):
     page = Integer(load_default=1)
     pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
 
@@ -106,9 +125,5 @@ class DiscographyParameters(Schema):
                                                                                   DiscographyType.DEMO.value]),
                         metadata={'description': 'The type of discography item to retrieve.'})
 
-class Discography(Schema):
-    rows = List(Nested(Album()))
-    count = Integer()
-
-class AlbumParameters(Schema):
-    artistId = String(metadata={'description': 'The ID of the artist for this album'})
+class ArtistParameters(Schema):
+    artistId = String(metadata={'description': 'The ID of the artist for this entity'})
