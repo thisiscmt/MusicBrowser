@@ -106,18 +106,13 @@ def lookup_album(entity_id, query_data):
 
 
 @app.get('/lookup/song/<string:entity_id>')
-@app.input(ArtistParameters, location='query')
+@app.input(PaginationParameters, location='query')
 @app.output(Song)
 def lookup_song(entity_id, query_data):
     """Performs a lookup of a specific song"""
 
     db = get_data_provider(app.config)
-    secondary_id = None
-
-    if 'artistId' in query_data:
-        secondary_id = query_data['artistId']
-
-    result = db.run_lookup(entity_type=EntityType.SONG.value, entity_id=entity_id, secondary_id=secondary_id, page_size=None, cache=cache)
+    result = db.run_lookup(entity_type=EntityType.SONG.value, entity_id=entity_id, secondary_id=None, page_size=None, cache=cache)
 
     return result
 

@@ -517,37 +517,35 @@ def build_song(data):
             song.artist = record['artist-credit'][0]['artist']['name']
             song.artistId = record['artist-credit'][0]['artist']['id']
 
-    albums = []
+    releases = []
 
     if 'release-list' in record and len(record['release-list']) > 0:
-        ordinal = 0
+        for rel in record['release-list']:
+            release = Album()
+            release.id = rel['id']
+            release.name = rel['title']
 
-        for release in record['release-list']:
-            album = Album()
-            album.id = release['id']
-            album.name = release['title']
-            album.artist = release['artist-credit-phrase']
-
-            if 'date' in release:
-                album.releaseDate = release['date']
+            if 'date' in rel:
+                release.releaseDate = rel['date']
             else:
                 continue
 
-            if 'release-event-list' in release and len(release['release-event-list']) > 0 and 'area' in release['release-event-list'][0] and 'name' in release['release-event-list'][0]['area']:
-                album.country = release['release-event-list'][0]['area']['name'].replace('[', '').replace(']', '')
+            if 'artist-credit' in rel and len(rel['artist-credit']) > 0:
+                if 'artist' in rel['artist-credit'][0]:
+                    release.artist = rel['artist-credit'][0]['artist']['name']
+                    release.artistId = rel['artist-credit'][0]['artist']['id']
+
+            if 'release-event-list' in rel and len(rel['release-event-list']) > 0 and 'area' in rel['release-event-list'][0] and 'name' in rel['release-event-list'][0]['area']:
+                release.country = rel['release-event-list'][0]['area']['name'].replace('[', '').replace(']', '')
             else:
-                if 'country' in release:
-                    album.country = release['country']
+                if 'country' in rel:
+                    release.country = rel['country']
 
-            album.ordinal = ordinal
-            ordinal += 1
+            releases.append(release)
 
-            albums.append(album)
+        releases = sorted(releases, key=lambda x: x.releaseDate)
 
-        albums = sorted(albums, key=lambda x: x.releaseDate)
-
-
-    song.albums = albums
+    song.appearsOn = releases
     links = build_link_list(record)
     song.links = links.items
 

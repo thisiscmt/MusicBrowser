@@ -104,7 +104,7 @@ class Song(Schema):
     artistId = String()
     releaseDate = String()
     description = String()
-    albums = List(Nested(Album()))
+    appearsOn = List(Nested(Album()))
     tags = List(Nested(Tag()))
     genres = List(Nested(Tag()))
     links = List(Nested(Link()))
