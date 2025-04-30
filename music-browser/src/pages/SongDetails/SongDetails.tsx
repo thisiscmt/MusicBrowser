@@ -1,5 +1,5 @@
 import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
-import { Link as RouteLink, useParams, useSearchParams } from 'react-router';
+import { Link as RouteLink, useParams } from 'react-router';
 import { Box, Tab, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
@@ -92,7 +92,6 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
     const [ currentTab, setCurrentTab] = useState<string>('appearsOn');
     const [ loading, setLoading ] = useState<boolean>(true);
     const { id: songId } = useParams() as { id: string };
-    const [ searchParams ] = useSearchParams();
 
     useDocumentTitle(entity.name === '' ? 'Song - Music Browser' : `Song - ${entity.name} - Music Browser`);
 
@@ -124,8 +123,6 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
     const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);
     };
-
-    const showTabs = (entity.appearsOn && entity.appearsOn.length > 0) || entity.annotation;
 
     return (
         <Box className={cx(classes.mainContainer)}>

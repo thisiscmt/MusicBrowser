@@ -2,25 +2,20 @@ import React, { FC } from 'react';
 import { Box, Skeleton } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-const useStyles = tss.create(({ theme }) => ({
+const useStyles = tss.create(() => ({
     mainContainer: {
         display: 'flex',
         flexDirection: 'column',
         gap: '16px'
     },
 
-    imageLoader: {
-        alignSelf: 'center',
-        width: '380px',
-
-        [theme.breakpoints.down(600)]: {
-            width: '100%'
-        }
-    },
-
     loaderContainer: {
         display: 'flex',
         gap: '12px'
+    },
+
+    releaseDateLoader: {
+        marginTop: '-8px'
     },
 
     tabSelector: {
@@ -33,8 +28,8 @@ const SongLoader: FC = () => {
 
     return (
         <Box className={cx(classes.mainContainer)}>
-            <Skeleton variant='rectangular' height='200px' className={cx(classes.imageLoader)} />
             <Skeleton variant='rectangular' height='24px' />
+            <Skeleton variant='rectangular' height='20px' />
 
             <Box className={cx(classes.loaderContainer)}>
                 {
@@ -46,14 +41,8 @@ const SongLoader: FC = () => {
                 }
             </Box>
 
-            <Skeleton variant='rectangular' height='50px' />
-            <Skeleton variant='rectangular' height='120px' />
-
-            <Box className={cx(classes.loaderContainer)}>
-                <Skeleton variant='rectangular' height='30px' width='100px' />
-                <Skeleton variant='rectangular' height='30px' width='100px' />
-                <Skeleton variant='rectangular' height='30px' width='100px' />
-            </Box>
+            <Skeleton variant='rectangular' height='20px' />
+            <Skeleton variant='rectangular' height='20px' className={cx(classes.releaseDateLoader)} />
 
             <Box>
                 <Skeleton variant='rectangular' height='34px' width='80px' className={cx(classes.tabSelector)} />

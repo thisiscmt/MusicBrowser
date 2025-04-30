@@ -138,7 +138,6 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
     };
 
     const images = SharedService.getEntityImageList(entity);
-    const showTabs = (entity.albums && entity.albums.length > 0) || (entity.members && entity.members.length > 0) || entity.annotation;
 
     return (
         <Box className={cx(classes.mainContainer)}>
@@ -172,50 +171,45 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                             <EntityDescription entityDesc={entity.description} />
                             <Links items={entity.links} />
 
-                            {
-                                showTabs &&
-                                <>
-                                    <TabContext value={currentTab}>
-                                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                            <TabList onChange={handleChangeTab}>
-                                                <Tab label='Discography' value='discography' />
-
-                                                {
-                                                    entity.members && entity.members.length > 0 &&
-                                                    <Tab label='Members' value='members' />
-                                                }
-
-                                                {
-                                                    entity.annotation &&
-                                                    <Tab label='Extra' value='extra' />
-                                                }
-                                            </TabList>
-                                        </Box>
-
-                                        <TabPanel className={cx(classes.tabPanel)} value='discography'>
-                                            <Discography entityId={entity.id} entityType={EntityType.Artist} entities={albums} totalEntities={entity.totalAlbums} />
-                                        </TabPanel>
+                            <TabContext value={currentTab}>
+                                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                    <TabList onChange={handleChangeTab}>
+                                        <Tab label='Discography' value='discography' />
 
                                         {
                                             entity.members && entity.members.length > 0 &&
-                                            <TabPanel className={cx(classes.tabPanel)} value='members'>
-                                                <GroupMembers entities={entity.members} />
-                                            </TabPanel>
+                                            <Tab label='Members' value='members' />
                                         }
 
                                         {
                                             entity.annotation &&
-                                            <TabPanel className={cx(classes.tabPanel)} value='extra'>
-                                                <Typography
-                                                    variant='body2'
-                                                    className={cx(classes.annotation)}
-                                                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
-                                                />
-                                            </TabPanel>
+                                            <Tab label='Extra' value='extra' />
                                         }
-                                    </TabContext>
-                                </>
-                            }
+                                    </TabList>
+                                </Box>
+
+                                <TabPanel className={cx(classes.tabPanel)} value='discography'>
+                                    <Discography entityId={entity.id} entityType={EntityType.Artist} entities={albums} totalEntities={entity.totalAlbums} />
+                                </TabPanel>
+
+                                {
+                                    entity.members && entity.members.length > 0 &&
+                                    <TabPanel className={cx(classes.tabPanel)} value='members'>
+                                        <GroupMembers entities={entity.members} />
+                                    </TabPanel>
+                                }
+
+                                {
+                                    entity.annotation &&
+                                    <TabPanel className={cx(classes.tabPanel)} value='extra'>
+                                        <Typography
+                                            variant='body2'
+                                            className={cx(classes.annotation)}
+                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
+                                        />
+                                    </TabPanel>
+                                }
+                            </TabContext>
 
                             <GoToTop topOfPageRef={props.topOfPageRef} />
                         </>
