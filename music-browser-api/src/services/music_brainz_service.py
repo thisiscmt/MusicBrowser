@@ -7,8 +7,7 @@ from src.services.wikipedia_service import get_entity_description
 from src.models.models import Links, DataRequest
 from src.enums.enums import EntityType
 
-
-# These tags are excluded from any responses because they don't provide any value
+# These tags are excluded from responses because they don't provide much value
 EXCLUDED_TAGS = ['1–4 wochen', '1–9 wochen', 'offizielle charts', 'aln-sh', 'laut.de', 'plattentests.de', '2008 universal fire victim', 'a filk artist',
                  'i forgot to remember to forget', 'longing', 'love']
 
@@ -19,8 +18,8 @@ def get_artist_data(data_request: DataRequest):
         result = musicbrainzngs.get_artist_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'artist-rels', 'url-rels', 'annotation'])
 
     if data_request.data_type == 'artist_albums':
-        result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], limit=data_request.limit,
-                                                      offset=data_request.offset, release_group_status='website-default')
+        result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=['album'], release_group_status='website-default',
+                                                      limit=data_request.limit, offset=data_request.offset, )
     if data_request.data_type == 'artist_images':
         if not data_request.use_cache:
             result = get_artist_images(data_request.entity_id)
@@ -39,6 +38,10 @@ def get_discography_data(data_request: DataRequest):
         result = musicbrainzngs.browse_release_groups(artist=data_request.entity_id, release_type=data_request.release_types, limit=data_request.limit,
                                                       offset=data_request.offset, release_group_status='website-default')
 
+    if data_request.data_type == 'song_albums':
+        result = musicbrainzngs.browse_releases(recording=data_request.entity_id, release_type=data_request.release_types, release_status=['official'],
+                                                includes=['artist-credits', 'release-groups'], limit=data_request.limit, offset=data_request.offset)
+
     if data_request.data_type == 'album_images':
         if not data_request.use_cache:
             result = get_album_images(data_request.entity_id, EntityType.ARTIST)
@@ -50,7 +53,8 @@ def get_album_data(data_request: DataRequest):
     result = None
 
     if data_request.data_type == 'album':
-        result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=['tags', 'genres', 'releases', 'artist-credits', 'media', 'url-rels', 'annotation'])
+        includes = ['tags', 'genres', 'releases', 'artist-credits', 'media', 'url-rels', 'annotation']
+        result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=includes)
 
     if data_request.data_type == 'album_images':
         if not data_request.use_cache:
@@ -147,14 +151,21 @@ def get_release_data(release_group):
 
         if 'medium-list' in release_data['release'] and len(release_data['release']['medium-list']) > 0:
             for item in release_data['release']['medium-list']:
-                track_list = get_release_tracks(item)
+                track_list = build_release_tracks(item)
                 result.append(track_list)
 
     return result
 
 
 def get_song_data(data_request: DataRequest):
-    result = musicbrainzngs.get_recording_by_id(id=data_request.entity_id, includes=['artists', 'release-groups', 'url-rels'])
+    result = None
+
+    if data_request.data_type == 'song':
+        result = musicbrainzngs.get_recording_by_id(id=data_request.entity_id, includes=['artist-credits', 'tags', 'genres', 'url-rels', 'annotation'])
+
+    if data_request.data_type == 'song_albums':
+        result = musicbrainzngs.browse_releases(recording=data_request.entity_id, release_type=['album'], release_status=['official'],
+                                                includes=['artist-credits', 'release-groups'], limit=data_request.limit, offset=data_request.offset)
 
     return result
 
@@ -165,7 +176,7 @@ def get_release_id_by_country(candidate_releases: list):
 
     for candidate_release in candidate_releases:
         country = candidate_release['country']
-        country_obj = dict()
+        country_obj = {}
 
         if country == 'US':
             country_obj['ordinal'] = 1
@@ -191,61 +202,6 @@ def get_release_id_by_country(candidate_releases: list):
     return release_id
 
 
-def get_release_tracks(data: dict):
-    result = TrackList()
-    result.tracks = []
-    result.total_duration = ''
-
-    if 'track-list' in data:
-        total_duration = 0
-
-        for item in data['track-list']:
-            track = Track()
-            track.id = item['id']
-            track.name = item['recording']['title']
-
-            if 'artist-credit' in item and len(item['artist-credit']) > 0 and 'artist' in item['artist-credit'][0]:
-                track.artistId = item['artist-credit'][0]['artist']['id']
-                track.artist = item['artist-credit'][0]['artist']['name']
-
-            if 'length' in item:
-                length = int(item['length'])
-
-                total_duration += length
-                total_seconds = round(length / 1000)
-                minutes = total_seconds // 60
-                seconds = total_seconds % 60
-
-                track.duration = f'{minutes}:{seconds:02}'
-            else:
-                track.duration = ''
-
-            result.tracks.append(track)
-
-        if total_duration > 0:
-            total_seconds = round(total_duration / 1000)
-            hours = total_seconds // (60 * 60)
-            minutes = total_seconds // 60
-            seconds = total_seconds % 60
-
-            if hours >= 1:
-                total_minutes = round(total_duration / (1000 * 60))
-                minutes = total_minutes % 60
-                formatted_total_duration = f'{hours}:{minutes:02}:{seconds:02}'
-            else:
-                formatted_total_duration = f'{minutes}:{seconds:02}'
-
-            result.totalDuration = formatted_total_duration
-
-        if 'position' in data:
-            result.position = data['position']
-
-        if 'format' in data:
-            result.format = data['format']
-
-    return result
-
-
 def get_cached_images(entity_id: str, entity_type: EntityType, cache: Cache):
     images = None
 
@@ -268,7 +224,7 @@ def set_cached_images(entity_id: str, entity_type: EntityType, images: list, cac
         cache_collection = cache.get(cache_key)
 
         if cache_collection is None:
-            cache_collection = dict()
+            cache_collection = {}
 
         cache_collection[entity_id] = images
         cache.set(cache_key, cache_collection)
@@ -418,21 +374,36 @@ def build_artist(data):
     return artist
 
 
-def build_discography_list(data, album_only=False):
+def build_discography_list(data, entity_type, album_only=False):
     record = data[0]
     album_images = data[1]
     result = Discography()
     rows = []
     count = 0
 
-    if 'release-group-list' in record:
-        ordinal = 0
+    list_key = 'release-list' if entity_type == EntityType.SONG.value else 'release-group-list'
+    count_key = 'release-count' if entity_type == EntityType.SONG.value else 'release-group-count'
 
-        for rel_group in record['release-group-list']:
+    if list_key in record:
+        ordinal = 0
+        albums_found = {}
+
+        for item in record[list_key]:
+            if entity_type == EntityType.SONG.value:
+                rel_group = item['release-group']
+            else:
+                rel_group = item
+
             if album_only and str(rel_group['type']).lower() != 'album':
                 add_record = False
             else:
-                add_record = True
+                # When loading discography records from the song detail page, we want to check for duplicates since the data will be a list of
+                # releases, which could contain that same release group multiple times. For the artist detail page, the list will always be of
+                # release groups.
+                if entity_type == EntityType.SONG.value and rel_group['id'] in albums_found:
+                    add_record = False
+                else:
+                    add_record = True
 
             if add_record:
                 album = Album()
@@ -450,9 +421,10 @@ def build_discography_list(data, album_only=False):
                     album.images = [album_image]
 
                 rows.append(album)
+                albums_found[album.id] = album.id
 
         rows = sorted(rows, key=lambda x: x.releaseDate)
-        count = record['release-group-count']
+        count = record[count_key]
 
     result.rows = rows
     result.count = count
@@ -471,6 +443,9 @@ def build_album(data):
 
     if 'first-release-date' in record:
         album.releaseDate = record['first-release-date']
+
+    if 'disambiguation' in record:
+        album.comment = record['disambiguation']
 
     if 'tag-list' in record:
         album.tags = build_tag_list(record['tag-list'])
@@ -499,12 +474,82 @@ def build_album(data):
     return album
 
 
+def build_release_tracks(data: dict):
+    result = TrackList()
+    result.tracks = []
+    result.total_duration = ''
+
+    if 'track-list' in data:
+        total_duration = 0
+
+        for item in data['track-list']:
+            track = Track()
+            track.id = item['recording']['id']
+            track.name = item['recording']['title']
+
+            if 'artist-credit' in item and len(item['artist-credit']) > 0 and 'artist' in item['artist-credit'][0]:
+                track.artistId = item['artist-credit'][0]['artist']['id']
+                track.artist = item['artist-credit'][0]['artist']['name']
+
+            if 'length' in item:
+                length = int(item['length'])
+
+                total_duration += length
+                total_seconds = round(length / 1000)
+                minutes = total_seconds // 60
+                seconds = total_seconds % 60
+
+                track.duration = f'{minutes}:{seconds:02}'
+            else:
+                track.duration = ''
+
+            result.tracks.append(track)
+
+        if total_duration > 0:
+            total_seconds = round(total_duration / 1000)
+            hours = total_seconds // (60 * 60)
+            minutes = total_seconds // 60
+            seconds = total_seconds % 60
+
+            if hours >= 1:
+                total_minutes = round(total_duration / (1000 * 60))
+                minutes = total_minutes % 60
+                formatted_total_duration = f'{hours}:{minutes:02}:{seconds:02}'
+            else:
+                formatted_total_duration = f'{minutes}:{seconds:02}'
+
+            result.totalDuration = formatted_total_duration
+
+        if 'position' in data:
+            result.position = data['position']
+
+        if 'format' in data:
+            result.format = data['format']
+
+    return result
+
+
 def build_song(data):
-    record = data['recording']
+    record = data[0]['recording']
+    albums_record = data[1]
 
     song = Song()
     song.id = record['id']
     song.name = record['title']
+
+    if 'length' in record:
+        length = int(record['length'])
+        total_seconds = round(length / 1000)
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+
+        song.duration = f'{minutes}:{seconds:02}'
+
+    if 'first-release-date' in record:
+        song.releaseDate = record['first-release-date']
+
+    if 'disambiguation' in record:
+        song.comment = record['disambiguation']
 
     if 'tag-list' in record:
         song.tags = build_tag_list(record['tag-list'])
@@ -517,35 +562,56 @@ def build_song(data):
             song.artist = record['artist-credit'][0]['artist']['name']
             song.artistId = record['artist-credit'][0]['artist']['id']
 
-    releases = []
+    if 'annotation' in record and 'text' in record['annotation']:
+        song.annotation = record['annotation']['text']
 
-    if 'release-list' in record and len(record['release-list']) > 0:
-        for rel in record['release-list']:
-            release = Album()
-            release.id = rel['id']
-            release.name = rel['title']
+    albums = []
 
-            if 'date' in rel:
-                release.releaseDate = rel['date']
-            else:
-                continue
+    if 'release-list' in albums_record:
+        albums_found = {}
+        ordinal = 0
 
-            if 'artist-credit' in rel and len(rel['artist-credit']) > 0:
-                if 'artist' in rel['artist-credit'][0]:
-                    release.artist = rel['artist-credit'][0]['artist']['name']
-                    release.artistId = rel['artist-credit'][0]['artist']['id']
+        for rel in albums_record['release-list']:
+            # 'Album' is the default discography type for song details so we filter out everything else
+            if 'release-group' in rel and 'type' in rel['release-group'] and str(rel['release-group']['type']).lower() == 'album':
+                if rel['release-group']['id'] in albums_found:
+                    continue
 
-            if 'release-event-list' in rel and len(rel['release-event-list']) > 0 and 'area' in rel['release-event-list'][0] and 'name' in rel['release-event-list'][0]['area']:
-                release.country = rel['release-event-list'][0]['area']['name'].replace('[', '').replace(']', '')
-            else:
-                if 'country' in rel:
-                    release.country = rel['country']
+                album = Album()
+                album.id = rel['release-group']['id']
+                album.albumType = 'Album'
 
-            releases.append(release)
+                if 'name' in rel['release-group']:
+                    album.name = rel['release-group']['id']
+                else:
+                    album.name = rel['title']
 
-        releases = sorted(releases, key=lambda x: x.releaseDate)
+                if 'date' in rel:
+                    album.releaseDate = rel['date']
+                else:
+                    album.releaseDate = ''
 
-    song.appearsOn = releases
+                if 'artist-credit' in rel and len(rel['artist-credit']) > 0:
+                    if 'artist' in rel['artist-credit'][0]:
+                        album.artist = rel['artist-credit'][0]['artist']['name']
+                        album.artistId = rel['artist-credit'][0]['artist']['id']
+
+
+                if 'release-event-list' in rel and len(rel['release-event-list']) > 0 and 'area' in rel['release-event-list'][0] and 'name' in rel['release-event-list'][0]['area']:
+                    album.country = rel['release-event-list'][0]['area']['name'].replace('[', '').replace(']', '')
+                else:
+                    if 'country' in rel:
+                        album.country = rel['country']
+
+                album.ordinal = ordinal
+                ordinal += 1
+
+                albums.append(album)
+                albums_found[album.id] = album.id
+
+        albums = sorted(albums, key=lambda x: x.releaseDate)
+
+    song.appearsOn = albums
     links = build_link_list(record)
     song.links = links.items
 

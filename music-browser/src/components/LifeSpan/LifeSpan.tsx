@@ -28,10 +28,6 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
         } else {
             lifeSpanBeginArea = `, ${props.artist.area.name}`;
         }
-
-        // if (lifeSpanEndArea) {
-        //     lifeSpanEndArea = `${lifeSpanEndArea}, ${props.artist.area.name}`;
-        // }
     }
 
     return (

@@ -50,7 +50,7 @@ class SpotifyProvider(BaseProvider):
         return result
 
 
-    def run_discography_lookup(self, discog_type, entity_id, page, page_size, cache):
+    def run_discography_lookup(self, discog_type, entity_id, entity_type, page, page_size, cache):
         pass # TODO
 
 

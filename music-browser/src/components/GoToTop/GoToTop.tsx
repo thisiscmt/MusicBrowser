@@ -12,6 +12,7 @@ const useStyles = tss.create(() => ({
     },
 
     button: {
+        marginTop: '4px',
         opacity: 0.5,
         padding: 0,
 

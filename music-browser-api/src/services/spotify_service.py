@@ -45,7 +45,3 @@ def build_album_search_results(data):
         'rows': results,
         'count': data['albums']['total']
     }
-
-
-def build_artist(data):
-    pass # TODO

@@ -63,6 +63,7 @@ interface EntityCount {
 
 interface DiscographyProps {
     entityId: string;
+    entityType: EntityType;
     entities: Album[];
     totalEntities: number;
 }
@@ -113,7 +114,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
             return;
         }
 
-        const newEntities = await DataService.getArtistDiscography(props.entityId, discogType, page, pageSize);
+        const newEntities = await DataService.getDiscography(props.entityId, discogType, props.entityType, page, pageSize);
         let newRows = newEntities.rows;
 
         if (stateVariable !== undefined && append) {
@@ -236,7 +237,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                     ?
                         <>
                             {
-                                [1, 2, 3, 4, 5, 6].map((item: number) => {
+                                [1, 2, 3, 4].map((item: number) => {
                                     return (
                                         <Box key={item} className={cx(classes.loader)}><EntityDetailsLoader smallImage={true} /></Box>
                                     );

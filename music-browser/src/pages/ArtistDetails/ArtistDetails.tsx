@@ -18,6 +18,7 @@ import Tags from '../../components/Tags/Tags.tsx';
 import Links from '../../components/Links/Links.tsx';
 import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Album, Artist } from '../../models/models.ts';
+import { EntityType } from '../../enums/enums.ts';
 import { Colors, BlueAnchorStyles, ImageViewerStyles } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
@@ -192,7 +193,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                         </Box>
 
                                         <TabPanel className={cx(classes.tabPanel)} value='discography'>
-                                            <Discography entityId={entity.id} entities={albums} totalEntities={entity.totalAlbums} />
+                                            <Discography entityId={entity.id} entityType={EntityType.Artist} entities={albums} totalEntities={entity.totalAlbums} />
                                         </TabPanel>
 
                                         {

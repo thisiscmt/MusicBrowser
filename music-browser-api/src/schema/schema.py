@@ -70,6 +70,7 @@ class Album(Schema):
     artistId = String()
     releaseDate = String()
     description = String()
+    comment = String()
     country = String()
     ordinal = Integer()
     trackList = List(Nested(TrackList()))
@@ -102,8 +103,10 @@ class Song(Schema):
     name = String()
     artist = String()
     artistId = String()
+    duration = String()
     releaseDate = String()
-    description = String()
+    comment = String()
+    annotation = String()
     appearsOn = List(Nested(Album()))
     tags = List(Nested(Tag()))
     genres = List(Nested(Tag()))
@@ -117,9 +120,7 @@ class PaginationParameters(Schema):
     page = Integer(load_default=1)
     pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
 
-class DiscographyParameters(Schema):
-    page = Integer(load_default=1)
-    pageSize = Integer(load_default=10, validate=OneOf([10, 25]))
+class DiscographyParameters(PaginationParameters):
     discogType = String(load_default=DiscographyType.ALBUM.value, validate=OneOf([DiscographyType.ALBUM.value, DiscographyType.SINGLE_EP.value,
                                                                                   DiscographyType.COMPILATION.value, DiscographyType.LIVE.value,
                                                                                   DiscographyType.DEMO.value]),

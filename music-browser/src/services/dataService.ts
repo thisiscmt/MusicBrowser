@@ -43,8 +43,8 @@ export const getSong = async (id: string): Promise<Song> => {
     return response.data;
 };
 
-export const getArtistDiscography = async (id: string, discogType: DiscographyType, page?: number, pageSize?: number): Promise<DiscographyResults> => {
-    let url = `${import.meta.env.VITE_API_URL}/lookup/artist/${id}/discography?discogType=${discogType}`;
+export const getDiscography = async (entityId: string, discogType: DiscographyType, entityType: EntityType, page?: number, pageSize?: number): Promise<DiscographyResults> => {
+    let url = `${import.meta.env.VITE_API_URL}/lookup/discography/${entityType}/${entityId}?discogType=${discogType}`;
     const pageParam = page ? page : 1;
     const pageSizeParam = pageSize ? pageSize : 10;
 

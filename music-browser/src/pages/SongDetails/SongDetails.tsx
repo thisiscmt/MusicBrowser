@@ -1,6 +1,7 @@
 import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
-import { Link as RouteLink, useParams } from 'react-router';
-import { Box, Typography } from '@mui/material';
+import { Link as RouteLink, useParams, useSearchParams } from 'react-router';
+import { Box, Tab, Typography } from '@mui/material';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
 import DOMPurify from 'dompurify';
 
@@ -8,9 +9,11 @@ import { MainContext } from '../../contexts/MainContext.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import Tags from '../../components/Tags/Tags.tsx';
 import Links from '../../components/Links/Links.tsx';
-import AlbumLoader from '../../components/AlbumLoader/AlbumLoader.tsx';
+import Discography from '../../components/Discography/Discography.tsx';
+import SongLoader from '../../components/SongLoader/SongLoader.tsx';
 import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Song } from '../../models/models.ts';
+import { EntityType } from '../../enums/enums.ts';
 import { BlueAnchorStyles, Colors, GrayAnchorStyles } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
@@ -29,7 +32,6 @@ const useStyles = tss.create(() => ({
 
     artistName: {
         fontSize: '18px',
-        marginBottom: '12px',
         marginTop: '4px',
 
         '& a': {
@@ -37,7 +39,17 @@ const useStyles = tss.create(() => ({
         }
     },
 
-    comment: {
+    details: {
+        display: 'flex',
+        flexDirection: 'column',
+        marginBottom: '8px'
+    },
+
+    detailSection: {
+        display: 'flex',
+    },
+
+    section: {
         marginBottom: '12px'
     },
 
@@ -62,6 +74,10 @@ const useStyles = tss.create(() => ({
                 marginBottom: 0
             }
         }
+    },
+
+    tabPanel: {
+        padding: '12px 0 0 0'
     }
 }));
 
@@ -73,8 +89,10 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Song>(SharedService.getEmptySong());
+    const [ currentTab, setCurrentTab] = useState<string>('appearsOn');
     const [ loading, setLoading ] = useState<boolean>(true);
     const { id: songId } = useParams() as { id: string };
+    const [ searchParams ] = useSearchParams();
 
     useDocumentTitle(entity.name === '' ? 'Song - Music Browser' : `Song - ${entity.name} - Music Browser`);
 
@@ -84,6 +102,11 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
                 setBanner('');
 
                 const song = await DataService.getSong(songId);
+
+
+
+
+
                 setEntity(song);
             } catch (error) {
                 setBanner((error as Error).message, 'error');
@@ -98,22 +121,25 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
         }
     });
 
+    const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
+        setCurrentTab(newValue);
+    };
+
+    const showTabs = (entity.appearsOn && entity.appearsOn.length > 0) || entity.annotation;
+
     return (
         <Box className={cx(classes.mainContainer)}>
             {
                 loading
                     ?
-                        <AlbumLoader />
+                        <SongLoader />
                     :
                         <>
-                            {
-                                entity.name &&
-                                <Typography variant='h5'>{entity.name}</Typography>
-                            }
+                            <Typography variant='h5'>{entity.name}</Typography>
 
                             {
                                 entity.artist &&
-                                <Typography variant='body2' className={cx(classes.artistName)}>
+                                <Typography variant='body2' className={entity.comment ? cx(classes.artistName) : cx(classes.artistName, classes.section)}>
                                     {
                                         entity.artistId
                                             ?
@@ -124,12 +150,33 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
                                 </Typography>
                             }
 
-                            {/*{*/}
-                            {/*    entity.comment &&*/}
-                            {/*    <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>*/}
-                            {/*}*/}
+                            {
+                                entity.comment &&
+                                <Typography variant='body2' className={cx(classes.section)}>{`(${entity.comment})`}</Typography>
+                            }
 
                             <Tags items={(entity.tags || []).slice(0, 10)} />
+
+                            {
+                                (entity.duration || entity.releaseDate) &&
+                                <Box className={cx(classes.details)}>
+                                    {
+                                        entity.duration &&
+                                        <Box className={cx(classes.detailSection)}>
+                                            <Typography variant='subtitle2'>Duration:</Typography>
+                                            <Typography variant='body2'>&nbsp;&nbsp;{entity.duration}</Typography>
+                                        </Box>
+                                    }
+
+                                    {
+                                        entity.releaseDate &&
+                                        <Box className={cx(classes.detailSection)}>
+                                            <Typography variant='subtitle2'>Released:</Typography>
+                                            <Typography variant='body2'>&nbsp;&nbsp;{SharedService.formatDateValue(entity.releaseDate)}</Typography>
+                                        </Box>
+                                    }
+                                </Box>
+                            }
 
                             {
                                 entity.links.length > 0 &&
@@ -138,12 +185,33 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
                                 </Box>
                             }
 
-                            {
-                                entity.appearsOn && entity.appearsOn.length > 0 &&
-                                <Box>
+                            <TabContext value={currentTab}>
+                                <Box sx={{ borderBottom: 1, borderColor: 'divider', marginTop: '-8px' }}>
+                                    <TabList onChange={handleChangeTab}>
+                                        <Tab label='Appears On' value='appearsOn' />
 
+                                        {
+                                            entity.annotation &&
+                                            <Tab label='Extra' value='extra' />
+                                        }
+                                    </TabList>
                                 </Box>
-                            }
+
+                                <TabPanel className={cx(classes.tabPanel)} value='appearsOn'>
+                                    <Discography entityId={entity.id} entityType={EntityType.Song} entities={entity.appearsOn} totalEntities={entity.appearsOn.length} />
+                                </TabPanel>
+
+                                {
+                                    entity.annotation &&
+                                    <TabPanel className={cx(classes.tabPanel)} value='extra'>
+                                        <Typography
+                                            variant='body2'
+                                            className={cx(classes.annotation)}
+                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
+                                        />
+                                    </TabPanel>
+                                }
+                            </TabContext>
 
                             <GoToTop topOfPageRef={props.topOfPageRef} />
                         </>

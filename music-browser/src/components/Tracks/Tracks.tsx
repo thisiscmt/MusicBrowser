@@ -7,7 +7,7 @@ import { Track } from '../../models/models.ts';
 import { BlueAnchorStyles } from '../../services/themeService.ts';
 
 const useStyles = tss.create(() => ({
-    trackContainer: {
+    mainContainer: {
         display: 'grid',
         rowGap: '6px',
         width: 'fit-content'
@@ -67,14 +67,16 @@ const Tracks: FC<TracksProps> = (props: TracksProps) => {
         <>
             {
                 props.tracks && props.tracks.length > 0 &&
-                <Box className={cx(classes.trackContainer)}>
+                <Box className={cx(classes.mainContainer)}>
                     {
                         props.tracks.map((track: Track, index: number) => {
+                            const trackURL = `/?searchText=${encodeURIComponent(track.name)}&entityType=song`
+
                             return (
                                 <Box key={track.id} className={cx(classes.track, trackClasses)}>
                                     <Typography variant='body2'>{index + 1}</Typography>
 
-                                    <Typography variant='body2' component={RouteLink} to={`/song/${track.id}`} className={cx(classes.link, classes.nameOverflow)}>
+                                    <Typography variant='body2' component={RouteLink} to={trackURL} className={cx(classes.link, classes.nameOverflow)}>
                                         {track.name}
                                     </Typography>
 

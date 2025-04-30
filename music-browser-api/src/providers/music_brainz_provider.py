@@ -1,7 +1,6 @@
 import copy
 from concurrent.futures import ThreadPoolExecutor
 import datetime
-from dataclasses import fields
 
 from flask_caching import Cache
 import musicbrainzngs
@@ -10,7 +9,8 @@ from src.enums.enums import EntityType, DiscographyType
 from src.models.models import DataRequest
 from src.providers.base_provider import BaseProvider
 from src.services.music_brainz_service import build_search_results, get_artist_data, get_album_data, get_release_data, get_discography_data, \
-                                              build_artist, build_album, build_song, build_discography_list, get_cached_images, set_cached_images
+                                              get_song_data, build_artist, build_album, build_discography_list, build_song, get_cached_images, \
+                                              set_cached_images
 
 
 class MusicBrainzProvider(BaseProvider):
@@ -36,7 +36,7 @@ class MusicBrainzProvider(BaseProvider):
 
                 results = build_search_results(EntityType.ALBUM, 'release-group-list', 'release-group-count', data)
             case EntityType.SONG.value:
-                data = musicbrainzngs.search_recordings(query=query, limit=page_size, offset=offset, type='album', status='official')
+                data = musicbrainzngs.search_recordings(query=query, limit=page_size, offset=offset, primarytype='album', status='official')
                 print(f'__MusicBrainz song search: {datetime.datetime.now() - begin_time}')
 
                 results = build_search_results(EntityType.SONG, 'recording-list', 'recording-count', data)
@@ -131,8 +131,20 @@ class MusicBrainzProvider(BaseProvider):
                 result.trackList = get_release_data(data[0]['release-group'])
 
             case EntityType.SONG.value:
-                includes = ['releases', 'artists', 'artist-credits', 'tags', 'genres', 'media', 'url-rels', 'release-group-rels', 'label-rels', 'annotation']
-                data = musicbrainzngs.get_recording_by_id(id=entity_id, release_status=['official'], includes=includes)
+                song_request = DataRequest()
+                song_request.data_type = 'song'
+                song_request.entity_id = entity_id
+
+                song_albums_request = copy.copy(song_request)
+                song_albums_request.data_type = 'song_albums'
+                song_albums_request.entity_id = entity_id
+                song_albums_request.limit = page_size
+                song_albums_request.offset = 0
+
+                data_requests = [song_request, song_albums_request]
+
+                with ThreadPoolExecutor(max_workers=4) as executor:
+                    data = list(executor.map(get_song_data, data_requests))
 
                 print(f'__MusicBrainz song lookup: {datetime.datetime.now() - begin_time}')
 
@@ -143,7 +155,7 @@ class MusicBrainzProvider(BaseProvider):
         return result
 
 
-    def run_discography_lookup(self, discog_type, entity_id, page, page_size, cache: Cache):
+    def run_discography_lookup(self, discog_type, entity_id, entity_type, page, page_size, cache: Cache):
         offset = (page - 1) * page_size
         release_types = None
         album_only = False
@@ -163,7 +175,7 @@ class MusicBrainzProvider(BaseProvider):
                 release_types = ['demo']
 
         discog_request = DataRequest()
-        discog_request.data_type = 'discography'
+        discog_request.data_type = 'song_albums' if entity_type == EntityType.SONG.value else 'discography'
         discog_request.entity_id = entity_id
         discog_request.release_types = release_types
         discog_request.offset = offset
@@ -190,9 +202,7 @@ class MusicBrainzProvider(BaseProvider):
         else:
             set_cached_images(entity_id, EntityType.ALBUM, data[1], cache)
 
-        result = build_discography_list(data, album_only)
+        result = build_discography_list(data, entity_type, album_only)
         print(f'Discography lookup total: {datetime.datetime.now() - begin_time}')
 
         return result
-
-

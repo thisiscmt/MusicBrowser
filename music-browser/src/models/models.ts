@@ -109,22 +109,16 @@ export interface Artist {
     links: LinkEntry[];
 }
 
-export interface Release {
-    id: string;
-    name: string;
-    releaseDate: string;
-    country: string;
-    artist: string;
-    artistId: string;
-}
-
 export interface Song {
     id: string;
     name: string;
     artist: string;
     artistId: string;
+    comment: string;
+    duration: string;
+    releaseDate: string;
     annotation: string;
-    appearsOn: Release[];
+    appearsOn: Album[];
     tags: Tag[];
     links: LinkEntry[];
 }

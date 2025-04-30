@@ -379,7 +379,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
                         ?
                             <>
                                 {
-                                    [1, 2, 3, 4, 5].map((item: number) => {
+                                    [1, 2, 3, 4].map((item: number) => {
                                         return (
                                             <Box key={item} className={cx(classes.loader)}><SearchResultLoader entityType={entityType as EntityType} /></Box>
                                         );

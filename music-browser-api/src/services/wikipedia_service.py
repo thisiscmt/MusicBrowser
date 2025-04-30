@@ -1,6 +1,6 @@
+import urllib.parse
 import datetime
 import requests
-import urllib.parse
 
 
 def get_entity_description(wikidata_url: str):

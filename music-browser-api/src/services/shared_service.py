@@ -9,10 +9,6 @@ def supported_entity_type(entity_type: str):
     return entity_type in [EntityType.ARTIST.value, EntityType.ALBUM.value, EntityType.SONG.value]
 
 
-def supported_discog_type(discog_type: str):
-    return discog_type in [DiscographyType.ALBUM, DiscographyType.SINGLE_EP.value, DiscographyType.COMPILATION.value, DiscographyType.LIVE, DiscographyType.DEMO]
-
-
 def supported_data_provider(provider_name: str):
     return provider_name in [DataProvider.MUSIC_BRAINZ.value, DataProvider.SPOTIFY.value]
 

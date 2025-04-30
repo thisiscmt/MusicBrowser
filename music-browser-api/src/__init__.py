@@ -9,7 +9,7 @@ from flask_caching import Cache
 
 from src.config import Config
 from src.schema.schema import SearchParameters, SearchOutput, Artist, Album, Discography, Song, DiscographyParameters, PaginationParameters, ArtistParameters
-from src.services.shared_service import supported_entity_type, supported_discog_type, get_data_provider
+from src.services.shared_service import supported_entity_type, get_data_provider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType, DiscographyType
 
@@ -75,15 +75,18 @@ def lookup_artist(entity_id, query_data):
     return result
 
 
-@app.get('/lookup/artist/<string:entity_id>/discography')
+@app.get('/lookup/discography/<string:entity_type>/<string:entity_id>')
 @app.input(DiscographyParameters, location='query')
 @app.output(Discography)
-def lookup_artist_discography(entity_id, query_data):
-    """Performs a lookup of a specific artist's discography"""
+def lookup_discography(entity_type, entity_id, query_data):
+    """Performs a lookup of the discography for an artist or that which is associated with a particular song"""
+
+    if not supported_entity_type(entity_type):
+        raise BadRequest(description='Unsupported entity type')
 
     db = get_data_provider(app.config)
-    result = db.run_discography_lookup(discog_type=query_data['discogType'], entity_id=entity_id, page=query_data['page'], page_size=query_data['pageSize'],
-                                       cache=cache)
+    result = db.run_discography_lookup(discog_type=query_data['discogType'], entity_id=entity_id, entity_type=entity_type, page=query_data['page'],
+                                       page_size=query_data['pageSize'], cache=cache)
 
     return result
 
@@ -112,7 +115,7 @@ def lookup_song(entity_id, query_data):
     """Performs a lookup of a specific song"""
 
     db = get_data_provider(app.config)
-    result = db.run_lookup(entity_type=EntityType.SONG.value, entity_id=entity_id, secondary_id=None, page_size=None, cache=cache)
+    result = db.run_lookup(entity_type=EntityType.SONG.value, entity_id=entity_id, secondary_id=None, page_size=query_data['pageSize'], cache=cache)
 
     return result
 
@@ -148,14 +151,15 @@ def handle_not_found():
 def handle_server_error(error):
     """Handler for 500 errors"""
 
-    # TODO: Log this somewhere
+
+    app.logger.error(msg=error)
     return 'An unknown error occurred', 500
 
 
 @app.errorhandler(Exception)
-def handle_generic_exception(e):
+def handle_generic_exception(error):
     """Handler for uncaught errors"""
 
-    # TODO: Log this somewhere
+    app.logger.error(msg=error)
     return 'An unknown error occurred', 500
 
