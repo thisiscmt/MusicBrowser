@@ -1,6 +1,6 @@
 import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
 import { Link as RouteLink, useParams } from 'react-router';
-import { Box, Tab, Typography } from '@mui/material';
+import { Box, Fade, Tab, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
 import DOMPurify from 'dompurify';
@@ -194,19 +194,23 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
                                     </TabList>
                                 </Box>
 
-                                <TabPanel className={cx(classes.tabPanel)} value='appearsOn'>
-                                    <Discography entityId={entity.id} entityType={EntityType.Song} entities={entity.appearsOn} totalEntities={entity.appearsOn.length} />
-                                </TabPanel>
+                                <Fade in={currentTab === 'appearsOn'} timeout={800}>
+                                    <TabPanel className={cx(classes.tabPanel)} value='appearsOn'>
+                                        <Discography entityId={entity.id} entityType={EntityType.Song} entities={entity.appearsOn} totalEntities={entity.appearsOn.length} />
+                                    </TabPanel>
+                                </Fade>
 
                                 {
                                     entity.annotation &&
-                                    <TabPanel className={cx(classes.tabPanel)} value='extra'>
-                                        <Typography
-                                            variant='body2'
-                                            className={cx(classes.annotation)}
-                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
-                                        />
-                                    </TabPanel>
+                                    <Fade in={currentTab === 'extra'} timeout={800}>
+                                        <TabPanel className={cx(classes.tabPanel)} value='extra'>
+                                            <Typography
+                                                variant='body2'
+                                                className={cx(classes.annotation)}
+                                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
+                                            />
+                                        </TabPanel>
+                                    </Fade>
                                 }
                             </TabContext>
 

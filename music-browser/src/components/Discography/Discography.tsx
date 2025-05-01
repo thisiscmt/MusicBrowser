@@ -267,7 +267,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                             {
                                 entities && entities.length === 0
                                     ?
-                                        <Typography variant='body2'>No items of the current discography type were found for this artist.</Typography>
+                                        <Typography variant='body2'>No items of the current discography type were found.</Typography>
                                     :
                                         <Box className={cx(classes.entityContainer)}>
                                             {

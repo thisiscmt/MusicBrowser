@@ -150,7 +150,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                         }
                     }
 
-                    if (ordinal !== undefined) {
+                    if (ordinal !== undefined && location.state.entityIds.length > 1) {
                         setAlbumOrdinal(ordinal);
                         setShowAlbumNav(true);
                     }

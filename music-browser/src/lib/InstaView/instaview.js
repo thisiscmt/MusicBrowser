@@ -18,8 +18,8 @@
 */
 
 /*
-	This file has been modified to specifically transform wikitext supported by MusicBrainz to HTML. It has also been updated to use modern JavaScript
-	syntax and patterns. The 'InstaView' object is the main entry point to the conversion functionality. It can be imported using regular ESM syntax.
+    This file has been modified to specifically transform wikitext supported by MusicBrainz to HTML. It has also been updated to use modern JavaScript
+    syntax and patterns. The 'InstaView' object is the main entry point to the conversion functionality. It can be imported using regular ESM syntax.
 */
 
 'use strict';

@@ -1,6 +1,6 @@
 import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { Box, Tab, Typography } from '@mui/material';
+import { Box, Fade, Tab, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { tss } from 'tss-react/mui';
 import DOMPurify from 'dompurify';
@@ -188,26 +188,32 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                     </TabList>
                                 </Box>
 
-                                <TabPanel className={cx(classes.tabPanel)} value='discography'>
-                                    <Discography entityId={entity.id} entityType={EntityType.Artist} entities={albums} totalEntities={entity.totalAlbums} />
-                                </TabPanel>
+                                <Fade in={currentTab === 'discography'} timeout={800}>
+                                    <TabPanel className={cx(classes.tabPanel)} value='discography'>
+                                        <Discography entityId={entity.id} entityType={EntityType.Artist} entities={albums} totalEntities={entity.totalAlbums} />
+                                    </TabPanel>
+                                </Fade>
 
                                 {
                                     entity.members && entity.members.length > 0 &&
-                                    <TabPanel className={cx(classes.tabPanel)} value='members'>
-                                        <GroupMembers entities={entity.members} />
-                                    </TabPanel>
+                                    <Fade in={currentTab === 'members'} timeout={800}>
+                                        <TabPanel className={cx(classes.tabPanel)} value='members'>
+                                            <GroupMembers entities={entity.members} />
+                                        </TabPanel>
+                                    </Fade>
                                 }
 
                                 {
                                     entity.annotation &&
-                                    <TabPanel className={cx(classes.tabPanel)} value='extra'>
-                                        <Typography
-                                            variant='body2'
-                                            className={cx(classes.annotation)}
-                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
-                                        />
-                                    </TabPanel>
+                                    <Fade in={currentTab === 'extra'} timeout={800}>
+                                        <TabPanel className={cx(classes.tabPanel)} value='extra'>
+                                            <Typography
+                                                variant='body2'
+                                                className={cx(classes.annotation)}
+                                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
+                                            />
+                                        </TabPanel>
+                                    </Fade>
                                 }
                             </TabContext>
 
