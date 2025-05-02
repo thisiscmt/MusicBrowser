@@ -1,4 +1,4 @@
-import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link as RouteLink, useParams, useSearchParams, useLocation, useNavigate } from 'react-router';
 import { Box, IconButton, SvgIcon, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
@@ -99,11 +99,7 @@ const useStyles = tss.create(() => ({
 
 }));
 
-interface AlbumDetailsProps {
-    topOfPageRef: RefObject<HTMLElement>;
-}
-
-const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
+const AlbumDetails = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Album>(SharedService.getEmptyAlbum());
@@ -168,9 +164,9 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
 
         if ((entity.name === '' || entity.id !== albumId) && !error) {
             fetchData();
-            SharedService.scrollToTop(props.topOfPageRef);
+            window.scrollTo({ top: 0, behavior: 'smooth'});
         }
-    }, [albumId, entity.id, entity.name, error, location.state, props.topOfPageRef, searchParams, setBanner]);
+    }, [albumId, entity.id, entity.name, error, location.state, searchParams, setBanner]);
 
     const handleShowPreviousAlbum = () => {
         navigate(`/album/${location.state.entityIds[albumOrdinal - 1]}${queryString}`, { state: {entityIds: location.state.entityIds} });
@@ -296,7 +292,7 @@ const AlbumDetails: FC<AlbumDetailsProps> = (props: AlbumDetailsProps) => {
                             }
 
                             <Tracks tracks={currentTrackList.tracks} totalDuration={currentTrackList.totalDuration} artist={entity.artist} />
-                            <GoToTop topOfPageRef={props.topOfPageRef} />
+                            <GoToTop showAtPosition={100} />
                         </>
             }
         </Box>

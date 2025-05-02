@@ -11,6 +11,10 @@ from src.enums.enums import EntityType
 EXCLUDED_TAGS = ['1–4 wochen', '1–9 wochen', 'offizielle charts', 'aln-sh', 'laut.de', 'plattentests.de', '2008 universal fire victim', 'a filk artist',
                  'i forgot to remember to forget', 'longing', 'love']
 
+# Some searches could return thousands and thousands of results, so we limit the caller to this value to simplify any UI. Otherwise they would have
+# to potentially deal with rendering very large page numbers in their pagination UI.
+MAX_SEARCH_RESULTS = 200
+
 def get_artist_data(data_request: DataRequest):
     result = None
 
@@ -39,8 +43,8 @@ def get_discography_data(data_request: DataRequest):
                                                       offset=data_request.offset, release_group_status='website-default')
 
     if data_request.data_type == 'song_albums':
-        result = musicbrainzngs.browse_releases(recording=data_request.entity_id, release_type=data_request.release_types, release_status=['official'],
-                                                includes=['artist-credits', 'release-groups'], limit=data_request.limit, offset=data_request.offset)
+        result = musicbrainzngs.browse_releases(recording=data_request.entity_id, release_type=data_request.release_types, limit=data_request.limit,
+                                                offset=data_request.offset, includes=['artist-credits', 'release-groups'])
 
     if data_request.data_type == 'album_images':
         if not data_request.use_cache:
@@ -53,6 +57,7 @@ def get_album_data(data_request: DataRequest):
     result = None
 
     if data_request.data_type == 'album':
+        # The 'releases' include is needed for this request to succeed, even though we are doing a lookup of a release group (not sure why)
         includes = ['tags', 'genres', 'releases', 'artist-credits', 'media', 'url-rels', 'annotation']
         result = musicbrainzngs.get_release_group_by_id(id=data_request.entity_id, includes=includes)
 
@@ -147,7 +152,7 @@ def get_release_data(release_group):
         if release_id is None:
             release_id = release_list[0]['id']
 
-        release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings', 'artist-credits'])
+        release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings', 'labels', 'artist-credits'])
 
         if 'medium-list' in release_data['release'] and len(release_data['release']['medium-list']) > 0:
             for item in release_data['release']['medium-list']:
@@ -164,8 +169,8 @@ def get_song_data(data_request: DataRequest):
         result = musicbrainzngs.get_recording_by_id(id=data_request.entity_id, includes=['artist-credits', 'tags', 'genres', 'url-rels', 'annotation'])
 
     if data_request.data_type == 'song_albums':
-        result = musicbrainzngs.browse_releases(recording=data_request.entity_id, release_type=['album'], release_status=['official'],
-                                                includes=['artist-credits', 'release-groups'], limit=data_request.limit, offset=data_request.offset)
+        result = musicbrainzngs.browse_releases(recording=data_request.entity_id, release_type=['album'], includes=['artist-credits', 'release-groups'],
+                                                limit=data_request.limit, offset=data_request.offset)
 
     return result
 
@@ -262,7 +267,7 @@ def build_search_results(entity_type: EntityType, rows_key: str, count_key: str,
 
         rows.append(result)
 
-    count = min(int(data[count_key]), 100)
+    count = min(int(data[count_key]), MAX_SEARCH_RESULTS)
 
     results = SearchOutput()
     results.rows = rows

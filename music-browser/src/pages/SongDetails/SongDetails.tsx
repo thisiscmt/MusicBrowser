@@ -1,4 +1,4 @@
-import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link as RouteLink, useParams } from 'react-router';
 import { Box, Fade, Tab, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
@@ -81,11 +81,7 @@ const useStyles = tss.create(() => ({
     }
 }));
 
-interface SongDetailsProps {
-    topOfPageRef: RefObject<HTMLElement>;
-}
-
-const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
+const SongDetails = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Song>(SharedService.getEmptySong());
@@ -101,11 +97,6 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
                 setBanner('');
 
                 const song = await DataService.getSong(songId);
-
-
-
-
-
                 setEntity(song);
             } catch (error) {
                 setBanner((error as Error).message, 'error');
@@ -116,7 +107,7 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
 
         if (entity.name === '') {
             fetchData();
-            SharedService.scrollToTop(props.topOfPageRef);
+            window.scrollTo({ top: 0, behavior: 'smooth'});
         }
     });
 
@@ -214,7 +205,7 @@ const SongDetails: FC<SongDetailsProps> = (props: SongDetailsProps) => {
                                 }
                             </TabContext>
 
-                            <GoToTop topOfPageRef={props.topOfPageRef} />
+                            <GoToTop showAtPosition={100} />
                         </>
             }
         </Box>

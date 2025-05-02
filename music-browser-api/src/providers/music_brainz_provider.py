@@ -26,17 +26,25 @@ class MusicBrainzProvider(BaseProvider):
 
         match entity_type:
             case EntityType.ARTIST.value:
-                data = musicbrainzngs.search_artists(artist=query, limit=page_size, offset=offset)
+                data = musicbrainzngs.search_artists(artist=query.strip(), limit=page_size, offset=offset)
                 print(f'__MusicBrainz artist search: {datetime.datetime.now() - begin_time}')
 
                 results = build_search_results(EntityType.ARTIST, 'artist-list', 'artist-count', data)
             case EntityType.ALBUM.value:
-                data = musicbrainzngs.search_release_groups(query=query, limit=page_size, offset=offset, type='album', status='official')
+                data = musicbrainzngs.search_release_groups(query=query.strip(), limit=page_size, offset=offset, type='album', status='official')
                 print(f'__MusicBrainz album search: {datetime.datetime.now() - begin_time}')
 
                 results = build_search_results(EntityType.ALBUM, 'release-group-list', 'release-group-count', data)
             case EntityType.SONG.value:
-                data = musicbrainzngs.search_recordings(query=query, limit=page_size, offset=offset, primarytype='album', status='official')
+                if 'artist:' in query:
+                    song_query = query[:query.index('artist:')].strip()
+                    artist_query = query[query.index('artist:') + 7:].strip()
+
+                    data = musicbrainzngs.search_recordings(query=song_query, limit=page_size, offset=offset, artist=artist_query, primarytype='album',
+                                                            status='official')
+                else:
+                    data = musicbrainzngs.search_recordings(query=query.strip(), limit=page_size, offset=offset, primarytype='album', status='official')
+
                 print(f'__MusicBrainz song search: {datetime.datetime.now() - begin_time}')
 
                 results = build_search_results(EntityType.SONG, 'recording-list', 'recording-count', data)

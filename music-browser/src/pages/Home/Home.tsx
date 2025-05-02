@@ -1,4 +1,4 @@
-import React, { FC, RefObject, useContext, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router';
 import {
     Box,
@@ -59,11 +59,7 @@ const useStyles = makeStyles()((theme) => ({
 
     fieldLabel: {
         fontSize: '14px',
-        minWidth: '100px',
-
-        [theme.breakpoints.down(600)]: {
-            minWidth: '70px'
-        }
+        minWidth: '70px',
     },
 
     searchText: {
@@ -144,11 +140,7 @@ const useStyles = makeStyles()((theme) => ({
     }
 }));
 
-interface HomeProps {
-    topOfPageRef: RefObject<HTMLElement>;
-}
-
-const Home: FC<HomeProps> = (props: HomeProps) => {
+const Home = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ searchText, setSearchText ] = useState<string>('');
@@ -207,7 +199,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
             setCurrentPage(searchRequestParams.page);
             setNoResults(results.rows.length === 0);
 
-            SharedService.scrollToTop(props.topOfPageRef);
+            window.scrollTo({ top: 0, behavior: 'smooth'});
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
             // TODO: Log this somewhere
@@ -215,7 +207,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
         } finally {
             setLoading(false);
         }
-    }, [defaultPageSize, props.topOfPageRef, setBanner]);
+    }, [defaultPageSize, setBanner]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -267,7 +259,7 @@ const Home: FC<HomeProps> = (props: HomeProps) => {
 
         setCurrentPage(value);
         setSearchParams(searchParams);
-        SharedService.scrollToTop(props.topOfPageRef);
+        window.scrollTo({ top: 0, behavior: 'smooth'});
     }
 
     const handleSearch = () => {

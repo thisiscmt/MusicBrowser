@@ -1,4 +1,3 @@
-import { RefObject } from 'react';
 import { ReactImageGalleryItem } from 'react-image-gallery';
 import InstaView from '../lib/InstaView/instaview';
 
@@ -177,11 +176,5 @@ export const getEmptySong = (): Song => {
         appearsOn: [],
         tags: [],
         links: [],
-    }
-}
-
-export const scrollToTop = (ref: RefObject<HTMLElement>) => {
-    if (ref && ref.current) {
-        ref.current.scrollIntoView({ behavior: 'smooth' });
     }
 }

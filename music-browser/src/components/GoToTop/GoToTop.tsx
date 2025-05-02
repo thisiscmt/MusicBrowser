@@ -1,20 +1,16 @@
-import React, {FC, RefObject} from 'react';
-import { Box, IconButton } from '@mui/material';
+import React, { FC, useState, useEffect } from 'react';
+import { IconButton } from '@mui/material';
 import { ArrowCircleUpOutlined } from '@mui/icons-material';
 import { tss } from 'tss-react/mui';
 
-import * as SharedService from '../../services/sharedService.ts';
-
 const useStyles = tss.create(() => ({
-    mainContainer: {
-        position: 'relative',
-        textAlign: 'right'
-    },
-
     button: {
-        marginTop: '4px',
-        opacity: 0.5,
+        bottom: '16px',
+        opacity: 0.4,
         padding: 0,
+        position: 'fixed',
+        right: '16px',
+        zIndex: 100,
 
         '& svg': {
             height: '56px',
@@ -24,22 +20,44 @@ const useStyles = tss.create(() => ({
 }));
 
 interface GoToTopProps {
-    topOfPageRef: RefObject<HTMLElement>;
+    showAtPosition: number;
 }
 
-const GoToTop: FC<GoToTopProps> = (props: GoToTopProps) => {
+const GoToTop:FC<GoToTopProps> = (props: GoToTopProps) => {
     const { classes, cx } = useStyles();
+    const [ showButton, setShowButton ] = useState<boolean>(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > props.showAtPosition) {
+                if (!showButton) {
+                    setShowButton(true);
+                }
+            } else {
+                if (showButton) {
+                    setShowButton(false);
+                }
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    });
 
     const handleGoToTop = () => {
-        SharedService.scrollToTop(props.topOfPageRef)
+        window.scrollTo({ top: 0, behavior: 'smooth'});
     };
 
     return (
-        <Box className={cx(classes.mainContainer)}>
-            <IconButton className={cx(classes.button)} aria-label='go to top of page' title='Go to top' disableRipple={true} onClick={handleGoToTop}>
-                <ArrowCircleUpOutlined color='primary' />
-            </IconButton>
-        </Box>
+        <>
+            {
+                showButton &&
+                <IconButton className={cx(classes.button)} aria-label='go to top of page' title='Go to top' disableRipple={true} onClick={handleGoToTop}>
+                    <ArrowCircleUpOutlined color='primary' />
+                </IconButton>
+            }
+        </>
     )
 };
 

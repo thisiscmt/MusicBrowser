@@ -1,4 +1,4 @@
-import React, { FC, RefObject, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Box, Fade, Tab, Typography } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
@@ -75,11 +75,7 @@ const useStyles = tss.create(() => ({
     }
 }));
 
-interface ArtistDetailsProps {
-    topOfPageRef: RefObject<HTMLElement>;
-}
-
-const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
+const ArtistDetails = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Artist>(SharedService.getEmptyArtist());
@@ -129,9 +125,9 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
         // The entity ID comparison is for when the user goes backwards or forwards in the browser history to different artists
         if ((entity.name === '' || (entity.id && entity.id !== artistId)) && !error) {
             fetchData();
-            SharedService.scrollToTop(props.topOfPageRef);
+            window.scrollTo({ top: 0, behavior: 'smooth'});
         }
-    }, [artistId, defaultPageSize, entity.id, entity.name, error, props.topOfPageRef, setBanner]);
+    }, [artistId, defaultPageSize, entity.id, entity.name, error, setBanner]);
 
     const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);
@@ -217,7 +213,7 @@ const ArtistDetails: FC<ArtistDetailsProps> = (props: ArtistDetailsProps) => {
                                 }
                             </TabContext>
 
-                            <GoToTop topOfPageRef={props.topOfPageRef} />
+                            <GoToTop showAtPosition={100} />
                         </>
             }
         </Box>
