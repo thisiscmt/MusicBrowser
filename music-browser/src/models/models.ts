@@ -79,6 +79,8 @@ export interface Album {
     description: string;
     comment: string;
     releaseDate: string;
+    label: string;
+    catalogNumber: string;
     artist: string;
     artistId: string;
     ordinal: number;

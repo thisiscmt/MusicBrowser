@@ -136,7 +136,11 @@ class MusicBrainzProvider(BaseProvider):
                         set_cached_images(secondary_id, EntityType.ALBUM, data[1], cache)
 
                 result = build_album(data)
-                result.trackList = get_release_data(data[0]['release-group'])
+                release_data = get_release_data(data[0]['release-group'])
+
+                result.label = release_data['label']
+                result.catalogNumber = release_data['catalog_number']
+                result.trackList = release_data['track_list']
 
             case EntityType.SONG.value:
                 song_request = DataRequest()

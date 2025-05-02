@@ -8,7 +8,7 @@ import { SearchResult } from '../../models/models.ts';
 import { GrayAnchorStyles, Colors } from '../../services/themeService.ts';
 import { EntityType } from '../../enums/enums.ts';
 
-const useStyles = tss.create(() => ({
+const useStyles = tss.create(({ theme }) => ({
     card: {
         marginBottom: '2px',
 
@@ -42,6 +42,10 @@ const useStyles = tss.create(() => ({
 
         '& a': {
             ...GrayAnchorStyles
+        },
+
+        [theme.breakpoints.down(600)]: {
+            lineHeight: 'unset'
         }
     },
 

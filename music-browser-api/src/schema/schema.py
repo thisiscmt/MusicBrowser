@@ -69,6 +69,8 @@ class Album(Schema):
     artist = String()
     artistId = String()
     releaseDate = String()
+    label = String()
+    catalogNumber = String()
     description = String()
     comment = String()
     country = String()

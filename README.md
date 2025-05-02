@@ -14,4 +14,4 @@ The new version will have the following features:
 * Include artist images and album cover art
 * View other releases from an artist like singles, EPs, and compilations
 
-I'm making the back end such that MusicBrainz is just one provider that could easily be swapped out for a different one, just by changing an environment variable and re-starting the service. They seem to have the data that I want so that's what I'll do for now.
+I'm making the back end such that MusicBrainz is just one provider that could easily be swapped out for a different one, just by changing an environment variable and re-starting the service. They seem to have the data that I want so that's what I'll go with for now.

@@ -53,6 +53,10 @@ const useStyles = tss.create(() => ({
         marginBottom: '12px'
     },
 
+    label: {
+        marginRight: '8px'
+    },
+
     annotation: {
         fontSize: '14px',
         marginBottom: '10px',
@@ -151,16 +155,16 @@ const SongDetails = () => {
                                     {
                                         entity.duration &&
                                         <Box className={cx(classes.detailSection)}>
-                                            <Typography variant='subtitle2'>Duration:</Typography>
-                                            <Typography variant='body2'>&nbsp;&nbsp;{entity.duration}</Typography>
+                                            <Typography variant='subtitle2' className={cx(classes.label)}>Duration:</Typography>
+                                            <Typography variant='body2'>{entity.duration}</Typography>
                                         </Box>
                                     }
 
                                     {
                                         entity.releaseDate &&
                                         <Box className={cx(classes.detailSection)}>
-                                            <Typography variant='subtitle2'>Released:</Typography>
-                                            <Typography variant='body2'>&nbsp;&nbsp;{SharedService.formatDateValue(entity.releaseDate)}</Typography>
+                                            <Typography variant='subtitle2' className={cx(classes.label)}>Released:</Typography>
+                                            <Typography variant='body2'>{SharedService.formatDateValue(entity.releaseDate)}</Typography>
                                         </Box>
                                     }
                                 </Box>

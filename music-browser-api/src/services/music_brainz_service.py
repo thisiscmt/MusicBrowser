@@ -96,7 +96,7 @@ def get_release_data(release_group):
     :return: A list of track lists for the given release group, if a candidate release was found. A list of track lists is used to support releases
     that have more than one medium (e.g. box sets). For most albums the return value will only have one element.
     """
-    result = []
+    result = {'track_list': [], 'label': '', 'catalog_number': ''}
 
     if 'release-list' in release_group and len(release_group['release-list']) > 0:
         release_id = None
@@ -153,11 +153,22 @@ def get_release_data(release_group):
             release_id = release_list[0]['id']
 
         release_data = musicbrainzngs.get_release_by_id(id=release_id, includes=['recordings', 'labels', 'artist-credits'])
+        record = release_data['release']
 
-        if 'medium-list' in release_data['release'] and len(release_data['release']['medium-list']) > 0:
-            for item in release_data['release']['medium-list']:
+        if 'medium-list' in record and len(record['medium-list']) > 0:
+            for item in record['medium-list']:
                 track_list = build_release_tracks(item)
-                result.append(track_list)
+                result['track_list'].append(track_list)
+
+        if 'label-info-list' in record and len(record['label-info-list']) > 0:
+            if 'catalog-number' in record['label-info-list'][0]:
+                result['catalog_number'] = record['label-info-list'][0]['catalog-number']
+
+            if 'label' in record['label-info-list'][0]:
+                result['label'] = record['label-info-list'][0]['label']['name']
+
+                if 'disambiguation' in record['label-info-list'][0]['label']:
+                    result['label'] += f' ({record['label-info-list'][0]['label']['disambiguation']})'
 
     return result
 

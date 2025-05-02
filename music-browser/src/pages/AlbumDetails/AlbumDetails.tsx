@@ -40,14 +40,23 @@ const useStyles = tss.create(() => ({
         }
     },
 
+    flex: {
+        display: 'flex'
+    },
+
+    label: {
+        marginRight: '8px'
+    },
+
     comment: {
         marginBottom: '10px'
     },
 
-    releaseDateSection: {
+    releaseDateContainer: {
         alignItems: 'center',
         display: 'flex',
-        marginBottom: '8px'
+        marginBottom: '4px',
+        marginTop: '-5px'
     },
 
     albumNavContainer: {
@@ -225,10 +234,26 @@ const AlbumDetails = () => {
                             <Tags items={(entity.tags || []).slice(0, 10)} />
 
                             {
+                                entity.label &&
+                                <Box className={cx(classes.flex)}>
+                                    <Typography variant='subtitle2' className={cx(classes.label)}>Label:</Typography>
+                                    <Typography variant='body2'>{entity.label}</Typography>
+                                </Box>
+                            }
+
+                            {
+                                entity.catalogNumber &&
+                                <Box className={cx(classes.flex)}>
+                                    <Typography variant='subtitle2' className={cx(classes.label)}>Catalog number:</Typography>
+                                    <Typography variant='body2'>{entity.catalogNumber}</Typography>
+                                </Box>
+                            }
+
+                            {
                                 (entity.releaseDate || showAlbumNav) &&
-                                <Box className={cx(classes.releaseDateSection)}>
-                                    <Typography variant='subtitle2'>Released:</Typography>
-                                    <Typography variant='body2'>&nbsp;&nbsp;{SharedService.formatDateValue(entity.releaseDate)}</Typography>
+                                <Box className={cx(classes.releaseDateContainer)}>
+                                    <Typography variant='subtitle2' className={cx(classes.label)}>Released:</Typography>
+                                    <Typography variant='body2'>{SharedService.formatDateValue(entity.releaseDate)}</Typography>
 
                                     {
                                         showAlbumNav &&
