@@ -44,29 +44,39 @@ const useStyles = tss.create(() => ({
         display: 'flex'
     },
 
-    label: {
+    detailLabel: {
+        display: 'inline-block',
         marginRight: '8px'
     },
 
+    detailValue: {
+        display: 'inline-block'
+    },
+
     comment: {
+        marginBottom: '4px'
+    },
+
+    detailsContainer: {
         marginBottom: '10px'
     },
 
     releaseDateContainer: {
-        alignItems: 'center',
-        display: 'flex',
-        marginBottom: '4px',
-        marginTop: '-5px'
+        position: 'relative'
     },
 
     albumNavContainer: {
-        display: 'flex',
-        gap: '8px',
-        marginLeft: 'auto',
+        position: 'absolute',
+        right: 0,
+        top: '-6px',
 
         '& .MuiIconButton-root': {
             color: Colors.primaryLinkColor,
             padding: '4px'
+        },
+
+        '& .MuiIconButton-root:first-of-type': {
+            marginRight: '8px'
         },
 
         '& .Mui-disabled': {
@@ -208,9 +218,11 @@ const AlbumDetails = () => {
                                 <ImageGallery items={images} showPlayButton={false} additionalClass={cx(classes.imageContainer)} showFullscreenButton={false} />
                             }
 
+                            <Typography variant='h5'>{entity.name}</Typography>
+
                             {
-                                entity.name &&
-                                <Typography variant='h5'>{entity.name}</Typography>
+                                entity.comment &&
+                                <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>
                             }
 
                             {
@@ -226,55 +238,55 @@ const AlbumDetails = () => {
                                 </Typography>
                             }
 
-                            {
-                                entity.comment &&
-                                <Typography variant='body2' className={cx(classes.comment)}>{`(${entity.comment})`}</Typography>
-                            }
-
                             <Tags items={(entity.tags || []).slice(0, 10)} />
 
                             {
-                                entity.label &&
-                                <Box className={cx(classes.flex)}>
-                                    <Typography variant='subtitle2' className={cx(classes.label)}>Label:</Typography>
-                                    <Typography variant='body2'>{entity.label}</Typography>
-                                </Box>
-                            }
-
-                            {
-                                entity.catalogNumber &&
-                                <Box className={cx(classes.flex)}>
-                                    <Typography variant='subtitle2' className={cx(classes.label)}>Catalog number:</Typography>
-                                    <Typography variant='body2'>{entity.catalogNumber}</Typography>
-                                </Box>
-                            }
-
-                            {
-                                (entity.releaseDate || showAlbumNav) &&
-                                <Box className={cx(classes.releaseDateContainer)}>
-                                    <Typography variant='subtitle2' className={cx(classes.label)}>Released:</Typography>
-                                    <Typography variant='body2'>{SharedService.formatDateValue(entity.releaseDate)}</Typography>
+                                (entity.label || entity.catalogNumber || entity.releaseDate) &&
+                                <Box className={cx(classes.detailsContainer)}>
+                                    {
+                                        entity.label &&
+                                        <Box className={cx(classes.flex)}>
+                                            <Typography variant='subtitle2' className={cx(classes.detailLabel)}>Label:</Typography>
+                                            <Typography variant='body2'>{entity.label}</Typography>
+                                        </Box>
+                                    }
 
                                     {
-                                        showAlbumNav &&
-                                        <Box className={cx(classes.albumNavContainer)}>
-                                            <IconButton onClick={handleShowPreviousAlbum} aria-label='Show previous album' title='Show previous album'
-                                                        disabled={albumOrdinal === 0}>
-                                                <SvgIcon>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                        <path d="M12 10.6667L21.2227 4.51823C21.4524 4.36506 21.7629 4.42714 21.9161 4.65691C21.9708 4.73904 22 4.83554 22 4.93426V19.0657C22 19.3419 21.7762 19.5657 21.5 19.5657C21.4013 19.5657 21.3048 19.5365 21.2227 19.4818L12 13.3333V19.0657C12 19.3419 11.7762 19.5657 11.5 19.5657C11.4013 19.5657 11.3048 19.5365 11.2227 19.4818L0.62407 12.416C0.394306 12.2628 0.332219 11.9524 0.485395 11.7226C0.522013 11.6677 0.569144 11.6206 0.62407 11.584L11.2227 4.51823C11.4524 4.36506 11.7629 4.42714 11.9161 4.65691C11.9708 4.73904 12 4.83554 12 4.93426V10.6667ZM10 16.263V7.73703L3.60558 12L10 16.263ZM20 16.263V7.73703L13.6056 12L20 16.263Z"></path>
-                                                    </svg>
-                                                </SvgIcon>
-                                            </IconButton>
+                                        entity.catalogNumber &&
+                                        <Box className={cx(classes.flex)}>
+                                            <Typography variant='subtitle2' className={cx(classes.detailLabel)}>Catalog number:</Typography>
+                                            <Typography variant='body2' className={cx(classes.detailValue)}>{entity.catalogNumber}</Typography>
+                                        </Box>
+                                    }
 
-                                            <IconButton onClick={handleShowNextAlbum} aria-label='Show next album' title='Show next album'
-                                                        disabled={albumOrdinal === (location.state.entityIds.length - 1)}>
-                                                <SvgIcon>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                        <path d="M12 13.3334L2.77735 19.4818C2.54759 19.635 2.23715 19.5729 2.08397 19.3432C2.02922 19.261 2 19.1645 2 19.0658V4.93433C2 4.65818 2.22386 4.43433 2.5 4.43433C2.59871 4.43433 2.69522 4.46355 2.77735 4.5183L12 10.6667V4.93433C12 4.65818 12.2239 4.43433 12.5 4.43433C12.5987 4.43433 12.6952 4.46355 12.7774 4.5183L23.376 11.584C23.6057 11.7372 23.6678 12.0477 23.5146 12.2774C23.478 12.3323 23.4309 12.3795 23.376 12.4161L12.7774 19.4818C12.5476 19.635 12.2372 19.5729 12.084 19.3432C12.0292 19.261 12 19.1645 12 19.0658V13.3334ZM10.3944 12.0001L4 7.7371V16.263L10.3944 12.0001ZM14 7.7371V16.263L20.3944 12.0001L14 7.7371Z"></path>
-                                                    </svg>
-                                                </SvgIcon>
-                                            </IconButton>
+                                    {
+                                        entity.releaseDate &&
+                                        <Box className={cx(classes.releaseDateContainer)}>
+                                            <Typography variant='subtitle2' className={cx(classes.detailLabel)}>Released:</Typography>
+                                            <Typography variant='body2' className={cx(classes.detailValue)}>{SharedService.formatDateValue(entity.releaseDate)}</Typography>
+
+                                            {
+                                                showAlbumNav &&
+                                                <Box className={cx(classes.albumNavContainer)}>
+                                                    <IconButton onClick={handleShowPreviousAlbum} aria-label='Show previous album' title='Show previous album'
+                                                                disabled={albumOrdinal === 0}>
+                                                        <SvgIcon>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                                <path d="M12 10.6667L21.2227 4.51823C21.4524 4.36506 21.7629 4.42714 21.9161 4.65691C21.9708 4.73904 22 4.83554 22 4.93426V19.0657C22 19.3419 21.7762 19.5657 21.5 19.5657C21.4013 19.5657 21.3048 19.5365 21.2227 19.4818L12 13.3333V19.0657C12 19.3419 11.7762 19.5657 11.5 19.5657C11.4013 19.5657 11.3048 19.5365 11.2227 19.4818L0.62407 12.416C0.394306 12.2628 0.332219 11.9524 0.485395 11.7226C0.522013 11.6677 0.569144 11.6206 0.62407 11.584L11.2227 4.51823C11.4524 4.36506 11.7629 4.42714 11.9161 4.65691C11.9708 4.73904 12 4.83554 12 4.93426V10.6667ZM10 16.263V7.73703L3.60558 12L10 16.263ZM20 16.263V7.73703L13.6056 12L20 16.263Z"></path>
+                                                            </svg>
+                                                        </SvgIcon>
+                                                    </IconButton>
+
+                                                    <IconButton onClick={handleShowNextAlbum} aria-label='Show next album' title='Show next album'
+                                                                disabled={albumOrdinal === (location.state.entityIds.length - 1)}>
+                                                        <SvgIcon>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                                <path d="M12 13.3334L2.77735 19.4818C2.54759 19.635 2.23715 19.5729 2.08397 19.3432C2.02922 19.261 2 19.1645 2 19.0658V4.93433C2 4.65818 2.22386 4.43433 2.5 4.43433C2.59871 4.43433 2.69522 4.46355 2.77735 4.5183L12 10.6667V4.93433C12 4.65818 12.2239 4.43433 12.5 4.43433C12.5987 4.43433 12.6952 4.46355 12.7774 4.5183L23.376 11.584C23.6057 11.7372 23.6678 12.0477 23.5146 12.2774C23.478 12.3323 23.4309 12.3795 23.376 12.4161L12.7774 19.4818C12.5476 19.635 12.2372 19.5729 12.084 19.3432C12.0292 19.261 12 19.1645 12 19.0658V13.3334ZM10.3944 12.0001L4 7.7371V16.263L10.3944 12.0001ZM14 7.7371V16.263L20.3944 12.0001L14 7.7371Z"></path>
+                                                            </svg>
+                                                        </SvgIcon>
+                                                    </IconButton>
+                                                </Box>
+                                            }
                                         </Box>
                                     }
                                 </Box>

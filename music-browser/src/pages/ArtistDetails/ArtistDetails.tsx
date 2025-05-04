@@ -184,7 +184,7 @@ const ArtistDetails = () => {
                                     </TabList>
                                 </Box>
 
-                                <Fade in={currentTab === 'discography'} timeout={800}>
+                                <Fade in={currentTab === 'discography'} timeout={500}>
                                     <TabPanel className={cx(classes.tabPanel)} value='discography'>
                                         <Discography entityId={entity.id} entityType={EntityType.Artist} entities={albums} totalEntities={entity.totalAlbums} />
                                     </TabPanel>
@@ -192,7 +192,7 @@ const ArtistDetails = () => {
 
                                 {
                                     entity.members && entity.members.length > 0 &&
-                                    <Fade in={currentTab === 'members'} timeout={800}>
+                                    <Fade in={currentTab === 'members'} timeout={500}>
                                         <TabPanel className={cx(classes.tabPanel)} value='members'>
                                             <GroupMembers entities={entity.members} />
                                         </TabPanel>
@@ -201,7 +201,7 @@ const ArtistDetails = () => {
 
                                 {
                                     entity.annotation &&
-                                    <Fade in={currentTab === 'extra'} timeout={800}>
+                                    <Fade in={currentTab === 'extra'} timeout={500}>
                                         <TabPanel className={cx(classes.tabPanel)} value='extra'>
                                             <Typography
                                                 variant='body2'

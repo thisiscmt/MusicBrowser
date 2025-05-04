@@ -12,7 +12,8 @@ import {
     Pagination,
     InputAdornment,
     IconButton,
-    Typography
+    Typography, 
+    Fade
 } from '@mui/material';
 import { CloseOutlined } from '@mui/icons-material';
 import { makeStyles } from 'tss-react/mui';
@@ -35,7 +36,7 @@ const useStyles = makeStyles()((theme) => ({
         paddingRight: '16px'
     },
 
-    searchTextRow: {
+    fieldRow: {
         marginTop: '16px'
     },
 
@@ -48,7 +49,7 @@ const useStyles = makeStyles()((theme) => ({
     },
 
     resultsRow: {
-        marginTop: '18px'
+        marginTop: '20px'
     },
 
     field: {
@@ -144,11 +145,13 @@ const Home = () => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ searchText, setSearchText ] = useState<string>('');
+    const [ artistSearchText, setArtistSearchText ] = useState<string>('');
     const [ entityType, setEntityType ] = useState<string>(EntityType.Artist);
     const [ searchResults, setSearchResults ] = useState<SearchResult[] | undefined>(undefined);
     const [ currentPage, setCurrentPage ] = useState<number>(1);
     const [ pageCount, setPageCount ] = useState<number>(0);
     const [ currentQueryString, setCurrentQueryString ] = useState<string>('');
+    const [ showArtistSearchInput, setShowArtistSearchInput ] = useState<boolean>(false);
     const [ searchTextInputError, setSearchTextInputError ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ noResults, setNoResults ] = useState<boolean>(false);
@@ -190,8 +193,16 @@ const Home = () => {
                     break;
 
                 case EntityType.Song:
-                    results = await DataService.searchSongs(searchRequestParams);
-                    break;
+                    {
+                        const artistSearchTextArg = searchParamsArg.get('artistSearchText') || '';
+
+                        if (artistSearchTextArg) {
+                            searchRequestParams.query += ` artist:${artistSearchTextArg}`;
+                        }
+
+                        results = await DataService.searchSongs(searchRequestParams);
+                        break;
+                    }
             }
 
             setSearchResults(results.rows);
@@ -221,6 +232,7 @@ const Home = () => {
         // we likely need different data.
         if (queryStringChanged) {
             const searchTextQueryParam = searchParams.get('searchText');
+            const artistSearchTextQueryParam = searchParams.get('artistSearchText');
             const entityTypeQueryParam = searchParams.get('entityType');
 
             // If the user clicked the browser's Back button and no longer has a search text query param we need to clear the text box. Or if they
@@ -234,6 +246,12 @@ const Home = () => {
                 setSearchText(searchTextQueryParam);
             }
 
+            if (!artistSearchTextQueryParam && artistSearchText) {
+                setArtistSearchText('');
+            } else if (artistSearchTextQueryParam) {
+                setArtistSearchText(artistSearchTextQueryParam);
+            }
+
             if (entityTypeQueryParam) {
                 setEntityType(entityTypeQueryParam);
             }
@@ -244,14 +262,24 @@ const Home = () => {
                 fetchData();
             }
         }
-    }, [searchParams, currentQueryString, searchText, getSearchResults, setSearchText]);
+    }, [searchParams, currentQueryString, searchText, artistSearchText, getSearchResults, setSearchText]);
 
     const handleChangeSearchText = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchText(event.target.value);
     };
 
+    const handleChangeArtistSearchText = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setArtistSearchText(event.target.value);
+    };
+
     const handleChangeEntityType = (event: React.ChangeEvent<HTMLInputElement>) => {
         setEntityType(event.target.value);
+
+        if (event.target.value === EntityType.Song) {
+            setShowArtistSearchInput(true);
+        } else {
+            setShowArtistSearchInput(false);
+        }
     };
 
     const handleChangePage = (_event: React.ChangeEvent<unknown>, value: number) => {
@@ -279,6 +307,12 @@ const Home = () => {
             searchParams.delete('searchText');
         }
 
+        if (artistSearchText) {
+            searchParams.set('artistSearchText', artistSearchText);
+        } else {
+            searchParams.delete('artistSearchText');
+        }
+
         searchParams.set('entityType', entityType);
 
         if (currentPage !== 1) {
@@ -299,11 +333,22 @@ const Home = () => {
         setSearchText('');
     };
 
+    const handleClearArtistSearchText = () => {
+        setArtistSearchText('');
+    };
+
     const searchResultsToRender = searchResults || [];
 
     return (
         <Box className={cx(classes.mainContainer)}>
-            <Grid item xs={12} className={cx(classes.searchTextRow)}>
+            <Grid item xs={12} className={cx(classes.fieldRow)}>
+                <Typography variant='body1'>
+                    The Music Browser is used to look up information about musical artists. Use the search fields below to find an artist, album, or song.
+                    When searching for a song, you can optionally specify an artist name to narrow down the results.
+                </Typography>
+            </Grid>
+
+            <Grid item xs={12} className={cx(classes.fieldRow)}>
                 <FormControl className={cx(classes.field, classes.searchText)}>
                     <FormControlLabel
                         labelPlacement='start'
@@ -341,6 +386,50 @@ const Home = () => {
                     />
                 </FormControl>
             </Grid>
+
+            {
+                showArtistSearchInput &&
+                <Fade in={showArtistSearchInput} timeout={500}>
+                    <Grid item xs={12} className={cx(classes.fieldRow)}>
+                        <FormControl className={cx(classes.field, classes.searchText)}>
+                            <FormControlLabel
+                                labelPlacement='start'
+                                label='Artist'
+                                classes={{ label: classes.fieldLabel }}
+                                control={
+                                    <TextField
+                                        name='Artist'
+                                        value={artistSearchText}
+                                        size='small'
+                                        error={searchTextInputError}
+                                        fullWidth={true}
+                                        autoCorrect='off'
+                                        inputProps={{ maxLength: 255 }}
+                                        onChange={handleChangeArtistSearchText}
+                                        onKeyDown={handleEnterKeyDown}
+                                        InputProps={ artistSearchText ?
+                                            {
+                                                endAdornment:
+                                                    <InputAdornment position='end'>
+                                                        <IconButton
+                                                            className={cx(classes.clearSearch)}
+                                                            aria-label='clear artist input'
+                                                            onClick={handleClearArtistSearchText}
+                                                            title='Clear artist search text'
+                                                            type='submit'
+                                                        >
+                                                            <CloseOutlined />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                            } : undefined
+                                        }
+                                    />
+                                }
+                            />
+                        </FormControl>
+                    </Grid>
+                </Fade>
+            }
 
             <Grid item xs={12} className={cx(classes.entityTypeRow)}>
                 <FormControl className={cx(classes.field)}>

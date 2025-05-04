@@ -189,7 +189,7 @@ const SongDetails = () => {
                                     </TabList>
                                 </Box>
 
-                                <Fade in={currentTab === 'appearsOn'} timeout={800}>
+                                <Fade in={currentTab === 'appearsOn'} timeout={500}>
                                     <TabPanel className={cx(classes.tabPanel)} value='appearsOn'>
                                         <Discography entityId={entity.id} entityType={EntityType.Song} entities={entity.appearsOn} totalEntities={entity.appearsOn.length} />
                                     </TabPanel>
@@ -197,7 +197,7 @@ const SongDetails = () => {
 
                                 {
                                     entity.annotation &&
-                                    <Fade in={currentTab === 'extra'} timeout={800}>
+                                    <Fade in={currentTab === 'extra'} timeout={500}>
                                         <TabPanel className={cx(classes.tabPanel)} value='extra'>
                                             <Typography
                                                 variant='body2'

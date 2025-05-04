@@ -98,8 +98,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         }
 
         setEntityCounts(entityCounts);
-
-        console.log('inside useEffect');
     }, [props.entities, props.totalEntities, defaultPageSize]);
 
     const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void,
