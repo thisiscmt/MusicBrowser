@@ -23,6 +23,12 @@ const useStyles = tss.create(({ theme }) => ({
         gap: '12px'
     },
 
+    detailsLoaderContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        rowGap: '12px'
+    },
+
     trackLoaderContainer: {
         display: 'flex',
         flexDirection: 'column',
@@ -54,7 +60,12 @@ const AlbumLoader: FC = () => {
                 }
             </Box>
 
-            <Skeleton variant='rectangular' height='20px' width='220px' />
+            <Box className={cx(classes.detailsLoaderContainer)}>
+                <Skeleton variant='rectangular' height='20px' width='220px' />
+                <Skeleton variant='rectangular' height='20px' width='220px' />
+                <Skeleton variant='rectangular' height='20px' width='220px' />
+            </Box>
+
             <Skeleton variant='rectangular' height='120px' />
 
             <Box className={cx(classes.loaderContainer)}>

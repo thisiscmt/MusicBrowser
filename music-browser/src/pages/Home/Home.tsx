@@ -134,7 +134,7 @@ const useStyles = makeStyles()((theme) => ({
 
     pagination: {
         marginTop: '16px',
-        marginBottom: '24px',
+        paddingBottom: '24px',
 
         '& .MuiPagination-ul': {
             justifyContent: 'center'
