@@ -18,5 +18,5 @@ class BaseProvider:
 
 
     @abstractmethod
-    def run_discography_lookup(self, discog_type: str, entity_type: str, entity_id: str, page: int, page_size: int, cache: Cache):
+    def run_discography_lookup(self, discog_type: str, entity_id: str, entity_type: str, page: int, page_size: int, cache: Cache):
         pass

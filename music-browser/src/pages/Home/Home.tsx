@@ -36,8 +36,9 @@ const useStyles = makeStyles()((theme) => ({
         paddingRight: '16px'
     },
 
-    fieldRow: {
-        marginTop: '16px'
+    introText: {
+        lineHeight: 1.3,
+        margin: 'inherit'
     },
 
     entityTypeRow: {
@@ -61,6 +62,10 @@ const useStyles = makeStyles()((theme) => ({
     fieldLabel: {
         fontSize: '14px',
         minWidth: '70px',
+    },
+
+    fieldRow: {
+        marginTop: '16px'
     },
 
     searchText: {
@@ -109,11 +114,7 @@ const useStyles = makeStyles()((theme) => ({
         marginLeft: '8px'
     },
 
-    searchResultContainer: {
-        a: {
-            textDecoration: 'none'
-        },
-
+    searchResultsContainer: {
         '& .searchResult': {
             marginBottom: '8px',
 
@@ -133,7 +134,7 @@ const useStyles = makeStyles()((theme) => ({
 
     pagination: {
         marginTop: '16px',
-        paddingBottom: '20px',
+        marginBottom: '24px',
 
         '& .MuiPagination-ul': {
             justifyContent: 'center'
@@ -254,6 +255,10 @@ const Home = () => {
 
             if (entityTypeQueryParam) {
                 setEntityType(entityTypeQueryParam);
+
+                if (entityTypeQueryParam === EntityType.Song) {
+                    setShowArtistSearchInput(true);
+                }
             }
 
             setCurrentQueryString(searchParams.toString());
@@ -341,12 +346,15 @@ const Home = () => {
 
     return (
         <Box className={cx(classes.mainContainer)}>
-            <Grid item xs={12} className={cx(classes.fieldRow)}>
-                <Typography variant='body1'>
-                    The Music Browser is used to look up information about musical artists. Use the search fields below to find an artist, album, or song.
+            <Box className={cx(classes.fieldRow)}>
+                <Typography variant='body1' className={cx(classes.introText)}>
+                    The Music Browser is used to look up information about musical artists. Use the fields below to find an artist, album, or song.
+                </Typography>
+
+                <Typography variant='body1' className={cx(classes.introText)}>
                     When searching for a song, you can optionally specify an artist name to narrow down the results.
                 </Typography>
-            </Grid>
+            </Box>
 
             <Grid item xs={12} className={cx(classes.fieldRow)}>
                 <FormControl className={cx(classes.field, classes.searchText)}>
@@ -401,7 +409,6 @@ const Home = () => {
                                         name='Artist'
                                         value={artistSearchText}
                                         size='small'
-                                        error={searchTextInputError}
                                         fullWidth={true}
                                         autoCorrect='off'
                                         inputProps={{ maxLength: 255 }}
@@ -473,7 +480,7 @@ const Home = () => {
                                     searchResultsToRender.length > 0
                                         ?
                                             <>
-                                                <Box className={cx(classes.searchResultContainer)}>
+                                                <Box className={cx(classes.searchResultsContainer)}>
                                                     {
                                                         searchResultsToRender.map((item: SearchResult) => {
                                                             const searchResultImage = item.entityType === EntityType.Artist ? Constants.STOCK_ARTIST_IMAGE :

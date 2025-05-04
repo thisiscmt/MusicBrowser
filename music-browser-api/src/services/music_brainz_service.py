@@ -1,18 +1,18 @@
 from flask_caching import Cache
 import musicbrainzngs
 
+from src import Config
 from src.schema.schema import SearchResult, Artist, Album, Song, Image, Member, LifeSpan, Link, Discography, SearchOutput, Tag, Track, TrackList
 from src.services.fanart_service import get_artist_images, get_album_images
 from src.services.wikipedia_service import get_entity_description
 from src.models.models import Links, DataRequest
 from src.enums.enums import EntityType
 
-# These tags are excluded from responses because they don't provide much value
-EXCLUDED_TAGS = ['1–4 wochen', '1–9 wochen', 'offizielle charts', 'aln-sh', 'laut.de', 'plattentests.de', '2008 universal fire victim', 'a filk artist',
-                 'i forgot to remember to forget', 'longing', 'love']
+app_config = Config()
+excluded_tags = list(map(lambda x: x.strip(), app_config.EXCLUDED_TAGS.split(','))) if app_config.EXCLUDED_TAGS else []
 
-# Some searches could return thousands and thousands of results, so we limit the caller to this value to simplify any UI. Otherwise they would have
-# to potentially deal with rendering very large page numbers in their pagination UI.
+# Some searches could return tens of thousands of results, so we limit the caller to this value to simplify any UI. Otherwise they would have to
+# potentially deal with rendering very large page numbers in their pagination UI.
 MAX_SEARCH_RESULTS = 200
 
 def get_artist_data(data_request: DataRequest):
@@ -639,7 +639,7 @@ def build_tag_list(data: list):
     items = []
 
     for item in sorted_items:
-        if item['name'] in EXCLUDED_TAGS:
+        if item['name'] in excluded_tags:
             continue
 
         tag = Tag()

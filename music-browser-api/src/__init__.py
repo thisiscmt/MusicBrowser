@@ -135,22 +135,21 @@ def set_cache_headers(response):
 def handle_bad_request_error(error):
     """Handler for 400 errors"""
 
-    # TODO: Log this somewhere
+    app.logger.error(msg=error)
     return error.description, 400
 
 
 @app.errorhandler(NotFound)
-def handle_not_found():
+def handle_not_found(error):
     """Handler for 404 errors"""
 
-    # TODO: Log this somewhere
+    app.logger.error(msg=error)
     return '', 404
 
 
 @app.errorhandler(InternalServerError)
 def handle_server_error(error):
     """Handler for 500 errors"""
-
 
     app.logger.error(msg=error)
     return 'An unknown error occurred', 500

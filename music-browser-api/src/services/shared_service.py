@@ -1,6 +1,6 @@
 from flask.config import Config
 
-from src.enums.enums import EntityType, DataProvider, DiscographyType
+from src.enums.enums import EntityType, DataProvider
 from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.providers.spotify_provider import SpotifyProvider
 

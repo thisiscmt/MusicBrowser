@@ -10,5 +10,6 @@ class Config:
     CACHE_DIR = os.environ.get('CACHE_DIR', 'mb-cache')
     CACHE_DEFAULT_TIMEOUT = int(os.environ.get('CACHE_DEFAULT_TIMEOUT') or '2678400')  # 31 days
     DATA_PROVIDER = os.environ.get('DATA_PROVIDER')
+    EXCLUDED_TAGS = os.environ.get('EXCLUDED_TAGS') or ''
     SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
     SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
