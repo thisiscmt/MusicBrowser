@@ -120,6 +120,15 @@ def lookup_song(entity_id, query_data):
     return result
 
 
+@app.get('/robots933456.txt')
+@app.get('/favicon')
+def return_empty():
+    """Handles requests that may occur but don't affect how the API works, and so it is safe to return an empty response. This avoids cluttering the
+    logs with unneeded errors"""
+
+    return ''
+
+
 @app.after_request
 def set_cache_headers(response):
     """Sets caching headers in a response"""
@@ -161,4 +170,3 @@ def handle_generic_exception(error):
 
     app.logger.error(msg=error)
     return 'An unknown error occurred', 500
-
