@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { tss } from 'tss-react/mui';
 
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
+import {BlueAnchorStyles} from '../../services/themeService.ts';
 
 const useStyles = tss.create(() => ({
     mainContainer: {
@@ -21,7 +22,11 @@ const useStyles = tss.create(() => ({
 
     content: {
         fontSize: '14px'
-    }
+    },
+
+    link: {
+        ...BlueAnchorStyles
+    },
 }));
 
 const ErrorPage = () => {
@@ -44,7 +49,7 @@ const ErrorPage = () => {
             </p>
 
             <p className={cx(classes.content)}>
-                Maybe <a href='#' onClick={handleGoBack}>go back</a>?
+                Maybe <a href='#' className={cx(classes.link)} onClick={handleGoBack}>go back</a>?
             </p>
         </Box>
     )

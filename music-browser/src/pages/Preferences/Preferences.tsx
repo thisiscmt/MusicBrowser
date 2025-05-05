@@ -4,8 +4,8 @@ import { tss } from 'tss-react/mui';
 
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import { MainContext } from '../../contexts/MainContext.tsx';
+import { Colors } from '../../services/themeService.ts';
 import * as Constants from '../../constants/constants';
-import {Colors} from '../../services/themeService.ts';
 
 const useStyles = tss.create(({ theme }) => ({
     mainContainer: {
