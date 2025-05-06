@@ -158,8 +158,6 @@ const Home = () => {
     const [ noResults, setNoResults ] = useState<boolean>(false);
     const [ searchParams, setSearchParams ] = useSearchParams();
 
-    const defaultPageSize = SharedService.getDefaultPageSize();
-
     useDocumentTitle('Home - Music Browser');
 
     const getSearchResults = useCallback(async (searchParamsArg: URLSearchParams) => {
@@ -169,6 +167,7 @@ const Home = () => {
 
         setLoading(true);
 
+        const defaultPageSize = SharedService.getDefaultPageSize();
         const searchRequestParams: SearchParams = { query: searchParamsArg.get('searchText') || '' };
         const entityTypeArg = searchParamsArg.get('entityType') || EntityType.Artist;
         const page = searchParamsArg.get('page') || '1';
@@ -219,7 +218,7 @@ const Home = () => {
         } finally {
             setLoading(false);
         }
-    }, [defaultPageSize, setBanner]);
+    }, [setBanner]);
 
     useEffect(() => {
         const fetchData = async () => {
