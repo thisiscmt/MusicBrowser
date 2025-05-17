@@ -161,10 +161,10 @@ def get_release_data(release_group):
                 result['track_list'].append(track_list)
 
         if 'label-info-list' in record and len(record['label-info-list']) > 0:
-            if 'catalog-number' in record['label-info-list'][0]:
+            if 'catalog-number' in record['label-info-list'][0] and len(record['label-info-list']) > 0 and record['label-info-list'][0]['catalog-number'] != '[none]':
                 result['catalog_number'] = record['label-info-list'][0]['catalog-number']
 
-            if 'label' in record['label-info-list'][0]:
+            if 'label' in record['label-info-list'][0] and len(record['label-info-list']) > 0 and record['label-info-list'][0]['label']['name'] != '[no label]':
                 result['label'] = record['label-info-list'][0]['label']['name']
 
                 if 'disambiguation' in record['label-info-list'][0]['label']:
