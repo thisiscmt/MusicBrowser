@@ -97,7 +97,6 @@ InstaView.dump = function (from, to) {
 }
 
 InstaView.convert = function (wiki) {
-	// Holds a list of the lines of wikitext being processed
 	let	ll = (typeof wiki === 'string') ? wiki.replace(/\r/g,'').split(/\n/) : wiki;
 
 	let o = '';  // Output
@@ -698,7 +697,7 @@ InstaView.convert = function (wiki) {
 		if ($(/^(={1,6})(.*)\1(.*)$/)) {
 			p = 0;
 			endl(f('<h?>?</h?>?', $r[1].length, parse_inline_nowiki($r[2]), $r[1].length, $r[3]));
-		} else if ($(/^ {4}[*#:;]/)) {
+		} else if ($(/^ {4}[*#:;]/)) {  // MusicBrainz prefixes list entries with 4 spaces
 			p = 0;
 			parse_list();
 		} else if ($(' ')) {

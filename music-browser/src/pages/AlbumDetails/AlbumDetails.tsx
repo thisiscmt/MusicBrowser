@@ -7,7 +7,7 @@ import 'react-image-gallery/styles/css/image-gallery.css';
 
 import { MainContext } from '../../contexts/MainContext.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
-import AlbumLoader from '../../components/AlbumLoader/AlbumLoader.tsx';
+import AlbumLoader from '../../components/Loaders/AlbumLoader/AlbumLoader.tsx';
 import EntityDescription from '../../components/EntityDescription/EntityDescription.tsx';
 import Tags from '../../components/Tags/Tags.tsx';
 import Links from '../../components/Links/Links.tsx';

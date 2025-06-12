@@ -1,24 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { Box, Fade, Tab, Typography } from '@mui/material';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { Box, Typography } from '@mui/material';
 import { tss } from 'tss-react/mui';
-import DOMPurify from 'dompurify';
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 
 import { MainContext } from '../../contexts/MainContext.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
-import ArtistLoader from '../../components/ArtistLoader/ArtistLoader.tsx';
+import ArtistLoader from '../../components/Loaders/ArtistLoader/ArtistLoader.tsx';
 import EntityDescription from '../../components/EntityDescription/EntityDescription.tsx';
 import LifeSpan from '../../components/LifeSpan/LifeSpan.tsx';
-import Discography from '../../components/Discography/Discography.tsx';
-import GroupMembers from '../../components/GroupMembers/GroupMembers.tsx';
 import Tags from '../../components/Tags/Tags.tsx';
 import Links from '../../components/Links/Links.tsx';
+import ArtistTabs from '../../components/ArtistTabs/ArtistTabs.tsx';
 import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Album, Artist } from '../../models/models.ts';
-import { EntityType } from '../../enums/enums.ts';
 import { Colors, BlueAnchorStyles, ImageViewerStyles } from '../../services/themeService.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
@@ -80,7 +76,6 @@ const ArtistDetails = () => {
     const { setBanner } = useContext(MainContext);
     const [ entity, setEntity ] = useState<Artist>(SharedService.getEmptyArtist());
     const [ albums, setAlbums] = useState<Album[]>([]);
-    const [ currentTab, setCurrentTab] = useState<string>('discography');
     const [ loading, setLoading ] = useState<boolean>(true);
     const [ error, setError ] = useState<boolean>(false);
     const { id: artistId } = useParams() as { id: string };
@@ -129,10 +124,6 @@ const ArtistDetails = () => {
         }
     }, [artistId, defaultPageSize, entity.id, entity.name, error, setBanner]);
 
-    const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
-        setCurrentTab(newValue);
-    };
-
     const images = SharedService.getEntityImageList(entity);
 
     return (
@@ -166,53 +157,7 @@ const ArtistDetails = () => {
 
                             <EntityDescription entityDesc={entity.description} />
                             <Links items={entity.links} />
-
-                            <TabContext value={currentTab}>
-                                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                    <TabList onChange={handleChangeTab}>
-                                        <Tab label='Discography' value='discography' />
-
-                                        {
-                                            entity.members && entity.members.length > 0 &&
-                                            <Tab label='Members' value='members' />
-                                        }
-
-                                        {
-                                            entity.annotation &&
-                                            <Tab label='Extra' value='extra' />
-                                        }
-                                    </TabList>
-                                </Box>
-
-                                <Fade in={currentTab === 'discography'} timeout={500}>
-                                    <TabPanel className={cx(classes.tabPanel)} value='discography'>
-                                        <Discography entityId={entity.id} entityType={EntityType.Artist} entities={albums} totalEntities={entity.totalAlbums} />
-                                    </TabPanel>
-                                </Fade>
-
-                                {
-                                    entity.members && entity.members.length > 0 &&
-                                    <Fade in={currentTab === 'members'} timeout={500}>
-                                        <TabPanel className={cx(classes.tabPanel)} value='members'>
-                                            <GroupMembers entities={entity.members} />
-                                        </TabPanel>
-                                    </Fade>
-                                }
-
-                                {
-                                    entity.annotation &&
-                                    <Fade in={currentTab === 'extra'} timeout={500}>
-                                        <TabPanel className={cx(classes.tabPanel)} value='extra'>
-                                            <Typography
-                                                variant='body2'
-                                                className={cx(classes.annotation)}
-                                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(SharedService.convertWikiTextToHTML(entity.annotation)) }}
-                                            />
-                                        </TabPanel>
-                                    </Fade>
-                                }
-                            </TabContext>
-
+                            <ArtistTabs albums={albums} entity={entity} />
                             <GoToTop showAtPosition={100} />
                         </>
             }

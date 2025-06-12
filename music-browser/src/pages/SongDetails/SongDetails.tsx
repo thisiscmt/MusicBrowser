@@ -10,7 +10,7 @@ import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import Tags from '../../components/Tags/Tags.tsx';
 import Links from '../../components/Links/Links.tsx';
 import Discography from '../../components/Discography/Discography.tsx';
-import SongLoader from '../../components/SongLoader/SongLoader.tsx';
+import SongLoader from '../../components/Loaders/SongLoader/SongLoader.tsx';
 import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 import { Song } from '../../models/models.ts';
 import { EntityType } from '../../enums/enums.ts';

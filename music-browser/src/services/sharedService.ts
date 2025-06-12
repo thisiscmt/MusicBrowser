@@ -102,6 +102,8 @@ export const convertWikiTextToHTML = (text: string) =>{
     if (text) {
         try {
             result = InstaView.convert(text);
+
+            // Content in <pre> tags doesn't look great next to regular text, so we just put it in paragraphs.
             result = result.replace(/<pre>/g, '<p>');
             result = result.replace(/<\/pre>/g, '</p>');
         } catch (error) {

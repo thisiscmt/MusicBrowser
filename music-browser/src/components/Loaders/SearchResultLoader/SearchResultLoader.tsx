@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { Box, Skeleton } from '@mui/material';
 import { tss } from 'tss-react/mui';
 
-import { EntityType } from '../../enums/enums.ts';
+import { EntityType } from '../../../enums/enums.ts';
 
 const useStyles = tss.create(({ theme }) => ({
     mainContainer: {

@@ -19,7 +19,7 @@ import { CloseOutlined } from '@mui/icons-material';
 import { makeStyles } from 'tss-react/mui';
 
 import SearchResultDetails from '../../components/SearchResultDetails/SearchResultDetails.tsx';
-import SearchResultLoader from '../../components/SearchResultLoader/SearchResultLoader.tsx';
+import SearchResultLoader from '../../components/Loaders/SearchResultLoader/SearchResultLoader.tsx';
 import useDocumentTitle from '../../hooks/useDocumentTitle.tsx';
 import { MainContext } from '../../contexts/MainContext.tsx';
 import { Colors } from '../../services/themeService.ts';
