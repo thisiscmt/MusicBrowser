@@ -1,7 +1,7 @@
 import Axios, { AxiosRequestConfig } from 'axios';
 
-import { Album, Artist, Song, DiscographyResults, SearchParams, SearchResults } from '../models/models.ts';
-import { DiscographyType, EntityType } from '../enums/enums.ts';
+import {Album, Artist, Song, DiscographyResults, SearchParams, SearchResults, DiscographyParams} from '../models/models.ts';
+import { EntityType } from '../enums/enums.ts';
 
 const search = async (entityType: EntityType, searchParams: SearchParams): Promise<SearchResults> => {
     const config = getRequestConfig();
@@ -43,10 +43,10 @@ export const getSong = async (id: string): Promise<Song> => {
     return response.data;
 };
 
-export const getDiscography = async (entityId: string, discogType: DiscographyType, entityType: EntityType, page?: number, pageSize?: number): Promise<DiscographyResults> => {
-    let url = `${import.meta.env.VITE_API_URL}/lookup/discography/${entityType}/${entityId}?discogType=${discogType}`;
-    const pageParam = page ? page : 1;
-    const pageSizeParam = pageSize ? pageSize : 10;
+export const getDiscography = async (discogParams: DiscographyParams): Promise<DiscographyResults> => {
+    let url = `${import.meta.env.VITE_API_URL}/lookup/discography/${discogParams.entityType}/${discogParams.id}?discogType=${discogParams.discogType}`;
+    const pageParam = discogParams.page ? discogParams.page : 1;
+    const pageSizeParam = discogParams.pageSize ? discogParams.pageSize : 10;
 
     url += `&page=${pageParam}&pageSize=${pageSizeParam}`;
 

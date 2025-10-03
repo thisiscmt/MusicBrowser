@@ -9,8 +9,8 @@ import '@fontsource/roboto/700.css';
 import './index.css';
 
 import App from './App.tsx';
-import * as ThemeService from './services/themeService';
 import { MainProvider } from './providers/MainProvider.tsx';
+import * as ThemeService from './services/themeService';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>

@@ -6,12 +6,12 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
     {
-        // We ignore for now the InstaView file since it was written using very old language features and needs to be updated
+        // We ignore for now the InstaView file since it was written using very old language features and some parts need to be updated
         ignores: ['dist', 'src/lib/InstaView/instaview.js']
     },
     {
         extends: [js.configs.recommended, ...tseslint.configs.recommended],
-        files: ['**/*.{ts,tsx}'],
+        files: ['**/*.{js,ts,tsx}'],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
@@ -26,7 +26,18 @@ export default tseslint.config(
                 'warn',
                 { allowConstantExport: true },
             ],
-            '@typescript-eslint/no-unused-vars': ['warn'],
+            '@typescript-eslint/no-unused-vars': [
+                'warn',
+                {
+                    'args': 'all',
+                    'argsIgnorePattern': '^_',
+                    'caughtErrors': 'all',
+                    'caughtErrorsIgnorePattern': '^_',
+                    'destructuredArrayIgnorePattern': '^_',
+                    'varsIgnorePattern': '^_',
+                    'ignoreRestSiblings': true
+                }
+            ],
             '@typescript-eslint/no-explicit-any': ['warn']
         },
     },

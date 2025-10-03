@@ -1,7 +1,7 @@
 import { ReactImageGalleryItem } from 'react-image-gallery';
 import InstaView from '../lib/InstaView/instaview';
 
-import { Album, Artist, Song, EntityDescription, TrackList } from '../models/models.ts';
+import {Album, Artist, Song, EntityDescription, TrackList } from '../models/models.ts';
 import { EntityType } from '../enums/enums.ts';
 import * as Constants from '../constants/constants.ts';
 

@@ -11,3 +11,8 @@ export enum DiscographyType {
     LiveCompilation = 'live_compilation',
     Demo = 'demo'
 }
+
+export enum PaginationButton {
+    Previous = 'previous',
+    Next = 'next'
+}

@@ -164,24 +164,23 @@ const Home = () => {
         if (!searchParamsArg.get('searchText')) {
             return;
         }
-
-        setLoading(true);
-
-        const defaultPageSize = SharedService.getDefaultPageSize();
-        const searchRequestParams: SearchParams = { query: searchParamsArg.get('searchText') || '' };
-        const entityTypeArg = searchParamsArg.get('entityType') || EntityType.Artist;
-        const page = searchParamsArg.get('page') || '1';
-        const pageSize = searchParamsArg.get('pageSize') || defaultPageSize.toString();
-
-        searchRequestParams.page = page ? Number(page) : 1;
-        searchRequestParams.pageSize = pageSize ? Number(pageSize) : defaultPageSize;
-
-        let results: SearchResults = {
-            rows: [],
-            count: 0
-        };
-
         try {
+            setLoading(true);
+
+            const defaultPageSize = SharedService.getDefaultPageSize();
+            const searchRequestParams: SearchParams = { query: searchParamsArg.get('searchText') || '' };
+            const entityTypeArg = searchParamsArg.get('entityType') || EntityType.Artist;
+            const page = searchParamsArg.get('page') || '1';
+            const pageSize = searchParamsArg.get('pageSize') || defaultPageSize.toString();
+
+            searchRequestParams.page = page ? Number(page) : 1;
+            searchRequestParams.pageSize = pageSize ? Number(pageSize) : defaultPageSize;
+
+            let results: SearchResults = {
+                rows: [],
+                count: 0
+            };
+
             switch (entityTypeArg)
             {
                 case EntityType.Artist:

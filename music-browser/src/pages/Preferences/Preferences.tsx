@@ -42,7 +42,7 @@ const Preferences = () => {
     const savedPageSize = window.localStorage.getItem(Constants.STORAGE_DEFAULT_PAGE_SIZE);
 
     const { classes, cx } = useStyles();
-    const [ pageSize, setPageSize ] = useState<string>(savedPageSize ? savedPageSize : '10');
+    const [ pageSize, setPageSize ] = useState<string>(savedPageSize || '10');
     const { setBanner } = useContext(MainContext);
 
     useDocumentTitle('Preferences - Music Browser');

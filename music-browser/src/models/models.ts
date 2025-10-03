@@ -1,4 +1,4 @@
-import { EntityType } from '../enums/enums.ts';
+import {DiscographyType, EntityType} from '../enums/enums.ts';
 
 export interface Image {
     url: string;
@@ -123,6 +123,14 @@ export interface Song {
     appearsOn: Album[];
     tags: Tag[];
     links: LinkEntry[];
+}
+
+export interface DiscographyParams {
+    id: string;
+    discogType: DiscographyType;
+    entityType: EntityType;
+    page?: number;
+    pageSize?: number;
 }
 
 export interface DiscographyResults {

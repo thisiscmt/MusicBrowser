@@ -96,7 +96,7 @@ const ArtistTabs: FC<ArtistTabsProps> = (props: ArtistTabsProps) => {
 
             <Fade in={currentTab === 'discography'} timeout={500}>
                 <TabPanel className={cx(classes.tabPanel)} value='discography'>
-                    <Discography entityId={props.entity.id} entityType={EntityType.Artist} entities={props.albums} totalEntities={props.entity.totalAlbums} />
+                    <Discography entityId={props.entity.id} entityType={EntityType.Artist} entities={props.albums} />
                 </TabPanel>
             </Fade>
 

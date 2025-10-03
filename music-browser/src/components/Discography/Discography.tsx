@@ -1,13 +1,13 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router';
-import { Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
-import { tss } from 'tss-react/mui';
+import React, {FC, useCallback, useContext, useEffect, useState} from 'react';
+import {useSearchParams} from 'react-router';
+import {Box, Button, FormControlLabel, MenuItem, Select, SelectChangeEvent, Typography} from '@mui/material';
+import {tss} from 'tss-react/mui';
 
 import EntityDetails from '../EntityDetails/EntityDetails.tsx';
 import EntityDetailsLoader from '../Loaders/EntityDetailsLoader/EntityDetailsLoader.tsx';
-import { Album } from '../../models/models.ts';
-import { DiscographyType, EntityType } from '../../enums/enums.ts';
-import { MainContext } from '../../contexts/MainContext.tsx';
+import {Album, DiscographyParams} from '../../models/models.ts';
+import {DiscographyType, EntityType, PaginationButton} from '../../enums/enums.ts';
+import {MainContext} from '../../contexts/MainContext.tsx';
 import * as DataService from '../../services/dataService.ts';
 import * as SharedService from '../../services/sharedService.ts';
 
@@ -47,12 +47,12 @@ const useStyles = tss.create(() => ({
         }
     },
 
-    showMoreButton: {
-        marginTop: '10px',
-        textAlign: 'center',
+    pagination: {
+        marginTop: '16px',
+        paddingBottom: '24px',
 
-        '& .MuiButtonBase-root': {
-            padding: '2px 6px'
+        '& .MuiPagination-ul': {
+            justifyContent: 'center'
         }
     }
 }));
@@ -65,13 +65,25 @@ interface DiscographyProps {
     entityId: string;
     entityType: EntityType;
     entities: Album[];
-    totalEntities: number;
 }
 
 const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const { classes, cx } = useStyles();
     const { setBanner } = useContext(MainContext);
     const [ currentDiscogType, setCurrentDiscogType ] = useState<DiscographyType>(DiscographyType.Album);
+    const [ currentPages, setCurrentPages ] = useState<EntityMetadata>({
+        [DiscographyType.Album]: 1,
+        [DiscographyType.SingleEP]: 1,
+        [DiscographyType.Compilation]: 1,
+        [DiscographyType.LiveCompilation]: 1,
+        [DiscographyType.Demo]: 1
+    });
+    const [ disablePreviousButton, setDisablePreviousButton ] = useState<boolean>(true);
+    const [ disableNextButton, setDisableNextButton ] = useState<boolean>(false);
+    const [ loading, setLoading ] = useState<boolean>(false);
+    const [ initialLoad, setInitialLoad ] = useState<boolean>(true);
+    const [ searchParams, setSearchParams ] = useSearchParams();
+    const [ currentQueryString, setCurrentQueryString ] = useState<string>('');
 
     // This variable stores the discog entries currently being viewed.
     const [ entities, setEntities ] = useState<Album[] | undefined>(undefined);
@@ -84,144 +96,9 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const [ liveCompilations, setLiveCompilations ] = useState<Album[] | undefined>(undefined);
     const [ demos, setDemos ] = useState<Album[] | undefined>(undefined);
 
-    // This variable stores runnig counts of the entries for each discog type, to help show/hide the Show More button.
-    const [ entityCounts, setEntityCounts ] = useState<EntityMetadata>({});
-
-    const [ entityPages, setEntityPages ] = useState<EntityMetadata>({
-        [DiscographyType.Album]: 1,
-        [DiscographyType.SingleEP]: 1,
-        [DiscographyType.Compilation]: 1,
-        [DiscographyType.LiveCompilation]: 1,
-        [DiscographyType.Demo]: 1
-    });
-    const [ loading, setLoading ] = useState<boolean>(false);
-    const [ disableShowMore, setDisableShowMore ] = useState<boolean>(false);
-    const [ searchParams, setSearchParams ] = useSearchParams();
-
     const defaultPageSize = SharedService.getDefaultPageSize();
 
-    const getDiscogEntities = async (discogType: DiscographyType, stateVariable: Album[] | undefined, stateUpdateFunction: (value: Album[]) => void,
-                                     page: number, pageSize: number, append?: boolean) => {
-        if (stateVariable !== undefined && !append) {
-            setEntities(stateVariable);
-
-            if (entityCounts[discogType] !== undefined) {
-                setDisableShowMore(entityCounts[discogType] === stateVariable.length);
-            }
-
-            return;
-        }
-
-        setLoading(true);
-
-        const newEntities = await DataService.getDiscography(props.entityId, discogType, props.entityType, page, pageSize);
-        let newRows = newEntities.rows;
-
-        if (stateVariable !== undefined && append) {
-            newRows = [...stateVariable, ...newRows];
-            let ordinal = 0;
-
-            for (const row of newRows) {
-                row.ordinal = ordinal;
-                ordinal += 1;
-            }
-        }
-
-        stateUpdateFunction(newRows);
-        setEntities(newRows);
-
-        if (entityCounts[discogType] !== undefined) {
-            if (discogType === DiscographyType.Album) {
-                // We can't use the regular entity count for albums to know whether there are more albums to fetch because it will be too large, since
-                // it includes subtypes that we don't show on the Album tab (e.g. compilations, demos, etc). So we look at what was returned by the
-                // latest request and if it's not a full page worth, we know we are at the end of the actual album list. In that case we update the
-                // entity count for albums since we know the true number now, so if the user switches the discog type and then switches it back to Album,
-                // the visibility of the Show More button will be correct.
-                const newEntityCounts = {...entityCounts};
-                newEntityCounts[DiscographyType.Album] = newRows.length;
-
-                setDisableShowMore(newEntities.rows.length < pageSize);
-                setEntityCounts(newEntityCounts);
-            } else {
-                setDisableShowMore(entityCounts[discogType] === newRows.length);
-            }
-        } else {
-            const newEntityCounts = {...entityCounts};
-
-            newEntityCounts[discogType] = newEntities.count;
-            setEntityCounts(newEntityCounts);
-            setDisableShowMore(newEntities.rows.length < defaultPageSize);
-        }
-
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        setEntities(props.entities);
-        setAlbums(props.entities);
-
-        const entityCounts = { [DiscographyType.Album.toString()]: props.totalEntities };
-
-        if (props.entities.length < defaultPageSize) {
-            // For the initial load we are showing albums, and the total count passed in that is returned by the API includes subtypes that we don't
-            // show on the Album tab (e.g. compilations, demos, etc). So if the total is less than the default page size, we set that as the total
-            // count so the Show More button isn't visible if the user switches the discog type and then goes back to Albums.
-            entityCounts[DiscographyType.Album] = props.entities.length;
-            setDisableShowMore(true);
-        }
-
-        setEntityCounts(entityCounts);
-    }, [props.entities, props.totalEntities, defaultPageSize]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            await getSearchResults(searchParams);
-        }
-
-        const queryStringChanged = currentQueryString !== searchParams.toString();
-        let getData = true;
-
-        // The check for whether the query string changed is to handle the user clicking the browser's Back button, so we can do a data fetch since
-        // we likely need different data.
-        if (queryStringChanged) {
-            const searchTextQueryParam = searchParams.get('searchText');
-            const artistSearchTextQueryParam = searchParams.get('artistSearchText');
-            const entityTypeQueryParam = searchParams.get('entityType');
-
-            // If the user clicked the browser's Back button and no longer has a search text query param we need to clear the text box. Or if they
-            // clicked Back and have a search text query param we need to put it in the text box.
-            if (!searchTextQueryParam && searchText) {
-                setSearchText('');
-                setSearchResults([]);
-
-                getData = false;
-            } else if (searchTextQueryParam) {
-                setSearchText(searchTextQueryParam);
-            }
-
-            if (!artistSearchTextQueryParam && artistSearchText) {
-                setArtistSearchText('');
-            } else if (artistSearchTextQueryParam) {
-                setArtistSearchText(artistSearchTextQueryParam);
-            }
-
-            if (entityTypeQueryParam) {
-                setEntityType(entityTypeQueryParam);
-
-                if (entityTypeQueryParam === EntityType.Song) {
-                    setShowArtistSearchInput(true);
-                }
-            }
-
-            setCurrentQueryString(searchParams.toString());
-
-            if (getData) {
-                fetchData();
-            }
-        }
-    });
-
-    const getStateObjects = (discogType: DiscographyType) => {
+    const getStateObjects = useCallback((discogType: DiscographyType) => {
         let stateVariable: Album[] | undefined;
         let stateUpdateFunction: (value: Album[]) => void;
 
@@ -254,22 +131,138 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         }
 
         return { stateVariable, stateUpdateFunction };
-    };
+    }, [albums, compilations, demos, liveCompilations, singlesEPs]);
+
+    const getDiscogEntities = useCallback(async (searchParamsArg: URLSearchParams) => {
+        try {
+            setLoading(true);
+
+            const discogType = searchParamsArg.get('discogType') as DiscographyType || DiscographyType.Album;
+            const discogParams: DiscographyParams = {
+                id: props.entityId,
+                discogType,
+                entityType: props.entityType,
+                pageSize: defaultPageSize
+            };
+
+            const { stateUpdateFunction } = getStateObjects(discogType);
+            const discogPage = searchParamsArg.get('page');
+            
+            if (discogPage) {
+                discogParams.page = (!Number.isNaN(discogPage) && Number(discogPage) !== 0) ? Number(discogPage) : 1;
+            } else {
+                discogParams.page = 1;
+            }
+
+            setCurrentPages({...currentPages, [currentDiscogType]: discogParams.page});
+            const newEntities = await DataService.getDiscography(discogParams);
+
+            stateUpdateFunction(newEntities.rows);
+            setEntities(newEntities.rows);
+            setDisableNextButton(newEntities.rows.length < defaultPageSize);
+        } catch(_error) {
+            setBanner('An error occurred retrieving the artist\'s discoggraphy', 'error');
+        } finally {
+            setLoading(false);
+        }
+    }, [props.entityId, props.entityType, defaultPageSize, getStateObjects, currentPages, currentDiscogType, setCurrentPages, setBanner]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getDiscogEntities(searchParams);
+        }
+
+//        console.log('mark 1');
+
+        if (initialLoad) {
+            setEntities(props.entities);
+            setAlbums(props.entities);
+            setInitialLoad(false);
+
+            return;
+        }
+
+        const queryStringChanged = currentQueryString !== searchParams.toString();
+        let getData = false;
+
+        if (queryStringChanged) {
+//            console.log('mark 2');
+
+            const discogTypeQueryParam = searchParams.get('discogType') as DiscographyType;
+            const pageQueryParam = searchParams.get('page');
+
+            if (!discogTypeQueryParam && currentDiscogType) {
+                setCurrentDiscogType(DiscographyType.Album);
+                setEntities(albums);
+                currentPages[DiscographyType.Album] = 1;
+            } else if (discogTypeQueryParam) {
+                setCurrentDiscogType(discogTypeQueryParam);
+                getData = true;
+
+//                console.log('mark 3');
+            }
+
+            if (pageQueryParam) {
+                const newPageQueryParam = Number(pageQueryParam);
+
+                if (!isNaN(newPageQueryParam)) {
+                    setCurrentPages({...currentPages, [currentDiscogType]: newPageQueryParam});
+                    setDisablePreviousButton(newPageQueryParam === 1);
+                } else {
+                    setCurrentPages({...currentPages, [currentDiscogType]: 1});
+                }
+
+                getData = true;
+
+//                console.log('mark 4');
+            }
+
+            setCurrentQueryString(searchParams.toString());
+        }
+
+        if (getData) {
+            fetchData();
+        }
+    }, [initialLoad, searchParams, getDiscogEntities, currentQueryString, currentDiscogType, albums, currentPages, props.entities]);
 
     const handleChangeDiscogType = async (event: SelectChangeEvent) => {
         const discogType = event.target.value as DiscographyType;
+        const { stateVariable } = getStateObjects(discogType);
 
-        searchParams.set('discogType', discogType);
         setCurrentDiscogType(discogType);
+        setCurrentPages({ ...currentPages, [discogType]: 1 });
+        searchParams.set('discogType', discogType);
         setSearchParams(searchParams);
+
+        if (stateVariable) {
+            setEntities(stateVariable);
+        } else {
+            getDiscogEntities(searchParams);
+        }
     };
 
-    const handleShowMoreItems = async () => {
-        const newPage = entityPages[currentDiscogType] + 1;
+    const handleChangePage = (sourceButton: PaginationButton) => {
+        const currentPage = currentPages[currentDiscogType];
+        let newPage: number;
+
+        if (sourceButton === PaginationButton.Previous) {
+            newPage = currentPage - 1;
+            setDisablePreviousButton(newPage === 1);
+        } else {
+            newPage = currentPage + 1;
+        }
+
+        console.log('currentPages: %o', currentPages);
+
+        console.log('newPage: %o', newPage);
+
 
         searchParams.set('page', newPage.toString());
+        setCurrentPages({...currentPages, [currentDiscogType]: newPage });
         setSearchParams(searchParams);
-    };
+
+        getDiscogEntities(searchParams);
+    }
 
     const entityIds: string[] = [];
 
@@ -342,12 +335,10 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                                                 })
                                             }
 
-                                            {
-                                                !disableShowMore &&
-                                                <Box className={cx(classes.showMoreButton)}>
-                                                    <Button onClick={handleShowMoreItems}>Show more</Button>
-                                                </Box>
-                                            }
+                                            <Box className={cx(classes.pagination)}>
+                                                <Button variant='text' onClick={() => handleChangePage(PaginationButton.Previous)} disabled={disablePreviousButton}>Previous</Button>
+                                                <Button variant='text' onClick={() => handleChangePage(PaginationButton.Next)} disabled={disableNextButton}>Next</Button>
+                                            </Box>
                                         </Box>
                             }
                         </>

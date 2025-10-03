@@ -10,12 +10,12 @@
         "allowImportingTsExtensions": true,
         "isolatedModules": true,
         "moduleDetection": "force",
-        "allowJs": true,
         "noEmit": true,
         "jsx": "react-jsx",
         "strict": true,
         "noFallthroughCasesInSwitch": true,
-        "noUncheckedSideEffectImports": true
+        "noUncheckedSideEffectImports": true,
+        "allowJs": true
     },
     "include": ["src"]
 }
