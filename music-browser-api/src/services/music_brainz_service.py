@@ -426,7 +426,11 @@ def build_discography_list(data, entity_type, album_only=False):
                 album.id = rel_group['id']
                 album.name = rel_group['title']
                 album.albumType = rel_group['type']
-                album.releaseDate = rel_group['first-release-date']
+
+                if 'first-release-date' in rel_group:
+                    album.releaseDate = rel_group['first-release-date']
+                else:
+                    album.releaseDate = ''
 
                 album.ordinal = ordinal
                 ordinal += 1

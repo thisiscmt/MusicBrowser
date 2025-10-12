@@ -19,14 +19,14 @@ const LifeSpan: FC<LifeSpanProps> = (props: LifeSpanProps) => {
 
     const artistBeginLabel = props.artist.artistType === 'Group' ? 'Formed:' : 'Born:';
     const artistEndLabel = props.artist.artistType === 'Group' ? 'Dissolved:' : 'Died:';
-    let lifeSpanBeginArea = (props.artist.beginArea && props.artist.beginArea.name) ? `, ${props.artist.beginArea.name}` : '';
-    const lifeSpanEndArea = (props.artist.endArea && props.artist.endArea.name) ? `, ${props.artist.endArea.name}` : '';
+    let lifeSpanBeginArea = (props.artist.beginArea && props.artist.beginArea.name) ? ` - ${props.artist.beginArea.name}` : '';
+    const lifeSpanEndArea = (props.artist.endArea && props.artist.endArea.name) ? ` - ${props.artist.endArea.name}` : '';
 
     if (props.artist.area && props.artist.area.name) {
         if (lifeSpanBeginArea) {
             lifeSpanBeginArea = `${lifeSpanBeginArea}, ${props.artist.area.name}`;
         } else {
-            lifeSpanBeginArea = `, ${props.artist.area.name}`;
+            lifeSpanBeginArea = ` - ${props.artist.area.name}`;
         }
     }
 
