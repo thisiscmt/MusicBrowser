@@ -17,8 +17,12 @@ def get_wikipedia_page_title(wikidata_url: str):
         wikidata_id = wikidata_url[wikidata_url.rindex('/') + 1:]
         url = f'https://www.wikidata.org/w/api.php?action=wbgetentities&props=sitelinks&ids={wikidata_id}&sitefilter=enwiki&format=json'
 
+        headers = {
+            'user-agent': 'Music_Browser_API/1.0'
+        }
+
         begin_time = datetime.datetime.now()
-        response = requests.get(url=url, timeout=30)
+        response = requests.get(url=url, timeout=30, headers=headers)
 
         print(f'__Wikipedia page title: {datetime.datetime.now() - begin_time}')
 
@@ -28,6 +32,8 @@ def get_wikipedia_page_title(wikidata_url: str):
             if 'entities' in content:
                 if 'sitelinks' in content['entities'][wikidata_id] and 'enwiki' in content['entities'][wikidata_id]['sitelinks']:
                     page_title = content['entities'][wikidata_id]['sitelinks']['enwiki']['title']
+        else:
+            print(f'Error fetching entity description: Status {response.status_code}')
     except RuntimeError:
         # TODO: Log this somewhere
         print(f'Error fetching entity description: {RuntimeError}')
@@ -42,8 +48,12 @@ def get_wikipedia_page_intro(page_title: str):
         try:
             url = f'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exlimit=1&exintro=true&titles={urllib.parse.quote_plus(page_title)}&explaintext=1&format=json'
 
+            headers = {
+                'user-agent': 'Music_Browser_API/1.0'
+            }
+
             begin_time = datetime.datetime.now()
-            response = requests.get(url=url, timeout=30)
+            response = requests.get(url=url, timeout=30, headers=headers)
 
             print(f'__Wikipedia page intro: {datetime.datetime.now() - begin_time}')
 

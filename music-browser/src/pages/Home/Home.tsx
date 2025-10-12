@@ -28,6 +28,7 @@ import { EntityType } from '../../enums/enums.ts';
 import * as DataService from '../../services/dataService';
 import * as SharedService from '../../services/sharedService';
 import * as Constants from '../../constants/constants';
+import GoToTop from '../../components/GoToTop/GoToTop.tsx';
 
 const useStyles = makeStyles()((theme) => ({
     mainContainer: {
@@ -509,6 +510,8 @@ const Home = () => {
                             </>
                 }
             </Grid>
+
+            <GoToTop showAtPosition={100} />
         </Box>
     );
 }

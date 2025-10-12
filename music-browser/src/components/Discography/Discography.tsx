@@ -172,8 +172,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
             await getDiscogEntities(searchParams);
         }
 
-//        console.log('mark 1');
-
         if (initialLoad) {
             setEntities(props.entities);
             setAlbums(props.entities);
@@ -186,8 +184,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         let getData = false;
 
         if (queryStringChanged) {
-//            console.log('mark 2');
-
             const discogTypeQueryParam = searchParams.get('discogType') as DiscographyType;
             const pageQueryParam = searchParams.get('page');
 
@@ -198,8 +194,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
             } else if (discogTypeQueryParam) {
                 setCurrentDiscogType(discogTypeQueryParam);
                 getData = true;
-
-//                console.log('mark 3');
             }
 
             if (pageQueryParam) {
@@ -213,8 +207,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                 }
 
                 getData = true;
-
-//                console.log('mark 4');
             }
 
             setCurrentQueryString(searchParams.toString());
@@ -232,6 +224,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         setCurrentDiscogType(discogType);
         setCurrentPages({ ...currentPages, [discogType]: 1 });
         searchParams.set('discogType', discogType);
+        searchParams.delete('page');
         setSearchParams(searchParams);
 
         if (stateVariable) {
@@ -251,11 +244,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         } else {
             newPage = currentPage + 1;
         }
-
-        console.log('currentPages: %o', currentPages);
-
-        console.log('newPage: %o', newPage);
-
 
         searchParams.set('page', newPage.toString());
         setCurrentPages({...currentPages, [currentDiscogType]: newPage });

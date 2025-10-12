@@ -6,7 +6,7 @@ import { tss } from 'tss-react/mui';
 const useStyles = tss.create(() => ({
     button: {
         bottom: '16px',
-        opacity: 0.4,
+        opacity: 0.2,
         padding: 0,
         position: 'fixed',
         right: '16px',
