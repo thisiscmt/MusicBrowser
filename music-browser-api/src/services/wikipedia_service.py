@@ -2,6 +2,7 @@ import urllib.parse
 import datetime
 import requests
 
+user_agent = 'Music_Browser_API/1.0'
 
 def get_entity_description(wikidata_url: str):
     page_title = get_wikipedia_page_title(wikidata_url)
@@ -18,7 +19,7 @@ def get_wikipedia_page_title(wikidata_url: str):
         url = f'https://www.wikidata.org/w/api.php?action=wbgetentities&props=sitelinks&ids={wikidata_id}&sitefilter=enwiki&format=json'
 
         headers = {
-            'user-agent': 'Music_Browser_API/1.0'
+            'user-agent': user_agent
         }
 
         begin_time = datetime.datetime.now()
@@ -49,7 +50,7 @@ def get_wikipedia_page_intro(page_title: str):
             url = f'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exlimit=1&exintro=true&titles={urllib.parse.quote_plus(page_title)}&explaintext=1&format=json'
 
             headers = {
-                'user-agent': 'Music_Browser_API/1.0'
+                'user-agent': user_agent
             }
 
             begin_time = datetime.datetime.now()
