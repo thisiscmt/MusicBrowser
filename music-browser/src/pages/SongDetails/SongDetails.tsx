@@ -191,8 +191,7 @@ const SongDetails = () => {
 
                                 <Fade in={currentTab === 'appearsOn'} timeout={500}>
                                     <TabPanel className={cx(classes.tabPanel)} value='appearsOn'>
-                                        <Discography entityId={entity.artistId} entityType={EntityType.Song} entities={entity.appearsOn}
-                                                     totalEntities={entity.appearsOn.length} />
+                                        <Discography entityId={entity.artistId} entityType={EntityType.Song} entities={entity.appearsOn} />
                                     </TabPanel>
                                 </Fade>
 
