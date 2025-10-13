@@ -84,54 +84,9 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
     const [ initialLoad, setInitialLoad ] = useState<boolean>(true);
     const [ searchParams, setSearchParams ] = useSearchParams();
     const [ currentQueryString, setCurrentQueryString ] = useState<string>('');
-
-    // This variable stores the discog entries currently being viewed.
     const [ entities, setEntities ] = useState<Album[] | undefined>(undefined);
 
-    // These variables store lists of each type of discog item as the data is fetched. This allows quick rendering of content when the user changes
-    // the discog type.
-    const [ albums, setAlbums ] = useState<Album[] | undefined>(undefined);
-    const [ singlesEPs, setSinglesEPs ] = useState<Album[] | undefined>(undefined);
-    const [ compilations, setCompilations ] = useState<Album[] | undefined>(undefined);
-    const [ liveCompilations, setLiveCompilations ] = useState<Album[] | undefined>(undefined);
-    const [ demos, setDemos ] = useState<Album[] | undefined>(undefined);
-
     const defaultPageSize = SharedService.getDefaultPageSize();
-
-    const getStateObjects = useCallback((discogType: DiscographyType) => {
-        let stateVariable: Album[] | undefined;
-        let stateUpdateFunction: (value: Album[]) => void;
-
-        switch (discogType) {
-            case DiscographyType.Album:
-                stateVariable = albums;
-                stateUpdateFunction = setAlbums;
-
-                break;
-            case DiscographyType.SingleEP:
-                stateVariable = singlesEPs;
-                stateUpdateFunction = setSinglesEPs;
-
-                break;
-            case DiscographyType.Compilation:
-                stateVariable = compilations;
-                stateUpdateFunction = setCompilations;
-
-                break;
-            case DiscographyType.LiveCompilation:
-                stateVariable = liveCompilations;
-                stateUpdateFunction = setLiveCompilations;
-
-                break;
-            case DiscographyType.Demo:
-                stateVariable = demos;
-                stateUpdateFunction = setDemos;
-
-                break;
-        }
-
-        return { stateVariable, stateUpdateFunction };
-    }, [albums, compilations, demos, liveCompilations, singlesEPs]);
 
     const getDiscogEntities = useCallback(async (searchParamsArg: URLSearchParams) => {
         try {
@@ -145,7 +100,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
                 pageSize: defaultPageSize
             };
 
-            const { stateUpdateFunction } = getStateObjects(discogType);
             const discogPage = searchParamsArg.get('page');
             
             if (discogPage) {
@@ -157,7 +111,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
             setCurrentPages({...currentPages, [currentDiscogType]: discogParams.page});
             const newEntities = await DataService.getDiscography(discogParams);
 
-            stateUpdateFunction(newEntities.rows);
             setEntities(newEntities.rows);
             setDisableNextButton(newEntities.rows.length < defaultPageSize);
         } catch(_error) {
@@ -165,7 +118,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         } finally {
             setLoading(false);
         }
-    }, [props.entityId, props.entityType, defaultPageSize, getStateObjects, currentPages, currentDiscogType, setCurrentPages, setBanner]);
+    }, [props.entityId, props.entityType, defaultPageSize, currentPages, currentDiscogType, setCurrentPages, setBanner]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -174,7 +127,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
 
         if (initialLoad) {
             setEntities(props.entities);
-            setAlbums(props.entities);
+//            setAlbums(props.entities);
             setInitialLoad(false);
 
             return;
@@ -218,25 +171,19 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         if (getData) {
             fetchData();
         }
-    }, [initialLoad, searchParams, getDiscogEntities, currentQueryString, currentDiscogType, albums, currentPages, props.entities]);
+    }, [initialLoad, searchParams, getDiscogEntities, currentQueryString, currentDiscogType, currentPages, props.entities]);
 
     const handleChangeDiscogType = async (event: SelectChangeEvent) => {
         const discogType = event.target.value as DiscographyType;
-        const { stateVariable } = getStateObjects(discogType);
 
+        setCurrentPages({ ...currentPages, [discogType]: 1 });
+        setDisablePreviousButton(true);
+        setDisableNextButton(false);
         setCurrentDiscogType(discogType);
+
         searchParams.set('discogType', discogType);
         searchParams.delete('page');
         setSearchParams(searchParams);
-
-        if (stateVariable) {
-            setEntities(stateVariable);
-        } else {
-            setCurrentPages({ ...currentPages, [discogType]: 1 });
-            setDisablePreviousButton(true);
-            setDisableNextButton(false);
-            getDiscogEntities(searchParams);
-        }
     };
 
     const handleChangePage = (sourceButton: PaginationButton) => {
@@ -253,8 +200,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         searchParams.set('page', newPage.toString());
         setCurrentPages({...currentPages, [currentDiscogType]: newPage });
         setSearchParams(searchParams);
-
-        getDiscogEntities(searchParams);
     }
 
     const entityIds: string[] = [];
