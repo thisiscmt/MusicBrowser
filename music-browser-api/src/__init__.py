@@ -14,6 +14,9 @@ from src.providers.music_brainz_provider import MusicBrainzProvider
 from src.enums.enums import EntityType, DiscographyType
 
 
+__version__ = '1.0.0'
+
+
 def create_app(test_config=None):
     """Builds the main APIFlask object"""
 

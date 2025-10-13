@@ -189,7 +189,10 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
 
             if (!discogTypeQueryParam && currentDiscogType) {
                 setCurrentDiscogType(DiscographyType.Album);
-                setEntities(albums);
+                setEntities(props.entities);
+                setDisablePreviousButton(true);
+                setDisableNextButton(false);
+
                 currentPages[DiscographyType.Album] = 1;
             } else if (discogTypeQueryParam) {
                 setCurrentDiscogType(discogTypeQueryParam);
@@ -222,7 +225,6 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         const { stateVariable } = getStateObjects(discogType);
 
         setCurrentDiscogType(discogType);
-        setCurrentPages({ ...currentPages, [discogType]: 1 });
         searchParams.set('discogType', discogType);
         searchParams.delete('page');
         setSearchParams(searchParams);
@@ -230,6 +232,9 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         if (stateVariable) {
             setEntities(stateVariable);
         } else {
+            setCurrentPages({ ...currentPages, [discogType]: 1 });
+            setDisablePreviousButton(true);
+            setDisableNextButton(false);
             getDiscogEntities(searchParams);
         }
     };

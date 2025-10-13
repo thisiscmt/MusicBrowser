@@ -7,9 +7,6 @@ pool:
 variables:
   projectRoot: $(System.DefaultWorkingDirectory)
   pythonVersion: '3.12'
-  azureServiceConnectionId: 'e0b8ce18-604b-466e-87b8-67cfbb5d61e4'
-  webAppName: 'cmt-mb-api'
-  environmentName: 'cmt-mb-api'
 
 jobs:
   - job: Build
