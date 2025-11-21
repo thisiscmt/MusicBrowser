@@ -127,7 +127,7 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
 
         if (initialLoad) {
             setEntities(props.entities);
-//            setAlbums(props.entities);
+            setDisableNextButton(props.entities.length < defaultPageSize);
             setInitialLoad(false);
 
             return;
@@ -143,8 +143,8 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
             if (!discogTypeQueryParam && currentDiscogType) {
                 setCurrentDiscogType(DiscographyType.Album);
                 setEntities(props.entities);
-                setDisablePreviousButton(true);
-                setDisableNextButton(false);
+                setDisablePreviousButton(!pageQueryParam);
+                setDisableNextButton(props.entities.length < defaultPageSize);
 
                 currentPages[DiscographyType.Album] = 1;
             } else if (discogTypeQueryParam) {
@@ -171,14 +171,12 @@ const Discography: FC<DiscographyProps> = (props: DiscographyProps) => {
         if (getData) {
             fetchData();
         }
-    }, [initialLoad, searchParams, getDiscogEntities, currentQueryString, currentDiscogType, currentPages, props.entities]);
+    }, [initialLoad, searchParams, getDiscogEntities, currentQueryString, currentDiscogType, currentPages, defaultPageSize, props.entities]);
 
     const handleChangeDiscogType = async (event: SelectChangeEvent) => {
         const discogType = event.target.value as DiscographyType;
 
         setCurrentPages({ ...currentPages, [discogType]: 1 });
-        setDisablePreviousButton(true);
-        setDisableNextButton(false);
         setCurrentDiscogType(discogType);
 
         searchParams.set('discogType', discogType);
